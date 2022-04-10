@@ -12,7 +12,8 @@ public:
 
 private:
 
-	void makeRegularPolygon(int nsides);
+	void makeRegularPolygon(int nsides, real sideLength);
+	void initShape();
 
 	std::vector<vec2> points;
 	sf::ConvexShape shape;

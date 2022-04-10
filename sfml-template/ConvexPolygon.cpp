@@ -2,21 +2,17 @@
 
 ConvexPolygon::ConvexPolygon()
 {
-	shape.setFillColor(sf::Color::Black);// sf::Color(216, 255, 255)); //sf::Color::Transparent);// 
-	shape.setOutlineColor(sf::Color::Black);
-	shape.setOutlineThickness(2);
+	
 
 	shape.setPosition(100, 100);
 	//shape.setRotation(theta);
 
 	int npoints = 5;
-	makeRegularPolygon(npoints);
+	real sideLength = 50;
 
-	shape.setPointCount(npoints);
-	for (int i = 0; i < npoints; ++i)
-	{
-		shape.setPoint(i, points[i]);
-	}
+	makeRegularPolygon(npoints, sideLength);
+
+	initShape();
 }
 
 void ConvexPolygon::update(real dt)
@@ -32,15 +28,42 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real fraction)
 	window.draw(shape);
 }
 
-void ConvexPolygon::makeRegularPolygon(int nsides)
+void ConvexPolygon::makeRegularPolygon(int nsides, real sideLength)
 {
-	using std::cos, std::sin;
+	// Shouldn't be calling more than once per polygon!
+	assert(points.empty());
 		
-	real r = 50;
+	real theta = 2 * pi / nsides;
+	real r = sideLength / (2 * std::sin(theta / 2));
+	
 
 	for (int i = 0; i < nsides; ++i)
 	{
-		real angle = (2 * i * pi) / nsides;
-		points.push_back({ r * sin(angle), -r * cos(angle) });
+		real angle = i * theta;
+
+		// Ensure bottom edge is horizontal
+		// Bottom-right corner makes angle (90 - theta/2) deg with horizontal
+		angle += pi / 2 - theta / 2;
+
+		vec2 pos = { r * std::cos(angle), r * std::sin(angle) };
+
+		points.push_back(pos);
+	}
+}
+
+void ConvexPolygon::initShape()
+{
+	shape.setFillColor(sf::Color::Transparent);
+	shape.setOutlineColor(sf::Color::Black);
+	shape.setOutlineThickness(2);
+
+
+	auto npoints = points.size();
+
+	shape.setPointCount(npoints);
+
+	for (decltype(npoints) i = 0; i < npoints; ++i)
+	{
+		shape.setPoint(i, points[i]);
 	}
 }

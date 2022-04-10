@@ -7,6 +7,8 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <cmath>
+#include <cassert>
 
 using real = float;
 using vec2 = sf::Vector2<real>;
