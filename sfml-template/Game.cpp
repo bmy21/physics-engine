@@ -15,6 +15,8 @@ Game::Game()
 	window.setFramerateLimit(fpsLimit);
 	window.setMouseCursorVisible(true);
 
+
+	RigidBodies.push_back(std::make_unique<ConvexPolygon>());
 }
 
 
@@ -51,12 +53,21 @@ void Game::run()
 		{
 			// Step simulation forward by dtPhysics seconds 
 
+			for (auto& rb : RigidBodies)
+			{
+				rb->update(dtPhysics);
+			}
+
 			accTime -= dtPhysics;
 		}
 
 		fraction = accTime / dtPhysics;
 
 		// Draw world
+		for (auto& rb : RigidBodies)
+		{
+			rb->draw(window, fraction);
+		}
 
 
 		window.display();

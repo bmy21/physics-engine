@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Utils.h"
-
-using real = float;
-using vec2 = sf::Vector2<real>;
+#include "RigidBody.h"
+#include "ConvexPolygon.h"
 
 class Game
 {
@@ -21,5 +20,6 @@ private:
 	real dtPhysics = 1.0 / 100;
 	real dtMax = 1.0 / 10;
 
+	std::vector<std::unique_ptr<RigidBody>> RigidBodies;
 };
 
