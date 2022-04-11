@@ -1,25 +1,18 @@
 #include "ConvexPolygon.h"
 
-ConvexPolygon::ConvexPolygon()
+
+ConvexPolygon::ConvexPolygon(int npoints, real sideLength):
+	npoints(npoints)
 {
-	pos = { 10, 5 };
-	//shape.setRotation(theta);
+	moveTo({ 1, 7 });
+	rotateTo(10.0 * pi / 180);
 
-	int npoints = 3;
-	real sideLength = 50;
 
-	createRegularPolygon(npoints, sideLength);
+	//omega = 40.0 * pi / 180;
+	//vel = { 7, -7 };
 
+	createRegularPolygon(sideLength);
 	initShape();
-}
-
-ConvexPolygon::ConvexPolygon(int nsides, real sideLength, real pixPerUnit)
-{
-	pos = { 10, 5 };
-
-	createRegularPolygon(nsides, sideLength);
-
-	initShape(pixPerUnit);
 }
 
 void ConvexPolygon::update(real dt)
@@ -29,25 +22,26 @@ void ConvexPolygon::update(real dt)
 
 void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fraction)
 {
-	//shape.setPosition(sf::Vector2f(iPos));
-	//shape.setRotation(iTheta * 180.0 / 3.14159);
+	vec2 ipos = interpolatePos(fraction);
 
-	vec2 scaledPos = pixCoords(pixPerUnit);
-	shape.setPosition(scaledPos);
+	for (int i = 0; i < npoints; ++i)
+	{
+		shape.setPoint(i, (ipos + rotate(points[i], theta)) * pixPerUnit);
+	}
 
 	window.draw(shape);
 }
 
-void ConvexPolygon::createRegularPolygon(int nsides, real sideLength)
+void ConvexPolygon::createRegularPolygon(real sideLength)
 {
 	// Shouldn't be calling more than once per polygon!
 	assert(points.empty());
 		
-	real theta = 2 * pi / nsides;
+	real theta = 2 * pi / npoints;
 	real r = sideLength / (2 * std::sin(theta / 2));
 	
 
-	for (int i = 0; i < nsides; ++i)
+	for (int i = 0; i < npoints; ++i)
 	{
 		real angle = i * theta;
 
@@ -61,19 +55,11 @@ void ConvexPolygon::createRegularPolygon(int nsides, real sideLength)
 	}
 }
 
-void ConvexPolygon::initShape(real pixPerUnit)
+void ConvexPolygon::initShape()
 {
 	shape.setFillColor(sf::Color::Transparent);
 	shape.setOutlineColor(sf::Color::Black);
 	shape.setOutlineThickness(2);
 
-
-	auto npoints = points.size();
-
 	shape.setPointCount(npoints);
-
-	for (decltype(npoints) i = 0; i < npoints; ++i)
-	{
-		shape.setPoint(i, points[i] * pixPerUnit);
-	}
 }

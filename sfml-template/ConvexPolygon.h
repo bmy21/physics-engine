@@ -5,19 +5,18 @@
 class ConvexPolygon : public RigidBody
 {
 public:
-	ConvexPolygon();
-	ConvexPolygon(int nsides, real sideLength, real pixPerUnit);
+	ConvexPolygon(int npoints, real sideLength);
 
 	void update(real dt) override;
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction) override;
 
 private:
 
-	void createRegularPolygon(int nsides, real sideLength);
-	void initShape(real pixPerUnit = 1);
+	void createRegularPolygon(real sideLength);
+	void initShape();
 
+	const int npoints;
 	std::vector<vec2> points;
 	sf::ConvexShape shape;
-
 };
 

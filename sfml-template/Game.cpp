@@ -16,7 +16,12 @@ Game::Game()
 	window.setMouseCursorVisible(true);
 
 
-	RigidBodies.push_back(std::make_unique<ConvexPolygon>(5, 1, pixPerUnit));
+	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(5, 1);
+	rb->grav = 5;
+	RigidBodies.push_back(std::move(rb));
+
+	rb = std::make_unique<ConvexPolygon>(5, 1);
+	RigidBodies.push_back(std::move(rb));
 }
 
 
@@ -55,8 +60,16 @@ void Game::run()
 
 			for (auto& rb : RigidBodies)
 			{
-				rb->update(dtPhysics);
+				rb->integrateVel(dtPhysics);
 			}
+
+			for (auto& rb : RigidBodies)
+			{
+				rb->integratePos(dtPhysics);
+			}
+
+
+			RigidBodies[0]->pos = vec2(sf::Mouse::getPosition(window).x/pixPerUnit, sf::Mouse::getPosition(window).y/pixPerUnit);
 
 			accTime -= dtPhysics;
 		}
