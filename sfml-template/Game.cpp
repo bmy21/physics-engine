@@ -16,7 +16,7 @@ Game::Game()
 	window.setMouseCursorVisible(true);
 
 
-	RigidBodies.push_back(std::make_unique<ConvexPolygon>());
+	RigidBodies.push_back(std::make_unique<ConvexPolygon>(5, 1, pixPerUnit));
 }
 
 
@@ -66,7 +66,7 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, fraction);
+			rb->draw(window, pixPerUnit, fraction);
 		}
 
 

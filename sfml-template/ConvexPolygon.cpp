@@ -2,17 +2,24 @@
 
 ConvexPolygon::ConvexPolygon()
 {
-	
-
-	shape.setPosition(100, 100);
+	pos = { 10, 5 };
 	//shape.setRotation(theta);
 
-	int npoints = 5;
+	int npoints = 3;
 	real sideLength = 50;
 
-	makeRegularPolygon(npoints, sideLength);
+	createRegularPolygon(npoints, sideLength);
 
 	initShape();
+}
+
+ConvexPolygon::ConvexPolygon(int nsides, real sideLength, real pixPerUnit)
+{
+	pos = { 10, 5 };
+
+	createRegularPolygon(nsides, sideLength);
+
+	initShape(pixPerUnit);
 }
 
 void ConvexPolygon::update(real dt)
@@ -20,15 +27,18 @@ void ConvexPolygon::update(real dt)
 
 }
 
-void ConvexPolygon::draw(sf::RenderWindow& window, real fraction)
+void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fraction)
 {
 	//shape.setPosition(sf::Vector2f(iPos));
 	//shape.setRotation(iTheta * 180.0 / 3.14159);
 
+	vec2 scaledPos = pixCoords(pixPerUnit);
+	shape.setPosition(scaledPos);
+
 	window.draw(shape);
 }
 
-void ConvexPolygon::makeRegularPolygon(int nsides, real sideLength)
+void ConvexPolygon::createRegularPolygon(int nsides, real sideLength)
 {
 	// Shouldn't be calling more than once per polygon!
 	assert(points.empty());
@@ -51,7 +61,7 @@ void ConvexPolygon::makeRegularPolygon(int nsides, real sideLength)
 	}
 }
 
-void ConvexPolygon::initShape()
+void ConvexPolygon::initShape(real pixPerUnit)
 {
 	shape.setFillColor(sf::Color::Transparent);
 	shape.setOutlineColor(sf::Color::Black);
@@ -64,6 +74,6 @@ void ConvexPolygon::initShape()
 
 	for (decltype(npoints) i = 0; i < npoints; ++i)
 	{
-		shape.setPoint(i, points[i]);
+		shape.setPoint(i, points[i] * pixPerUnit);
 	}
 }
