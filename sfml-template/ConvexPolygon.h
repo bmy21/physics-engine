@@ -8,7 +8,7 @@ public:
 	ConvexPolygon(int npoints, real sideLength);
 
 	void update(real dt) override;
-	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction) override;
+	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text) override;
 
 private:
 

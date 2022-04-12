@@ -18,6 +18,9 @@ private:
 	sf::RenderWindow window;
 	sf::Clock frameTimer;
 
+	sf::Font font;
+	sf::Text text;
+
 	bool vsync = true;
 	int fpsLimit = 144;
 	real dtPhysics = 1.0 / 100;

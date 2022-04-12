@@ -5,7 +5,6 @@ ConvexPolygon::ConvexPolygon(int npoints, real sideLength):
 	npoints(npoints)
 {
 	moveTo({ 1, 7 });
-	rotateTo(10.0 * pi / 180);
 
 
 	//omega = 40.0 * pi / 180;
@@ -20,13 +19,23 @@ void ConvexPolygon::update(real dt)
 
 }
 
-void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fraction)
+void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr)
 {
 	vec2 ipos = interpolatePos(fraction);
 
 	for (int i = 0; i < npoints; ++i)
 	{
-		shape.setPoint(i, (ipos + rotate(points[i], theta)) * pixPerUnit);
+		vec2 pointCoord = (ipos + rotate(points[i], theta)) * pixPerUnit;
+		shape.setPoint(i, pointCoord);
+	
+		if (debug && text)
+		{
+			text->setString(std::to_string(i));
+			text->setPosition(pointCoord);
+			centre(*text);
+
+			window.draw(*text);
+		}
 	}
 
 	window.draw(shape);
@@ -59,7 +68,7 @@ void ConvexPolygon::initShape()
 {
 	shape.setFillColor(sf::Color::Transparent);
 	shape.setOutlineColor(sf::Color::Black);
-	shape.setOutlineThickness(2);
+	shape.setOutlineThickness(1);
 
 	shape.setPointCount(npoints);
 }

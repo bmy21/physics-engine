@@ -16,3 +16,4 @@ using vec2 = sf::Vector2<real>;
 constexpr real pi = 3.14159265359;
 
 vec2 rotate(const vec2& v, real theta);
+void centre(sf::Text& text);

@@ -15,6 +15,14 @@ Game::Game()
 	window.setFramerateLimit(fpsLimit);
 	window.setMouseCursorVisible(true);
 
+	if (!font.loadFromFile("Fonts/saxmono/saxmono.ttf"))
+	{
+		std::cerr << "Couldn't load font 'Sax Mono'";
+	}
+
+	text.setFont(font);
+	text.setFillColor(sf::Color::Blue);
+
 
 	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(5, 1);
 	rb->grav = 5;
@@ -22,6 +30,7 @@ Game::Game()
 
 	rb = std::make_unique<ConvexPolygon>(5, 1);
 	RigidBodies.push_back(std::move(rb));
+
 }
 
 
@@ -79,7 +88,7 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, pixPerUnit, fraction);
+			rb->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 
