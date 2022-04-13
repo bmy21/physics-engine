@@ -79,7 +79,9 @@ void Game::run()
 			{
 				for (auto it2 = RigidBodies.begin(); it2 != it1; ++it2)
 				{
-					std::cout << ( (*it1)->overlaps(it2->get()) ? "Overlaps" : " ") << "\n";
+					auto result = (*it1)->overlaps(it2->get());
+					std::cout << (result ? "Overlaps" : " ") << "\n";
+
 				}
 			}
 

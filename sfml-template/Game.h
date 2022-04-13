@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "RigidBody.h"
 #include "ConvexPolygon.h"
+#include "ContactConstraint.h"
 
 class Game
 {
@@ -28,5 +29,6 @@ private:
 	
 
 	std::vector<std::unique_ptr<RigidBody>> RigidBodies;
+	std::vector<std::unique_ptr<ContactConstraint>> ContactConstraints;
 };
 

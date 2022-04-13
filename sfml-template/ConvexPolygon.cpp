@@ -59,10 +59,22 @@ bool ConvexPolygon::overlaps(const ConvexPolygon* other) const
 	{
 		return false;
 	}
-
+	
 
 	bool thisIsReference = false;
 	
+	// TODO: check tolerance and include both relative & absolute
+	real tol = 0.01;
+	if (thisPenetration > otherPenetration + tol)
+	{
+		thisIsReference = true;
+		std::cout << "this\n";
+	}
+	else
+	{
+		thisIsReference = false;
+		std::cout << "other\n";
+	}
 	
 	return true;
 }

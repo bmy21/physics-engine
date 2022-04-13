@@ -13,7 +13,7 @@ public:
 	bool overlaps(const RigidBody* other) const override { return other->overlaps(this); } 
 	bool overlaps(const ConvexPolygon* other) const override;
 
-	
+	//findContactPoints(const RigidBody* other, int normalIndex,) const;
 
 	//void SAT(const ConvexPolygon* other);
 
