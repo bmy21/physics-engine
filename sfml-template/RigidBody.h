@@ -2,13 +2,20 @@
 
 #include "Utils.h"
 
+class ConvexPolygon;
+
 class RigidBody
 {
 public:
-	RigidBody();
 
 	virtual void update(real dt) = 0;
-	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) = 0;
+	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, 
+		bool debug = false, sf::Text* text = nullptr) = 0;
+
+	virtual bool overlaps(const RigidBody* other) const = 0;
+	virtual bool overlaps(const ConvexPolygon* other) const = 0;
+
+	//virtual vec2 supportPoint(const vec2& d) const = 0;
 
 	void moveTo(const vec2& p) { pos = posPrev = p; }
 	void rotateTo(real t) { theta = thetaPrev = t; }

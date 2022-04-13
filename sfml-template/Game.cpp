@@ -8,7 +8,7 @@ Game::Game()
 
 	window.create(sf::VideoMode(1920, 1080),
 		"Physics",
-		sf::Style::Default,
+		sf::Style::Close,
 		settings);
 
 	window.setVerticalSyncEnabled(vsync);
@@ -24,11 +24,12 @@ Game::Game()
 	text.setFillColor(sf::Color::Blue);
 
 
-	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(5, 1);
+	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(6, 1);
 	rb->grav = 5;
+	rb->rotateTo(20 * pi / 180);
 	RigidBodies.push_back(std::move(rb));
 
-	rb = std::make_unique<ConvexPolygon>(5, 1);
+	rb = std::make_unique<ConvexPolygon>(7, 1);
 	RigidBodies.push_back(std::move(rb));
 
 }
@@ -72,12 +73,23 @@ void Game::run()
 				rb->integrateVel(dtPhysics);
 			}
 
+
+			// Check for collisions
+			for (auto it1 = RigidBodies.begin(); it1 != RigidBodies.end(); ++it1)
+			{
+				for (auto it2 = RigidBodies.begin(); it2 != it1; ++it2)
+				{
+					std::cout << ( (*it1)->overlaps(it2->get()) ? "Overlaps" : " ") << "\n";
+				}
+			}
+
+
 			for (auto& rb : RigidBodies)
 			{
 				rb->integratePos(dtPhysics);
 			}
 
-
+			// Snap first RB to mouse
 			RigidBodies[0]->pos = vec2(sf::Mouse::getPosition(window).x/pixPerUnit, sf::Mouse::getPosition(window).y/pixPerUnit);
 
 			accTime -= dtPhysics;

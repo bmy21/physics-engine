@@ -1,9 +1,5 @@
 #include "RigidBody.h"
 
-RigidBody::RigidBody()
-{
-
-}
 
 void RigidBody::integrateVel(real dt)
 {
