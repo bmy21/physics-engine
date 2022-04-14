@@ -35,6 +35,11 @@ real magnitude(const vec2& v)
 	return std::sqrt(v.x * v.x + v.y * v.y);
 }
 
+vec2 normalise(const vec2& v)
+{
+	return v / magnitude(v);
+}
+
 void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Color col)
 {
 	sf::Vertex line[] = {

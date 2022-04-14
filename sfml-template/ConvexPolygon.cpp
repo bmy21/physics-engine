@@ -44,39 +44,70 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 	window.draw(shape);
 }
 
-bool ConvexPolygon::overlaps(const ConvexPolygon* other) const
+std::unique_ptr<ContactConstraint> ConvexPolygon::overlaps(ConvexPolygon* other)
 {
 	auto [thisEarlyOut, thisPenetration, thisNormalIndex, thisPointIndex] = this->maxSignedPenetration(*other);
 	
 	if (thisEarlyOut)
 	{
-		return false;
+		return nullptr;
 	}
 
 	auto [otherEarlyOut, otherPenetration, otherNormalIndex, otherPointIndex] = other->maxSignedPenetration(*this);
 
 	if (otherEarlyOut)
 	{
-		return false;
+		return nullptr;
 	}
 	
 
-	bool thisIsReference = false;
+	ConvexPolygon* ref = nullptr;
+	ConvexPolygon* inc = nullptr;
+
+	int incEdgeIndex = -1;
+	int refEdgeIndex = -1;
 	
 	// TODO: check tolerance and include both relative & absolute
 	real tol = 0.01;
 	if (thisPenetration > otherPenetration + tol)
 	{
-		thisIsReference = true;
-		std::cout << "this\n";
+		ref = this;
+		inc = other;
+
+		refEdgeIndex = thisNormalIndex;
+		incEdgeIndex = thisPointIndex;
+		
+		// TODO: write a function edgeDot(i, dir) to simplify this?
+		// TODO: add tolerance?
+		if (std::abs(dot(other->transformedEdge(thisPointIndex), transformedNormal(thisNormalIndex)))
+			> std::abs(dot(other->transformedEdge(other->prevIndex(thisPointIndex)), transformedNormal(thisNormalIndex))))
+		{
+			incEdgeIndex = other->prevIndex(thisPointIndex);
+		}
 	}
 	else
 	{
-		thisIsReference = false;
-		std::cout << "other\n";
+		ref = other;
+		inc = this;
+
+		refEdgeIndex = otherNormalIndex;
+		incEdgeIndex = otherPointIndex;
+
+		// TODO: write a function edgeDot(i) to simplify this?
+		if (std::abs(dot(transformedEdge(otherPointIndex), other->transformedNormal(otherNormalIndex)))
+			> std::abs(dot(transformedEdge(prevIndex(otherPointIndex)), other->transformedNormal(otherNormalIndex))))
+		{
+			incEdgeIndex = prevIndex(otherPointIndex);
+		}
 	}
+
+	//PolyPolyContact contact(ref, inc, refEdgeIndex, incEdgeIndex);
+
+	std::cout << "ref: " << refEdgeIndex << " | inc: " << incEdgeIndex << '\n';
+
+	std::unique_ptr<ContactConstraint> constraint = std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex);
 	
-	return true;
+	return constraint;
 }
 
 
@@ -86,7 +117,7 @@ std::pair<real, int> ConvexPolygon::normalPenetration(int i, const ConvexPolygon
 	vec2 normal = transformedNormal(i);
 	vec2 supportThis = transformedPoint(i);
 	auto [supportPointOther, supportIndexOther] = other.support(-normal);
-	real signedDistance = dot(supportPointOther - supportThis, normal) / magnitude(normal);
+	real signedDistance = dot(supportPointOther - supportThis, normal);
 
 	return std::make_pair(signedDistance, supportIndexOther);
 }
@@ -119,6 +150,17 @@ std::tuple<bool, real, int, int> ConvexPolygon::maxSignedPenetration(const Conve
 	}
 
 	return std::make_tuple(earlyOut, maxPenetration, normalIndex, pointIndex);
+}
+
+
+int ConvexPolygon::nextIndex(int i) const
+{
+	return (i + 1 == npoints) ? 0 : i + 1;
+}
+
+int ConvexPolygon::prevIndex(int i) const
+{
+	return (i == 0) ? npoints - 1 : i - 1;
 }
 
 //void ConvexPolygon::SAT(const ConvexPolygon* other)
@@ -233,7 +275,7 @@ void ConvexPolygon::initEdgesAndNormals()
 		edges.push_back(edge);
 
 		// TODO: Verify that the normal points outwards
-		normals.push_back(perp(edge));
+		normals.push_back(perp(normalise(edge)));
 	}
 	
 }

@@ -79,9 +79,15 @@ void Game::run()
 			{
 				for (auto it2 = RigidBodies.begin(); it2 != it1; ++it2)
 				{
-					auto result = (*it1)->overlaps(it2->get());
+					std::unique_ptr<ContactConstraint> result = (*it1)->overlaps(it2->get());
 					std::cout << (result ? "Overlaps" : " ") << "\n";
 
+					if (result)
+					{
+						ContactConstraints.push_back(std::move(result));
+					}
+
+					//std::cout << "end loop\n";
 				}
 			}
 
@@ -93,6 +99,8 @@ void Game::run()
 
 			// Snap first RB to mouse
 			RigidBodies[0]->pos = vec2(sf::Mouse::getPosition(window).x/pixPerUnit, sf::Mouse::getPosition(window).y/pixPerUnit);
+			
+			
 
 			accTime -= dtPhysics;
 		}
@@ -105,6 +113,13 @@ void Game::run()
 			rb->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
+		for (auto& cc : ContactConstraints)
+		{
+			cc->draw(window, pixPerUnit, fraction);
+		}
+
+		// May not want to do this when warm starting implemented!
+		ContactConstraints.clear();
 
 		window.display();
 	}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RigidBody.h"
+#include "PolyPolyContact.h"
 
 class ConvexPolygon : public RigidBody
 {
@@ -10,8 +11,8 @@ public:
 	void update(real dt) override;
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text) override;
 
-	bool overlaps(const RigidBody* other) const override { return other->overlaps(this); } 
-	bool overlaps(const ConvexPolygon* other) const override;
+	std::unique_ptr<ContactConstraint> overlaps(RigidBody* other) override { return other->overlaps(this); }
+	std::unique_ptr<ContactConstraint> overlaps(ConvexPolygon* other) override;
 
 	//findContactPoints(const RigidBody* other, int normalIndex,) const;
 
@@ -31,9 +32,12 @@ private:
 
 	// Find penetration of other polygon into this polygon along normal i
 	std::pair<real, int> normalPenetration(int i, const ConvexPolygon& other) const;
+
+	// Find maximum signed penetration of other polygon into this polygon along any face normal
 	std::tuple<bool, real, int, int> maxSignedPenetration(const ConvexPolygon& other) const;
 
-	//bool SAT(bool* thisIsRef, int* normalIndex, int* pointIndex, const ConvexPolygon& other) const;
+	int nextIndex(int i) const;
+	int prevIndex(int i) const;
 
 	bool colliding = false;
 

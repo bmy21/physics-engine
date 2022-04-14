@@ -152,6 +152,7 @@
     <ClCompile Include="ConvexPolygon.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PolyPolyContact.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="ContactConstraint.h" />
     <ClInclude Include="ConvexPolygon.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="PolyPolyContact.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
