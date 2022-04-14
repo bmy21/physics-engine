@@ -14,8 +14,8 @@ public:
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, 
 		bool debug = false, sf::Text* text = nullptr) = 0;
 
-	virtual std::unique_ptr<ContactConstraint> overlaps(RigidBody* other) = 0;
-	virtual std::unique_ptr<ContactConstraint> overlaps(ConvexPolygon* other) = 0;
+	virtual std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) = 0;
+	virtual std::unique_ptr<ContactConstraint> checkCollision(ConvexPolygon* other) = 0;
 
 	//virtual vec2 supportPoint(const vec2& d) const = 0;
 

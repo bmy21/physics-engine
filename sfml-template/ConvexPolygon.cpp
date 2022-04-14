@@ -44,18 +44,20 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 	window.draw(shape);
 }
 
-std::unique_ptr<ContactConstraint> ConvexPolygon::overlaps(ConvexPolygon* other)
+std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* other)
 {
-	auto [thisEarlyOut, thisPenetration, thisNormalIndex, thisPointIndex] = this->maxSignedPenetration(*other);
-	
-	if (thisEarlyOut)
+	// Check normal directions of *this
+	auto [earlyOutA, penetrationBtoA, normalIndexA, pointIndexB] = this->maxSignedPenetration(*other);
+
+	if (earlyOutA)
 	{
 		return nullptr;
 	}
 
-	auto [otherEarlyOut, otherPenetration, otherNormalIndex, otherPointIndex] = other->maxSignedPenetration(*this);
+	// Check normal directions of *other
+	auto [earlyOutB, penetrationAtoB, normalIndexB, pointIndexA] = other->maxSignedPenetration(*this);
 
-	if (otherEarlyOut)
+	if (earlyOutB)
 	{
 		return nullptr;
 	}
@@ -64,50 +66,45 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::overlaps(ConvexPolygon* other)
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
 
-	int incEdgeIndex = -1;
+	int incPointIndex = -1;
 	int refEdgeIndex = -1;
 	
 	// TODO: check tolerance and include both relative & absolute
 	real tol = 0.01;
-	if (thisPenetration > otherPenetration + tol)
+	if (penetrationBtoA > penetrationAtoB + tol)
 	{
+		// Penetrations are signed, so here A penetrates into B more than B penetrates into A
+		// i.e. the minimum translation vector points from A to B
 		ref = this;
 		inc = other;
 
-		refEdgeIndex = thisNormalIndex;
-		incEdgeIndex = thisPointIndex;
-		
-		// TODO: write a function edgeDot(i, dir) to simplify this?
-		// TODO: add tolerance?
-		if (std::abs(dot(other->transformedEdge(thisPointIndex), transformedNormal(thisNormalIndex)))
-			> std::abs(dot(other->transformedEdge(other->prevIndex(thisPointIndex)), transformedNormal(thisNormalIndex))))
-		{
-			incEdgeIndex = other->prevIndex(thisPointIndex);
-		}
+		refEdgeIndex = normalIndexA;
+		incPointIndex = pointIndexB;
 	}
 	else
 	{
 		ref = other;
 		inc = this;
 
-		refEdgeIndex = otherNormalIndex;
-		incEdgeIndex = otherPointIndex;
-
-		// TODO: write a function edgeDot(i) to simplify this?
-		if (std::abs(dot(transformedEdge(otherPointIndex), other->transformedNormal(otherNormalIndex)))
-			> std::abs(dot(transformedEdge(prevIndex(otherPointIndex)), other->transformedNormal(otherNormalIndex))))
-		{
-			incEdgeIndex = prevIndex(otherPointIndex);
-		}
+		refEdgeIndex = normalIndexB;
+		incPointIndex = pointIndexA;
 	}
 
-	//PolyPolyContact contact(ref, inc, refEdgeIndex, incEdgeIndex);
-
-	std::cout << "ref: " << refEdgeIndex << " | inc: " << incEdgeIndex << '\n';
-
-	std::unique_ptr<ContactConstraint> constraint = std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex);
+	// The deepest point has index incPointIndex, which is part of both the edge with index incPointIndex
+	// and the previous edge. The incident edge is least well-aligned with the reference normal.
+	vec2 normal = ref->transformedNormal(refEdgeIndex);
+	int incEdgeIndex = incPointIndex;
+	int alternativeEdgeIndex = inc->prevIndex(incPointIndex);
 	
-	return constraint;
+	// TODO: add tolerance?
+	if (inc->absEdgeDot(alternativeEdgeIndex, normal) < inc->absEdgeDot(incPointIndex, normal))
+	{
+		incEdgeIndex = alternativeEdgeIndex;
+	}
+
+	//std::cout << "ref: " << refEdgeIndex << " | inc: " << incEdgeIndex << '\n';
+	
+	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex);
 }
 
 
@@ -115,11 +112,11 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::overlaps(ConvexPolygon* other)
 std::pair<real, int> ConvexPolygon::normalPenetration(int i, const ConvexPolygon& other) const
 {
 	vec2 normal = transformedNormal(i);
-	vec2 supportThis = transformedPoint(i);
+	vec2 supportPointThis = transformedPoint(i);
 	auto [supportPointOther, supportIndexOther] = other.support(-normal);
-	real signedDistance = dot(supportPointOther - supportThis, normal);
+	real signedDistance = dot(supportPointOther - supportPointThis, normal);
 
-	return std::make_pair(signedDistance, supportIndexOther);
+	return {signedDistance, supportIndexOther};
 }
 
 // Returns <early out, max signed penetration, index of normal, index of deepest point> 
@@ -135,21 +132,26 @@ std::tuple<bool, real, int, int> ConvexPolygon::maxSignedPenetration(const Conve
 	{
 		auto [penetration, pindex] = normalPenetration(i, other);
 
+		if (penetration > 0)
+		{
+			earlyOut = true;
+			break;
+		}
+
 		if (penetration > maxPenetration)
 		{
 			maxPenetration = penetration;
 			pointIndex = pindex;
 			normalIndex = i;
 		}
-
-		if (penetration > 0)
-		{
-			earlyOut = true;
-			break;
-		}
 	}
 
-	return std::make_tuple(earlyOut, maxPenetration, normalIndex, pointIndex);
+	return { earlyOut, maxPenetration, normalIndex, pointIndex };
+}
+
+real ConvexPolygon::absEdgeDot(int i, const vec2& d)
+{
+	return std::abs(dot(transformedEdge(i), d));
 }
 
 
@@ -163,42 +165,6 @@ int ConvexPolygon::prevIndex(int i) const
 	return (i == 0) ? npoints - 1 : i - 1;
 }
 
-//void ConvexPolygon::SAT(const ConvexPolygon* other)
-//{
-//	bool overlaps = true;
-//
-//	bool thisIsReference = false;
-//
-//	real maxSignedPenetrationThis = std::numeric_limits<real>::lowest();
-//	int axisMinPenetrationThis = -1;
-//
-//	for (int i = 0; i < npoints; ++i)
-//	{
-//		real signedPenetration = normalPenetration(i, *other);
-//
-//		if (signedPenetration > maxSignedPenetrationThis)
-//		{
-//			maxSignedPenetrationThis = signedPenetration;
-//			axisMinPenetrationThis = i;
-//		}
-//
-//		if (signedPenetration > 0)
-//		{
-//			overlaps = false;
-//		}
-//	}
-//
-//	for (int i = 0; i < other->npoints; ++i)
-//	{
-//		real signedPenetration = other->normalPenetration(i, *this);
-//
-//		if (signedPenetration > 0)
-//		{
-//			overlaps = false;
-//		}
-//	}
-//
-//}
 
 // Return <support point, index>
 std::pair<vec2, int> ConvexPolygon::support(const vec2& d) const
@@ -221,7 +187,7 @@ std::pair<vec2, int> ConvexPolygon::support(const vec2& d) const
 		}
 	}
 
-	return std::make_pair(supportPoint, index);
+	return { supportPoint, index };
 }
 
 vec2 ConvexPolygon::transformedPoint(int i) const
@@ -269,15 +235,13 @@ void ConvexPolygon::initEdgesAndNormals()
 
 	for (int i = 0; i < npoints; ++i)
 	{
-		int next = (i + 1 == npoints) ? 0 : i + 1;
-		vec2 edge = points[next] - points[i];
+		vec2 edge = points[nextIndex(i)] - points[i];
 
 		edges.push_back(edge);
 
 		// TODO: Verify that the normal points outwards
 		normals.push_back(perp(normalise(edge)));
 	}
-	
 }
 
 void ConvexPolygon::initShape()

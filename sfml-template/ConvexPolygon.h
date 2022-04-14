@@ -11,8 +11,8 @@ public:
 	void update(real dt) override;
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text) override;
 
-	std::unique_ptr<ContactConstraint> overlaps(RigidBody* other) override { return other->overlaps(this); }
-	std::unique_ptr<ContactConstraint> overlaps(ConvexPolygon* other) override;
+	std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) override { return other->checkCollision(this); }
+	std::unique_ptr<ContactConstraint> checkCollision(ConvexPolygon* other) override;
 
 	//findContactPoints(const RigidBody* other, int normalIndex,) const;
 
@@ -30,14 +30,16 @@ private:
 	void initEdgesAndNormals();
 	void initShape();
 
+	int nextIndex(int i) const;
+	int prevIndex(int i) const;
+
 	// Find penetration of other polygon into this polygon along normal i
 	std::pair<real, int> normalPenetration(int i, const ConvexPolygon& other) const;
 
 	// Find maximum signed penetration of other polygon into this polygon along any face normal
 	std::tuple<bool, real, int, int> maxSignedPenetration(const ConvexPolygon& other) const;
 
-	int nextIndex(int i) const;
-	int prevIndex(int i) const;
+	real absEdgeDot(int i, const vec2& d);
 
 	bool colliding = false;
 
