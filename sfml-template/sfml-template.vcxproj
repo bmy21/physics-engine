@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ContactConstraint.cpp" />
+    <ClCompile Include="ContactPoint.cpp" />
     <ClCompile Include="ConvexPolygon.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
@@ -158,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContactConstraint.h" />
+    <ClInclude Include="ContactPoint.h" />
     <ClInclude Include="ConvexPolygon.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="PolyPolyContact.h" />

@@ -27,4 +27,16 @@ vec2 normalise(const vec2& v);
 
 void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Color col);
 
-std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2);
+enum class ClipType
+{
+	None,
+	First,
+	Second,
+	Both
+};
+
+// TODO: Thick planes?
+std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2, int& nclips);
+std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2, ClipType& type);
+
+//int clip(const vec2& dir, const vec2& ref, std::vector<vec2>& points);

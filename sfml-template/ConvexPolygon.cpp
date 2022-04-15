@@ -70,7 +70,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	int refEdgeIndex = -1;
 	
 	// TODO: check tolerance and include both relative & absolute
-	real tol = 0.01;
+	real tol = 1e-4;// 0.01;
 	if (penetrationBtoA > penetrationAtoB + tol)
 	{
 		// Penetrations are signed, so here A penetrates into B more than B penetrates into A
@@ -102,9 +102,11 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 		incEdgeIndex = alternativeEdgeIndex;
 	}
 
+	std::cout << penetrationAtoB << " " << penetrationBtoA << "\n";
+
 	//std::cout << "ref: " << refEdgeIndex << " | inc: " << incEdgeIndex << '\n';
 	
-	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex);
+	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex, incPointIndex);
 }
 
 

@@ -12,7 +12,7 @@ public:
 	void run();
 
 	// 1 Physics unit = pixPerUnit pixels
-	const real pixPerUnit = 100;
+	const real pixPerUnit = 120;
 
 private:
 

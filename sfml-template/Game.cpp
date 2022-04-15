@@ -24,12 +24,12 @@ Game::Game()
 	text.setFillColor(sf::Color::Blue);
 
 
-	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(6, 1.2);
+	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(6, 2.2);
 	rb->grav = 5;
 	//rb->rotateTo(20 * pi / 180);
 	RigidBodies.push_back(std::move(rb));
 
-	rb = std::make_unique<ConvexPolygon>(7, 1);
+	rb = std::make_unique<ConvexPolygon>(6, 2);
 	rb->moveTo({1920/(2*pixPerUnit), 1080/(2*pixPerUnit)});
 	RigidBodies.push_back(std::move(rb));
 
@@ -111,7 +111,7 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, pixPerUnit, fraction, true, &text);
+			rb->draw(window, pixPerUnit, fraction, false, &text);
 		}
 
 		for (auto& cc : ContactConstraints)
