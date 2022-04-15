@@ -13,8 +13,6 @@ public:
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction) = 0;
 
 private:
-	//RigidBody* ref = nullptr;
-	//RigidBody* inc = nullptr;
 
 };
 

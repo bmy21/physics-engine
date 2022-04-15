@@ -24,12 +24,13 @@ Game::Game()
 	text.setFillColor(sf::Color::Blue);
 
 
-	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(6, 1);
+	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(6, 1.2);
 	rb->grav = 5;
-	rb->rotateTo(20 * pi / 180);
+	//rb->rotateTo(20 * pi / 180);
 	RigidBodies.push_back(std::move(rb));
 
 	rb = std::make_unique<ConvexPolygon>(7, 1);
+	rb->moveTo({1920/(2*pixPerUnit), 1080/(2*pixPerUnit)});
 	RigidBodies.push_back(std::move(rb));
 
 }

@@ -248,7 +248,7 @@ void ConvexPolygon::initShape()
 {
 	shape.setFillColor(sf::Color::Transparent);
 	shape.setOutlineColor(sf::Color::Black);
-	shape.setOutlineThickness(-1);
+	shape.setOutlineThickness(-2);
 
 	shape.setPointCount(npoints);
 }

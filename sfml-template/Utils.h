@@ -26,3 +26,5 @@ real magnitude(const vec2& v);
 vec2 normalise(const vec2& v);
 
 void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Color col);
+
+std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2);

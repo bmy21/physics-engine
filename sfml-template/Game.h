@@ -24,7 +24,7 @@ private:
 
 	bool vsync = true;
 	int fpsLimit = 144;
-	real dtPhysics = 1.0 / 100;
+	real dtPhysics = 1.0 / 200;
 	real dtMax = 1.0 / 10;
 	
 
