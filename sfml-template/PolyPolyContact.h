@@ -20,7 +20,6 @@ private:
 	int ncp = -1;
 	int refEdgeIndex = -1;
 	int incEdgeIndex = -1;
-	int incPointIndex = -1;
 
 	std::vector<ContactPoint> contactPoints;
 };

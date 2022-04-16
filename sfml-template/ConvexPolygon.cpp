@@ -33,6 +33,8 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 	
 		if (debug && text)
 		{
+			text->setCharacterSize(30);
+			text->setFillColor(sf::Color::Blue);
 			text->setString(std::to_string(i));
 			text->setPosition(pointCoord);
 			centre(*text);

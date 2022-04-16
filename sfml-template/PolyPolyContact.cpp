@@ -28,11 +28,13 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	if (type1 == ClipType::First)
 	{
-		cp1.clippedAgainst = refEdgeIndex;
+		cp1.clippedAgainstEdge = refEdgeIndex;
+		cp1.clippedAgainstPoint = refEdgeIndex;
 	}
 	else if (type1 == ClipType::Second)
 	{
-		cp2.clippedAgainst = refEdgeIndex;
+		cp2.clippedAgainstEdge = refEdgeIndex;
+		cp2.clippedAgainstPoint = refEdgeIndex;
 	}
 	
 
@@ -46,11 +48,13 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	if (type2 == ClipType::First)
 	{
-		cp1.clippedAgainst = ref->nextIndex(refEdgeIndex);
+		cp1.clippedAgainstEdge = refEdgeIndex;
+		cp1.clippedAgainstPoint = ref->nextIndex(refEdgeIndex);
 	}
 	else if (type2 == ClipType::Second)
 	{
-		cp2.clippedAgainst = ref->nextIndex(refEdgeIndex);
+		cp2.clippedAgainstEdge = refEdgeIndex;
+		cp2.clippedAgainstPoint = ref->nextIndex(refEdgeIndex);
 	}
 	
 	
@@ -72,7 +76,11 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	ncp = contactPoints.size();
 	assert(ncp == 1 || ncp == 2);
 
-	// TODO: Project contact points onto the reference edge?
+	// Project contact points onto the reference edge
+	for (auto& cp : contactPoints)
+	{
+		cp.point -= cp.penetration * normal;
+	}
 }
 
 PolyPolyContact::~PolyPolyContact()
@@ -113,7 +121,11 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 
 		if (debug && text)
 		{
-			text->setString(std::to_string(cp.pointIndex) + " " + std::to_string(cp.clippedAgainst));
+			text->setCharacterSize(40);
+			text->setFillColor(sf::Color::Magenta);
+
+			text->setString("\n\n" + cp.idAsString());
+
 			text->setPosition(cp.point*pixPerUnit);
 			centre(*text);
 

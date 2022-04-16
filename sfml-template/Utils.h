@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cmath>
 #include <cassert>
+#include <sstream>
 
 
 using real = float;

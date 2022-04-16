@@ -3,6 +3,9 @@
 #include "RigidBody.h"
 #include "PolyPolyContact.h"
 
+
+// TODO: add Edge & Vertex classes?
+
 class ConvexPolygon : public RigidBody
 {
 public:

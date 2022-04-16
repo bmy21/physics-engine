@@ -104,6 +104,7 @@ std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, con
 
 std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2, ClipType& type)
 {
+	//TODO: don't return a vector of vec2s, just the clipped point & outcome?
 	vec2 inner = point1;
 	vec2 outer = point2;
 
