@@ -24,9 +24,10 @@ real dot(const vec2& v1, const vec2& v2);
 vec2 perp(const vec2& v);
 vec2 transform(const vec2& v, const vec2& offset, real angle);
 real magnitude(const vec2& v);
-vec2 normalise(const vec2& v);
-
+vec2 normalise(const vec2& v); 
+real zcross(const vec2& v, const vec2& w);
 void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Color col);
+void drawThickLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, real width, sf::Color col);
 
 enum class ClipType
 {
@@ -40,5 +41,3 @@ enum class ClipType
 // TODO: Thick planes?
 std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2, int& nclips);
 std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2, ClipType& type);
-
-//int clip(const vec2& dir, const vec2& ref, std::vector<vec2>& points);

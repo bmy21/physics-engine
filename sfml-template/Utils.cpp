@@ -40,6 +40,11 @@ vec2 normalise(const vec2& v)
 	return v / magnitude(v);
 }
 
+real zcross(const vec2& v, const vec2& w)
+{
+	return v.x * w.y - v.y * w.x;
+}
+
 void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Color col)
 {
 	sf::Vertex line[] = {
@@ -48,6 +53,19 @@ void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Colo
 	};
 
 	window.draw(line, 2, sf::Lines);
+}
+
+void drawThickLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, real width, sf::Color col)
+{
+	static sf::RectangleShape shape;
+
+	shape.setOrigin(0, width / 2);
+	shape.setPosition(p1);
+	shape.setSize({ magnitude(p2 - p1), width });
+	shape.setRotation(std::atan2(p2.y - p1.y, p2.x - p1.x) * 180 / pi);
+	shape.setFillColor(col);
+
+	window.draw(shape);
 }
 
 // Clip the line segment from point1 to point2 in direction dir using the edge defined by ref

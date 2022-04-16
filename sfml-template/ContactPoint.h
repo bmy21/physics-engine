@@ -15,8 +15,6 @@ public:
 	int clippedAgainstEdge = -1;
 	int clippedAgainstPoint = -1;
 
-	
-
 private:
 
 };

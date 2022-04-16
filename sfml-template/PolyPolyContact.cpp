@@ -81,6 +81,13 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	{
 		cp.point -= cp.penetration * normal;
 	}
+
+
+
+	/*for (int i = 0; i < ncp; ++i)
+	{
+		rebuildPoint(i);
+	}*/
 }
 
 PolyPolyContact::~PolyPolyContact()
@@ -100,19 +107,17 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 {
 	vec2 refPoint1 = ref->transformedPoint(refEdgeIndex) * pixPerUnit;
 	vec2 refPoint2 = refPoint1 + ref->transformedEdge(refEdgeIndex) * pixPerUnit;
-	drawLine(window, refPoint1, refPoint2, sf::Color::Red);
+	drawThickLine(window, refPoint1, refPoint2, 3, sf::Color::Red);
 	
 	vec2 incPoint1 = inc->transformedPoint(incEdgeIndex) * pixPerUnit;
 	vec2 incPoint2 = incPoint1 + inc->transformedEdge(incEdgeIndex) * pixPerUnit;
-	drawLine(window, incPoint1, incPoint2, sf::Color::Green);
+	drawThickLine(window, incPoint1, incPoint2, 3, sf::Color::Green);
 
 
-	real rad = 3;
+	real rad = 5;
 	sf::CircleShape circle(rad);
 	circle.setOrigin(rad, rad);
-	circle.setFillColor(sf::Color::Black);
-	circle.setOutlineColor(sf::Color::Black);
-	circle.setOutlineThickness(-1);
+	circle.setFillColor(sf::Color::Magenta);
 
 	for (const auto& cp : contactPoints)
 	{
@@ -132,4 +137,36 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 			window.draw(*text);
 		}
 	}
+}
+
+void PolyPolyContact::rebuildPoint(int i)
+{
+	ContactPoint& cp = contactPoints[i];
+
+	vec2 normal = ref->transformedNormal(refEdgeIndex);
+	vec2 refPoint = ref->transformedPoint(refEdgeIndex);
+
+	if (cp.clippedAgainstEdge == -1)
+	{
+		// Wasn't clipped
+		cp.point = inc->transformedPoint(cp.pointIndex);
+	}
+	else
+	{
+		// Find the point where the incident edge crosses the clip plane
+		vec2 p = inc->transformedEdge(incEdgeIndex);
+		vec2 q = normal;
+
+		vec2 a = inc->transformedPoint(cp.pointIndex);
+		vec2 b = ref->transformedPoint(cp.clippedAgainstPoint);
+
+		// TODO: Can we do this with dot products?
+		vec2 intersect = a + p * zcross(q, b - a) / zcross(q, p);
+		cp.point = intersect;
+	}
+
+	cp.penetration = dot(cp.point - refPoint, normal);
+
+	// Project onto reference edge
+	cp.point -= cp.penetration * normal;
 }

@@ -13,6 +13,8 @@ public:
 	void correctPos() override;
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) override;
 
+	void rebuildPoint(int i);
+
 private:
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;

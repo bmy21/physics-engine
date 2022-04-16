@@ -104,7 +104,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 		incEdgeIndex = alternativeEdgeIndex;
 	}
 
-	std::cout << penetrationAtoB << " " << penetrationBtoA << "\n";
+	//std::cout << penetrationAtoB << " " << penetrationBtoA << "\n";
 
 	//std::cout << "ref: " << refEdgeIndex << " | inc: " << incEdgeIndex << '\n';
 	
