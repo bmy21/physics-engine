@@ -32,7 +32,8 @@ enum class ClipType
 	None,
 	First,
 	Second,
-	Both
+	Both,
+	Invalid
 };
 
 // TODO: Thick planes?

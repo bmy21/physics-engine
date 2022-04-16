@@ -24,14 +24,15 @@ public:
 	vec2 transformedEdge(int i) const;
 	vec2 transformedNormal(int i) const;
 
+	int nextIndex(int i) const;
+	int prevIndex(int i) const;
+
 private:
 
 	void createRegularPolygon(real sideLength);
 	void initEdgesAndNormals();
 	void initShape();
 
-	int nextIndex(int i) const;
-	int prevIndex(int i) const;
 
 	// Find penetration of other polygon into this polygon along normal i
 	std::pair<real, int> normalPenetration(int i, const ConvexPolygon& other) const;

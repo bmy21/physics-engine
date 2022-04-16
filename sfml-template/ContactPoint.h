@@ -15,8 +15,8 @@ public:
 	real penetration = 0;
 
 	//FeatureType typeA, typeB;
-	int indexA = -1, indexB = -1;
-	int clippedA = -1, clippedB = -1;
+	int pointIndex = -1;
+	int clippedAgainst = -1;
 
 private:
 

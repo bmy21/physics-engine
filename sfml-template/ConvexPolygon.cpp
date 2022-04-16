@@ -20,7 +20,7 @@ void ConvexPolygon::update(real dt)
 
 }
 
-void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr)
+void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
 {
 	vec2 ipos = interpolatePos(fraction);
 	real itheta = interpolateTheta(fraction);
@@ -106,7 +106,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 	//std::cout << "ref: " << refEdgeIndex << " | inc: " << incEdgeIndex << '\n';
 	
-	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex, incPointIndex);
+	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex);
 }
 
 

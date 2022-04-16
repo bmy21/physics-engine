@@ -1,11 +1,10 @@
 #include "PolyPolyContact.h"
 
-PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex, int incPointIndex):
+PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex):
 	ref(ref),
 	inc(inc),
 	refEdgeIndex(refEdgeIndex),
-	incEdgeIndex(incEdgeIndex),
-	incPointIndex(incPointIndex)
+	incEdgeIndex(incEdgeIndex)
 {
 	vec2 refEdge = ref->transformedEdge(refEdgeIndex);
 	vec2 refPoint1 = ref->transformedPoint(refEdgeIndex);
@@ -15,55 +14,63 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	vec2 incPoint1 = inc->transformedPoint(incEdgeIndex);
 	vec2 incPoint2 = incPoint1 + incEdge;
 
+	ContactPoint cp1, cp2;
+	cp1.pointIndex = incEdgeIndex;
+	cp2.pointIndex = inc->nextIndex(incEdgeIndex);
+
 	// Clip incident edge against first side of reference edge
-	int nclips1 = -1, nclips2 = -1;
-	auto cpCoords = clip(-refEdge, refPoint1, incPoint1, incPoint2, nclips1);
-	assert(nclips1 == 0 || nclips1 == 1);
+	ClipType type1 = ClipType::Invalid;
+	auto cpCoords = clip(-refEdge, refPoint1, incPoint1, incPoint2, type1);
+
+	assert(type1 == ClipType::First
+		|| type1 == ClipType::Second
+		|| type1 == ClipType::None);
+
+	if (type1 == ClipType::First)
+	{
+		cp1.clippedAgainst = refEdgeIndex;
+	}
+	else if (type1 == ClipType::Second)
+	{
+		cp2.clippedAgainst = refEdgeIndex;
+	}
+	
 
 	// Clip again against other side edge
-	if (true) // nclips1 == 0)
+	ClipType type2 = ClipType::Invalid;
+	cpCoords = clip(refEdge, refPoint2, cpCoords[0], cpCoords[1], type2);
+
+	assert(type2 == ClipType::First
+		|| type2 == ClipType::Second
+		|| type2 == ClipType::None);
+
+	if (type2 == ClipType::First)
 	{
-		cpCoords = clip(refEdge, refPoint2, cpCoords[0], cpCoords[1], nclips2);
-		assert(nclips2 == 0 || nclips2 == 1);
+		cp1.clippedAgainst = ref->nextIndex(refEdgeIndex);
 	}
+	else if (type2 == ClipType::Second)
+	{
+		cp2.clippedAgainst = ref->nextIndex(refEdgeIndex);
+	}
+	
 	
 	vec2 normal = ref->transformedNormal(refEdgeIndex);
 
-	for (auto it = cpCoords.begin(); it != cpCoords.end(); ++it)
+	if (dot(cpCoords[0] - refPoint1, normal) <= 0)
 	{
-		real penetration = dot(*it - refPoint1, normal);
-
-		if (penetration <= 0)
-		{
-			ContactPoint cp;
-			cp.penetration = penetration;
-			cp.point = *it;
-			contactPoints.push_back(cp);
-		}
+		cp1.penetration = dot(cpCoords[0] - refPoint1, normal);
+		cp1.point = cpCoords[0];
+		contactPoints.push_back(cp1);
+	}
+	if (dot(cpCoords[1] - refPoint1, normal) <= 0)
+	{
+		cp2.penetration = dot(cpCoords[1] - refPoint1, normal);
+		cp2.point = cpCoords[1];
+		contactPoints.push_back(cp2);
 	}
 
 	ncp = contactPoints.size();
 	assert(ncp == 1 || ncp == 2);
-
-	/*if (ncp == 1)
-	{
-		auto& cp = contactPoints[0];
-
-		cp.typeA = FeatureType::Edge;
-		cp.indexA = refEdgeIndex;
-
-		cp.typeB = FeatureType::Point;
-		cp.indexB = incPointIndex;
-	}
-	else
-	{
-		if (nclips1 == 0 && nclips2 == 0)
-		{
-
-		}
-	}*/
-
-
 
 	// TODO: Project contact points onto the reference edge?
 }
@@ -81,7 +88,7 @@ void PolyPolyContact::correctPos()
 {
 }
 
-void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction)
+void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
 {
 	vec2 refPoint1 = ref->transformedPoint(refEdgeIndex) * pixPerUnit;
 	vec2 refPoint2 = refPoint1 + ref->transformedEdge(refEdgeIndex) * pixPerUnit;
@@ -92,7 +99,7 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 	drawLine(window, incPoint1, incPoint2, sf::Color::Green);
 
 
-	real rad = 7;
+	real rad = 3;
 	sf::CircleShape circle(rad);
 	circle.setOrigin(rad, rad);
 	circle.setFillColor(sf::Color::Black);
@@ -103,5 +110,14 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 	{
 		circle.setPosition(cp.point.x*pixPerUnit, cp.point.y*pixPerUnit);
 		window.draw(circle);
+
+		if (debug && text)
+		{
+			text->setString(std::to_string(cp.pointIndex) + " " + std::to_string(cp.clippedAgainst));
+			text->setPosition(cp.point*pixPerUnit);
+			centre(*text);
+
+			window.draw(*text);
+		}
 	}
 }

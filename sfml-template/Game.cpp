@@ -29,10 +29,9 @@ Game::Game()
 	//rb->rotateTo(20 * pi / 180);
 	RigidBodies.push_back(std::move(rb));
 
-	rb = std::make_unique<ConvexPolygon>(6, 2);
+	rb = std::make_unique<ConvexPolygon>(7, 2);
 	rb->moveTo({1920/(2*pixPerUnit), 1080/(2*pixPerUnit)});
 	RigidBodies.push_back(std::move(rb));
-
 }
 
 
@@ -111,12 +110,12 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, pixPerUnit, fraction, false, &text);
+			rb->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		for (auto& cc : ContactConstraints)
 		{
-			cc->draw(window, pixPerUnit, fraction);
+			cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		// May not want to do this when warm starting implemented!

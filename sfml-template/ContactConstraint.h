@@ -10,7 +10,7 @@ public:
 
 	virtual void correctVel() = 0;
 	virtual void correctPos() = 0;
-	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction) = 0;
+	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) = 0;
 
 private:
 
