@@ -22,7 +22,7 @@ void ConvexPolygon::update(real dt)
 void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
 {
 	vec2 ipos = interpolatePos(fraction);
-	real itheta = interpolateTheta(fraction);
+	real itheta = interpolateAngle(fraction);
 
 	for (int i = 0; i < npoints; ++i)
 	{
@@ -110,7 +110,7 @@ void ConvexPolygon::onMove()
 {
 	for (int i = 0; i < npoints; ++i)
 	{
-		vertices[i].recompute(pos, theta);
+		vertices[i].recompute(position(), angle());
 	}
 }
 
@@ -118,8 +118,8 @@ void ConvexPolygon::onRotate()
 {
 	for (int i = 0; i < npoints; ++i)
 	{
-		vertices[i].recompute(pos, theta);
-		edges[i].recompute(theta);
+		vertices[i].recompute(position(), angle());
+		edges[i].recompute(angle());
 	}
 }
 

@@ -14,6 +14,8 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	vec2 incPoint1 = inc->vertex(incEdgeIndex);
 	vec2 incPoint2 = incPoint1 + incEdge;
 
+	//TODO: Make the clipping code more concise?
+
 	ContactPoint cp1, cp2;
 	cp1.pointIndex = incEdgeIndex;
 	cp2.pointIndex = inc->nextIndex(incEdgeIndex);
@@ -66,6 +68,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 		cp1.point = cpCoords[0];
 		contactPoints.push_back(cp1);
 	}
+
 	if (dot(cpCoords[1] - refPoint1, normal) <= 0)
 	{
 		cp2.penetration = dot(cpCoords[1] - refPoint1, normal);
@@ -80,15 +83,12 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	for (auto& cp : contactPoints)
 	{
 		cp.point -= cp.penetration * normal;
-		
 	}
 
-
-
-	for (int i = 0; i < ncp; ++i)
-	{
-		rebuildPoint(i);
-	}
+	//for (int i = 0; i < ncp; ++i)
+	//{
+	//	rebuildPoint(i);
+	//}
 }
 
 PolyPolyContact::~PolyPolyContact()

@@ -48,7 +48,7 @@ vec2 RigidBody::interpolatePos(real fraction) const
 	return (1 - fraction) * posPrev + fraction * pos;
 }
 
-real RigidBody::interpolateTheta(real fraction) const
+real RigidBody::interpolateAngle(real fraction) const
 {
 	vec2 dir = { std::cos(theta), std::sin(theta) };
 	vec2 dirPrev = { std::cos(thetaPrev), std::sin(thetaPrev) };

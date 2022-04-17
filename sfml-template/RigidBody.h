@@ -28,20 +28,21 @@ public:
 	void integratePos(real dt);
 
 	vec2 interpolatePos(real fraction) const;
-	real interpolateTheta(real fraction) const;
+	real interpolateAngle(real fraction) const;
 
 	real angle() const { return theta; }
 	vec2 position() const { return pos; }
 
 
 	// TODO: make these private
-	vec2 pos, vel, acc;
-	real theta = 0, omega = 0, alpha = 0;
-
 	real mInv = 0, IInv = 0;
 	real grav = 0;
 
 private:
+
+	vec2 pos, vel, acc;
+	real theta = 0, omega = 0, alpha = 0;
+
 	vec2 posPrev;
 	real thetaPrev = 0;
 
