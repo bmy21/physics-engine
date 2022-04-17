@@ -93,7 +93,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 PolyPolyContact::~PolyPolyContact()
 {
-	std::cout << "~PolyPolyContact()\n";
+	//std::cout << "~PolyPolyContact()\n";
 }
 
 void PolyPolyContact::correctVel()
@@ -137,6 +137,37 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 
 			window.draw(*text);
 		}
+	}
+}
+
+bool PolyPolyContact::matches(const PolyPolyContact* other) const
+{
+	if (ref != other->ref || inc != other->inc || ncp != other->ncp)
+	{
+		return false;
+	}
+
+	const auto& cp = contactPoints;
+	const auto& cpOther = other->contactPoints;
+
+	assert(ncp == 1 || ncp == 2);
+	
+	if (ncp == 1)
+	{
+		return cp[0].matches(cpOther[0]);
+	}
+	else if (ncp == 2)
+	{
+		return ((cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]))
+				|| (cp[0].matches(cpOther[1]) && cp[1].matches(cpOther[0])));
+	}
+}
+
+void PolyPolyContact::rebuild()
+{
+	for (int i = 0; i < ncp; ++i)
+	{
+		rebuildPoint(i);
 	}
 }
 

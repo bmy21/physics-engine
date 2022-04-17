@@ -74,6 +74,15 @@ void Game::run()
 			}
 
 
+			for (auto& rb : RigidBodies)
+			{
+				rb->integratePos(dtPhysics);
+			}
+
+			// Snap first RB to mouse
+			RigidBodies[0]->moveTo(vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit));
+
+
 			// Check for collisions
 			for (auto it1 = RigidBodies.begin(); it1 != RigidBodies.end(); ++it1)
 			{
@@ -84,23 +93,69 @@ void Game::run()
 
 					if (result)
 					{
-						ContactConstraints.push_back(std::move(result));
+						//ContactConstraints.push_back(std::move(result));
+						NewContactConstraints.push_back(std::move(result));
 					}
+				}
+			}
 
-					//std::cout << "end loop\n";
+			
+			// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
+			for (auto it = ContactConstraints.begin(); it != ContactConstraints.end(); )
+			{
+				bool matched = false;
+
+				for (auto newIt = NewContactConstraints.begin(); newIt != NewContactConstraints.end(); ++newIt)
+				{
+					if ((*newIt)->matches(it->get()))
+					{
+						++(*it)->numPersist;
+						(*it)->rebuild();
+						matched = true;
+
+						NewContactConstraints.erase(newIt);
+						break;
+					}
+				}
+
+				if (matched)
+				{
+					++it;
+				}
+				else
+				{
+					it = ContactConstraints.erase(it);
 				}
 			}
 
 
-			for (auto& rb : RigidBodies)
+			// TODO: Use move_iterator?
+			for (auto newIt = NewContactConstraints.begin(); newIt != NewContactConstraints.end(); )
 			{
-				rb->integratePos(dtPhysics);
+				ContactConstraints.push_back(std::move(*newIt));
+				newIt = NewContactConstraints.erase(newIt);
 			}
 
-			// Snap first RB to mouse
-			RigidBodies[0]->moveTo(vec2(sf::Mouse::getPosition(window).x/pixPerUnit, sf::Mouse::getPosition(window).y/pixPerUnit));
+			/*
+			for each existing contact:
+
+				for each new contact:
+
+					if new matches existing (mostly fast!):
+						rebuild existing contact & increment persist count
+						remove this new contact
+
+
+				if this existing contact didn't match any new contact:
+					remove this existing contact
 			
+			for each remaining new contact:
+				move into existing contact vector
+			*/
 			
+			//NewContactConstraints.clear();
+
+			std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
 
 			accTime -= dtPhysics;
 		}
@@ -119,7 +174,7 @@ void Game::run()
 		}
 
 		// May not want to do this when warm starting implemented!
-		ContactConstraints.clear();
+		// ContactConstraints.clear();
 
 		window.display();
 	}

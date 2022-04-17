@@ -13,11 +13,16 @@ public:
 	void correctPos() override;
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) override;
 
-	void rebuildPoint(int i);
+	bool matches(const ContactConstraint* other) const override { return other->matches(this); }
+	bool matches(const PolyPolyContact* other) const override;
+
+	void rebuild() override;
 
 private:
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
+
+	void rebuildPoint(int i);
 
 	int ncp = -1;
 	int refEdgeIndex = -1;

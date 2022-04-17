@@ -28,7 +28,9 @@ private:
 	real dtMax = 1.0 / 10;
 	
 
+	// TODO: Capitalisation style?
 	std::vector<std::unique_ptr<RigidBody>> RigidBodies;
 	std::vector<std::unique_ptr<ContactConstraint>> ContactConstraints;
+	std::vector<std::unique_ptr<ContactConstraint>> NewContactConstraints;
 };
 
