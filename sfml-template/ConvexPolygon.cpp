@@ -4,15 +4,14 @@
 ConvexPolygon::ConvexPolygon(int npoints, real sideLength):
 	npoints(npoints)
 {
-	moveTo({ 2, 7 });
-
-
 	//omega = 40.0 * pi / 180;
 	//vel = { 7, -7 };
 
 	createRegularPolygon(sideLength);
 	initEdgesAndNormals();
 	initShape();
+
+	moveTo({ 2, 7 });
 }
 
 void ConvexPolygon::update(real dt)
@@ -27,7 +26,7 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 
 	for (int i = 0; i < npoints; ++i)
 	{
-		sf::Vector2f pointCoord = sf::Vector2f(transform(points[i], ipos, itheta) * pixPerUnit);
+		sf::Vector2f pointCoord = sf::Vector2f(vertices[i].global()) * pixPerUnit;
 
 		shape.setPoint(i, pointCoord);
 	
@@ -72,7 +71,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	int refEdgeIndex = -1;
 	
 	// TODO: check tolerance and include both relative & absolute
-	real tol = 1e-4;// 0.01;
+	real tol = 1e-4; // 0.01;
 	if (penetrationBtoA > penetrationAtoB + tol)
 	{
 		// Penetrations are signed, so here A penetrates into B more than B penetrates into A
@@ -94,7 +93,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 	// The deepest point has index incPointIndex, which is part of both the edge with index incPointIndex
 	// and the previous edge. The incident edge is least well-aligned with the reference normal.
-	vec2 normal = ref->transformedNormal(refEdgeIndex);
+	vec2 normal = ref->edges[refEdgeIndex].normal();
 	int incEdgeIndex = incPointIndex;
 	int alternativeEdgeIndex = inc->prevIndex(incPointIndex);
 	
@@ -103,24 +102,38 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	{
 		incEdgeIndex = alternativeEdgeIndex;
 	}
-
-	//std::cout << penetrationAtoB << " " << penetrationBtoA << "\n";
-
-	//std::cout << "ref: " << refEdgeIndex << " | inc: " << incEdgeIndex << '\n';
 	
 	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex);
+}
+
+void ConvexPolygon::onMove()
+{
+	for (int i = 0; i < npoints; ++i)
+	{
+		vertices[i].recompute(pos, theta);
+	}
+}
+
+void ConvexPolygon::onRotate()
+{
+	for (int i = 0; i < npoints; ++i)
+	{
+		vertices[i].recompute(pos, theta);
+		edges[i].recompute(theta);
+	}
 }
 
 
 // Returns <signed penetration, index of deepest point> 
 std::pair<real, int> ConvexPolygon::normalPenetration(int i, const ConvexPolygon& other) const
 {
-	vec2 normal = transformedNormal(i);
-	vec2 supportPointThis = transformedPoint(i);
-	auto [supportPointOther, supportIndexOther] = other.support(-normal);
-	real signedDistance = dot(supportPointOther - supportPointThis, normal);
+	vec2 normal = edges[i].normal();
 
-	return {signedDistance, supportIndexOther};
+	Vertex supportPointThis = vertices[i];
+	Vertex supportPointOther = other.support(-normal);
+	real signedDistance = dot(supportPointOther.global() - supportPointThis.global(), normal);
+
+	return {signedDistance, supportPointOther.index()};
 }
 
 // Returns <early out, max signed penetration, index of normal, index of deepest point> 
@@ -153,9 +166,9 @@ std::tuple<bool, real, int, int> ConvexPolygon::maxSignedPenetration(const Conve
 	return { earlyOut, maxPenetration, normalIndex, pointIndex };
 }
 
-real ConvexPolygon::absEdgeDot(int i, const vec2& d)
+real ConvexPolygon::absEdgeDot(int i, const vec2& d) const
 {
-	return std::abs(dot(transformedEdge(i), d));
+	return std::abs(dot(edges[i].global(), d));
 }
 
 
@@ -170,81 +183,54 @@ int ConvexPolygon::prevIndex(int i) const
 }
 
 
-// Return <support point, index>
-std::pair<vec2, int> ConvexPolygon::support(const vec2& d) const
+Vertex ConvexPolygon::support(const vec2& d) const
 {
 	real largestDot = std::numeric_limits<real>::lowest();
 
-	vec2 supportPoint;
 	int index = -1;
-	
 	for (int i = 0; i < npoints; ++i)
 	{
-		vec2 point = transformedPoint(i);
-		real dotProduct = dot(point, d);
+		real dotProduct = dot(vertices[i].global(), d);
 
 		if (dotProduct > largestDot)
 		{
 			largestDot = dotProduct;
-			supportPoint = point;
 			index = i;
 		}
 	}
 
-	return { supportPoint, index };
-}
-
-vec2 ConvexPolygon::transformedPoint(int i) const
-{
-	return transform(points[i], pos, theta);
-}
-
-vec2 ConvexPolygon::transformedEdge(int i) const
-{
-	return rotate(edges[i], theta);
-}
-
-vec2 ConvexPolygon::transformedNormal(int i) const
-{
-	return rotate(normals[i], theta);
+	return vertices[index];
 }
 
 void ConvexPolygon::createRegularPolygon(real sideLength)
 {
-	// Shouldn't be calling more than once per polygon!
-	assert(points.empty());
-		
-	real theta = 2 * pi / npoints;
-	real r = sideLength / (2 * std::sin(theta / 2));
-	
+	assert(vertices.empty());
+
+	real centralAngle = 2 * pi / npoints;
+	real r = sideLength / (2 * std::sin(centralAngle / 2));
 
 	for (int i = 0; i < npoints; ++i)
 	{
-		real angle = i * theta;
+		real pointAngle = i * centralAngle;
 
 		// Ensure bottom edge is horizontal
 		// Bottom-right corner makes angle (90 - theta/2) deg with horizontal
-		angle += pi / 2 - theta / 2;
+		pointAngle += pi / 2 - centralAngle / 2;
 
-		vec2 pos = { r * std::cos(angle), r * std::sin(angle) };
+		vec2 point = { r * std::cos(pointAngle), r * std::sin(pointAngle) };
 
-		points.push_back(pos);
+		vertices.emplace_back(i, point, *this);
 	}
 }
 
 void ConvexPolygon::initEdgesAndNormals()
 {
 	assert(edges.empty());
-	assert(normals.empty());
-
+	
 	for (int i = 0; i < npoints; ++i)
 	{
-		vec2 edge = points[nextIndex(i)] - points[i];
-
-		edges.push_back(edge);
-
-		// TODO: Verify that the normal points outwards
-		normals.push_back(perp(normalise(edge)));
+		vec2 edge = vertices[nextIndex(i)].local() - vertices[i].local();
+		edges.emplace_back(i, edge, *this);
 	}
 }
 

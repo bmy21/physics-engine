@@ -2,6 +2,8 @@
 
 #include "RigidBody.h"
 #include "PolyPolyContact.h"
+#include "Edge.h"
+#include "Vertex.h"
 
 
 // TODO: add Edge & Vertex classes?
@@ -17,15 +19,14 @@ public:
 	std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) override { return other->checkCollision(this); }
 	std::unique_ptr<ContactConstraint> checkCollision(ConvexPolygon* other) override;
 
-	//findContactPoints(const RigidBody* other, int normalIndex,) const;
+	void onMove() override;
+	void onRotate() override;
 
-	//void SAT(const ConvexPolygon* other);
+	Vertex support(const vec2& d) const;
 
-	std::pair<vec2, int> support(const vec2& d) const;
-
-	vec2 transformedPoint(int i) const;
-	vec2 transformedEdge(int i) const;
-	vec2 transformedNormal(int i) const;
+	vec2 edge(int i) const { return edges[i].global(); }
+	vec2 vertex(int i) const { return vertices[i].global(); }
+	vec2 normal(int i) const { return edges[i].normal(); }
 
 	int nextIndex(int i) const;
 	int prevIndex(int i) const;
@@ -40,18 +41,14 @@ private:
 	// Find penetration of other polygon into this polygon along normal i
 	std::pair<real, int> normalPenetration(int i, const ConvexPolygon& other) const;
 
-	// Find maximum signed penetration of other polygon into this polygon along any face normal
+	// Find maximum signed penetration of other polygon into this polygon along any edge normal
 	std::tuple<bool, real, int, int> maxSignedPenetration(const ConvexPolygon& other) const;
 
-	real absEdgeDot(int i, const vec2& d);
+	real absEdgeDot(int i, const vec2& d) const;
 
-	bool colliding = false;
-
-	// Points, edges and normals stored in local coordinates
 	const int npoints;
-	std::vector<vec2> points;
-	std::vector<vec2> edges;
-	std::vector<vec2> normals;
+	std::vector<Edge> edges;
+	std::vector<Vertex> vertices;
 
 	sf::ConvexShape shape;
 };

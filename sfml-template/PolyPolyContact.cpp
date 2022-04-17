@@ -6,12 +6,12 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	refEdgeIndex(refEdgeIndex),
 	incEdgeIndex(incEdgeIndex)
 {
-	vec2 refEdge = ref->transformedEdge(refEdgeIndex);
-	vec2 refPoint1 = ref->transformedPoint(refEdgeIndex);
+	vec2 refEdge = ref->edge(refEdgeIndex);
+	vec2 refPoint1 = ref->vertex(refEdgeIndex);
 	vec2 refPoint2 = refPoint1 + refEdge;
 
-	vec2 incEdge = inc->transformedEdge(incEdgeIndex);
-	vec2 incPoint1 = inc->transformedPoint(incEdgeIndex);
+	vec2 incEdge = inc->edge(incEdgeIndex);
+	vec2 incPoint1 = inc->vertex(incEdgeIndex);
 	vec2 incPoint2 = incPoint1 + incEdge;
 
 	ContactPoint cp1, cp2;
@@ -58,7 +58,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	}
 	
 	
-	vec2 normal = ref->transformedNormal(refEdgeIndex);
+	vec2 normal = ref->normal(refEdgeIndex);
 
 	if (dot(cpCoords[0] - refPoint1, normal) <= 0)
 	{
@@ -80,19 +80,20 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	for (auto& cp : contactPoints)
 	{
 		cp.point -= cp.penetration * normal;
+		
 	}
 
 
 
-	/*for (int i = 0; i < ncp; ++i)
+	for (int i = 0; i < ncp; ++i)
 	{
 		rebuildPoint(i);
-	}*/
+	}
 }
 
 PolyPolyContact::~PolyPolyContact()
 {
-	//std::cout << "~PolyPolyContact()\n";
+	std::cout << "~PolyPolyContact()\n";
 }
 
 void PolyPolyContact::correctVel()
@@ -105,12 +106,12 @@ void PolyPolyContact::correctPos()
 
 void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
 {
-	vec2 refPoint1 = ref->transformedPoint(refEdgeIndex) * pixPerUnit;
-	vec2 refPoint2 = refPoint1 + ref->transformedEdge(refEdgeIndex) * pixPerUnit;
+	vec2 refPoint1 = ref->vertex(refEdgeIndex) * pixPerUnit;
+	vec2 refPoint2 = refPoint1 + ref->edge(refEdgeIndex) * pixPerUnit;
 	drawThickLine(window, refPoint1, refPoint2, 3, sf::Color::Red);
 	
-	vec2 incPoint1 = inc->transformedPoint(incEdgeIndex) * pixPerUnit;
-	vec2 incPoint2 = incPoint1 + inc->transformedEdge(incEdgeIndex) * pixPerUnit;
+	vec2 incPoint1 = inc->vertex(incEdgeIndex) * pixPerUnit;
+	vec2 incPoint2 = incPoint1 + inc->edge(incEdgeIndex) * pixPerUnit;
 	drawThickLine(window, incPoint1, incPoint2, 3, sf::Color::Green);
 
 
@@ -143,22 +144,22 @@ void PolyPolyContact::rebuildPoint(int i)
 {
 	ContactPoint& cp = contactPoints[i];
 
-	vec2 normal = ref->transformedNormal(refEdgeIndex);
-	vec2 refPoint = ref->transformedPoint(refEdgeIndex);
+	vec2 normal = ref->normal(refEdgeIndex);
+	vec2 refPoint = ref->vertex(refEdgeIndex);
 
 	if (cp.clippedAgainstEdge == -1)
 	{
 		// Wasn't clipped
-		cp.point = inc->transformedPoint(cp.pointIndex);
+		cp.point = inc->vertex(cp.pointIndex);
 	}
 	else
 	{
 		// Find the point where the incident edge crosses the clip plane
-		vec2 p = inc->transformedEdge(incEdgeIndex);
+		vec2 p = inc->edge(incEdgeIndex);
 		vec2 q = normal;
 
-		vec2 a = inc->transformedPoint(cp.pointIndex);
-		vec2 b = ref->transformedPoint(cp.clippedAgainstPoint);
+		vec2 a = inc->vertex(cp.pointIndex);
+		vec2 b = ref->vertex(cp.clippedAgainstPoint);
 
 		// TODO: Can we do this with dot products?
 		vec2 intersect = a + p * zcross(q, b - a) / zcross(q, p);

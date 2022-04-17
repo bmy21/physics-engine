@@ -151,20 +151,24 @@
     <ClCompile Include="ContactConstraint.cpp" />
     <ClCompile Include="ContactPoint.cpp" />
     <ClCompile Include="ConvexPolygon.cpp" />
+    <ClCompile Include="Edge.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PolyPolyContact.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContactConstraint.h" />
     <ClInclude Include="ContactPoint.h" />
     <ClInclude Include="ConvexPolygon.h" />
+    <ClInclude Include="Edge.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="PolyPolyContact.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

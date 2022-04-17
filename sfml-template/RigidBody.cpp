@@ -1,6 +1,18 @@
 #include "RigidBody.h"
 
 
+void RigidBody::moveTo(const vec2& p)
+{
+	pos = posPrev = p; 
+	onMove();
+}
+
+void RigidBody::rotateTo(real t)
+{
+	theta = thetaPrev = t;
+	onRotate();
+}
+
 void RigidBody::integrateVel(real dt)
 {
 	acc.y += grav;
@@ -23,6 +35,9 @@ void RigidBody::integratePos(real dt)
 
 	pos += vel * dt;
 	theta += omega * dt;
+
+	onMove();
+	onRotate();
 }
 
 vec2 RigidBody::interpolatePos(real fraction) const
