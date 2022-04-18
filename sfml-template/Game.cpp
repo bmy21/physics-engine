@@ -109,6 +109,9 @@ void Game::run()
 				{
 					if ((*newIt)->matches(it->get()))
 					{
+						// *it represents the same contact constraint as *newIt
+						// *newIt is not required; just keep and rebuild *it
+
 						++(*it)->numPersist;
 						(*it)->rebuild();
 						matched = true;
@@ -124,17 +127,17 @@ void Game::run()
 				}
 				else
 				{
+					// The contact handled by *it no longer exists
 					it = ContactConstraints.erase(it);
 				}
 			}
 
+			// Move any new contact constraints into the main vector
+			ContactConstraints.insert(ContactConstraints.end(),
+				std::make_move_iterator(NewContactConstraints.begin()),
+				std::make_move_iterator(NewContactConstraints.end()));
 
-			// TODO: Use move_iterator?
-			for (auto newIt = NewContactConstraints.begin(); newIt != NewContactConstraints.end(); )
-			{
-				ContactConstraints.push_back(std::move(*newIt));
-				newIt = NewContactConstraints.erase(newIt);
-			}
+			NewContactConstraints.clear();
 
 			/*
 			for each existing contact:
@@ -153,7 +156,6 @@ void Game::run()
 				move into existing contact vector
 			*/
 			
-			//NewContactConstraints.clear();
 
 			std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
 
