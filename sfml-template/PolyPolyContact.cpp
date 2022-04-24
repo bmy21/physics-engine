@@ -17,8 +17,10 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	//TODO: Make the clipping code more concise?
 
 	ContactPoint cp1, cp2;
-	cp1.pointIndex = incEdgeIndex;
-	cp2.pointIndex = inc->nextIndex(incEdgeIndex);
+	cp1.incPointIndex = incEdgeIndex;
+	cp2.incPointIndex = inc->nextIndex(incEdgeIndex);
+	cp1.refEdgeIndex = refEdgeIndex;
+	cp2.refEdgeIndex = refEdgeIndex;
 
 	// Clip incident edge against first side of reference edge
 	ClipType type1 = ClipType::Invalid;
@@ -30,12 +32,10 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	if (type1 == ClipType::First)
 	{
-		cp1.clippedAgainstEdge = refEdgeIndex;
 		cp1.clippedAgainstPoint = refEdgeIndex;
 	}
 	else if (type1 == ClipType::Second)
 	{
-		cp2.clippedAgainstEdge = refEdgeIndex;
 		cp2.clippedAgainstPoint = refEdgeIndex;
 	}
 	
@@ -50,12 +50,10 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	if (type2 == ClipType::First)
 	{
-		cp1.clippedAgainstEdge = refEdgeIndex;
 		cp1.clippedAgainstPoint = ref->nextIndex(refEdgeIndex);
 	}
 	else if (type2 == ClipType::Second)
 	{
-		cp2.clippedAgainstEdge = refEdgeIndex;
 		cp2.clippedAgainstPoint = ref->nextIndex(refEdgeIndex);
 	}
 	
@@ -179,10 +177,10 @@ void PolyPolyContact::rebuildPoint(int i)
 	vec2 normal = ref->normal(refEdgeIndex);
 	vec2 refPoint = ref->vertex(refEdgeIndex);
 
-	if (cp.clippedAgainstEdge == -1)
+	if (cp.clippedAgainstPoint == -1)
 	{
 		// Wasn't clipped
-		cp.point = inc->vertex(cp.pointIndex);
+		cp.point = inc->vertex(cp.incPointIndex);
 	}
 	else
 	{
@@ -190,7 +188,7 @@ void PolyPolyContact::rebuildPoint(int i)
 		vec2 p = inc->edge(incEdgeIndex);
 		vec2 q = normal;
 
-		vec2 a = inc->vertex(cp.pointIndex);
+		vec2 a = inc->vertex(cp.incPointIndex);
 		vec2 b = ref->vertex(cp.clippedAgainstPoint);
 
 		// TODO: Can we do this with dot products?

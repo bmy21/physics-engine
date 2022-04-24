@@ -80,6 +80,11 @@ void Game::run()
 				rb->integrateVel(dtPhysics);
 			}
 
+			for (auto& c : Constraints)
+			{
+				c->warmStart();
+			}
+
 			for (int i = 0; i < velIter; ++i)
 			{
 				for (auto& c : Constraints)
@@ -171,7 +176,10 @@ void Game::run()
 
 			NewContactConstraints.clear();
 
-			std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
+			//std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
+
+			std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
+
 
 			for (int i = 0; i < posIter; ++i)
 			{

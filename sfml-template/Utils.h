@@ -39,5 +39,4 @@ enum class ClipType
 };
 
 // TODO: Thick planes?
-std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2, int& nclips);
 std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2, ClipType& type);
