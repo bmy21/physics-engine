@@ -11,6 +11,10 @@ public:
 	vec2 point;
 	real penetration = 0;
 
+
+	// Complete set of information that specifies how this 
+	// contact point was generated
+
 	// Index of point on incident body
 	int incPointIndex = -1;
 
