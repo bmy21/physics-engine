@@ -29,7 +29,7 @@ private:
 	real dtMax = 1.0 / 10;
 
 	int velIter = 8;
-	int posIter = 5;
+	int posIter = 3;
 	
 
 	// TODO: Capitalisation style?

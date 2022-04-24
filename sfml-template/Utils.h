@@ -11,6 +11,8 @@
 #include <cassert>
 #include <sstream>
 
+class ContactPoint;
+
 
 using real = float;
 using vec2 = sf::Vector2<real>;
@@ -40,3 +42,13 @@ enum class ClipType
 
 // TODO: Thick planes?
 std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2, ClipType& type);
+
+
+
+enum class ClipRegion
+{
+	In, Out, On
+};
+
+std::pair<real, ClipRegion> getClipRegion(const vec2& n, const vec2& ref, real eps, const vec2& p);
+std::pair<bool, bool> clip(const vec2& n, const vec2& ref, real eps, int clipPointIndex, ContactPoint& cp1, ContactPoint& cp2);

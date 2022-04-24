@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include "ContactPoint.h"
 
 vec2 rotate(const vec2& v, real theta)
 {
@@ -120,5 +121,76 @@ std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, con
 			type = ClipType::Second;
 			return { point1, p };
 		}
+	}
+}
+
+// Returns signed distance to plane defined by point ref and normal n.
+// eps is the plane half-thickness
+std::pair<real, ClipRegion> getClipRegion(const vec2& n, const vec2& ref, real eps, const vec2& p)
+{
+	real d = dot(p - ref, n);
+
+	if (d > eps)
+	{
+		return { d, ClipRegion::Out };
+	}
+	else if (d >= -eps)
+	{
+		return { d, ClipRegion::On };
+	}
+	else
+	{
+		return { d, ClipRegion::In };
+	}
+}
+
+
+// Clips the line segment from cp1 to cp2 against the plane defined by point ref and normal n.
+// Adjusts the point coords and clip indices accordingly.
+// clipIndex is the index of point ref.
+// Return values indicate whether the points are valid (true) or should be discarded (false).
+std::pair<bool, bool>
+clip(const vec2& n, const vec2& ref, real eps,
+	int clipPointIndex, ContactPoint& cp1, ContactPoint& cp2)
+{
+	auto [d1, R1] = getClipRegion(n, ref, eps, cp1.point);
+	auto [d2, R2] = getClipRegion(n, ref, eps, cp2.point);
+
+	if (R1 == ClipRegion::On && R2 == ClipRegion::On
+		|| R1 == ClipRegion::In && R2 == ClipRegion::In
+		|| R1 == ClipRegion::On && R2 == ClipRegion::In
+		|| R1 == ClipRegion::In && R2 == ClipRegion::On)
+	{
+		// no clip required
+		return { true, true };
+	}
+	else if (R1 == ClipRegion::Out && R2 == ClipRegion::Out)
+	{
+		// no valid points
+		return { false, false };
+	}
+	else if (R1 == ClipRegion::On && R2 == ClipRegion::Out)
+	{
+		// only p1 is valid
+		return { true, false };
+	}
+	else if (R1 == ClipRegion::Out && R2 == ClipRegion::On)
+	{
+		// only p2 is valid
+		return { false, true };
+	}
+	else if (R1 == ClipRegion::In && R2 == ClipRegion::Out)
+	{
+		// keep p1 and clipped p2
+		cp2.clippedAgainstPoint = clipPointIndex;
+		cp2.point = (d2 * cp1.point - d1 * cp2.point) / (d2 - d1);
+		return { true, true };
+	}
+	else
+	{
+		// keep p2 and clipped p1
+		cp1.clippedAgainstPoint = clipPointIndex;
+		cp1.point = (d1 * cp2.point - d1 * cp1.point) / (d1 - d2);
+		return { true, true };
 	}
 }

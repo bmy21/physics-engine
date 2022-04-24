@@ -12,11 +12,11 @@ public:
 
 	vec2 point;
 	RigidBody* rb;
-	real storedLambda = 0;
+	
 
 private:
 	
-	
+	real storedLambda = 0;
 
 };
 

@@ -18,9 +18,15 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	ContactPoint cp1, cp2;
 	cp1.incPointIndex = incEdgeIndex;
-	cp2.incPointIndex = inc->nextIndex(incEdgeIndex);
 	cp1.refEdgeIndex = refEdgeIndex;
+	cp1.point = incPoint1;
+
+	cp2.incPointIndex = inc->nextIndex(incEdgeIndex);
 	cp2.refEdgeIndex = refEdgeIndex;
+	cp2.point = incPoint2;
+
+
+
 
 	// Clip incident edge against first side of reference edge
 	ClipType type1 = ClipType::Invalid;
