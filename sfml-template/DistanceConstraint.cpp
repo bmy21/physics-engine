@@ -2,7 +2,7 @@
 
 DistanceConstraint::DistanceConstraint()
 {
-	setBeta(0.3);
+	setBeta(0.8);
 }
 
 void DistanceConstraint::correctVel()
@@ -14,7 +14,7 @@ void DistanceConstraint::correctVel()
 	real massFactor = rb->mInv * (std::pow(pos.x - point.x, 2) + std::pow(pos.y - point.y, 2)) 
 		+ rb->IInv * std::pow(zcross(pos - point, {0, 0}), 2);
 
-	std::cout << massFactor << '\n';
+	//std::cout << massFactor << '\n';
 
 	real lambda = 0;
 

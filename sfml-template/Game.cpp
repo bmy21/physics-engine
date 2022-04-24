@@ -178,7 +178,7 @@ void Game::run()
 
 			//std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
 
-			std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
+			//std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
 
 
 			for (int i = 0; i < posIter; ++i)

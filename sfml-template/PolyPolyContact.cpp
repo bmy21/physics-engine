@@ -25,62 +25,36 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	cp2.refEdgeIndex = refEdgeIndex;
 	cp2.point = incPoint2;
 
-
-
-
-	// Clip incident edge against first side of reference edge
-	ClipType type1 = ClipType::Invalid;
-	auto cpCoords = clip(-refEdge, refPoint1, incPoint1, incPoint2, type1);
-
-	assert(type1 == ClipType::First
-		|| type1 == ClipType::Second
-		|| type1 == ClipType::None);
-
-	if (type1 == ClipType::First)
-	{
-		cp1.clippedAgainstPoint = refEdgeIndex;
-	}
-	else if (type1 == ClipType::Second)
-	{
-		cp2.clippedAgainstPoint = refEdgeIndex;
-	}
+	vec2 n = normalise(refEdge);
 	
+	// TODO: handle cases where one of the clips returns 0 or 1 points, though in practice
+	// this situation shouldn't arise
+	// (0 points -> 0 contact points)
+	// (1 point -> only this point is a contact point)
 
-	// Clip again against other side edge
-	ClipType type2 = ClipType::Invalid;
-	cpCoords = clip(refEdge, refPoint2, cpCoords[0], cpCoords[1], type2);
+	real eps = 1e-3;
+	auto [valid11, valid12] = clip(-n, refPoint1, eps, refEdgeIndex, cp1, cp2);
+	auto [valid21, valid22] = clip(n, refPoint2, eps, ref->nextIndex(refEdgeIndex), cp1, cp2);
 
-	assert(type2 == ClipType::First
-		|| type2 == ClipType::Second
-		|| type2 == ClipType::None);
+	assert(valid11 && valid12 && valid21 && valid22);
 
-	if (type2 == ClipType::First)
-	{
-		cp1.clippedAgainstPoint = ref->nextIndex(refEdgeIndex);
-	}
-	else if (type2 == ClipType::Second)
-	{
-		cp2.clippedAgainstPoint = ref->nextIndex(refEdgeIndex);
-	}
-	
-	
 	vec2 normal = ref->normal(refEdgeIndex);
 
-	if (dot(cpCoords[0] - refPoint1, normal) <= 0)
+	if (dot(cp1.point - refPoint1, normal) <= 0)
 	{
-		cp1.penetration = dot(cpCoords[0] - refPoint1, normal);
-		cp1.point = cpCoords[0];
+		cp1.penetration = dot(cp1.point - refPoint1, normal);
 		contactPoints.push_back(cp1);
 	}
 
-	if (dot(cpCoords[1] - refPoint1, normal) <= 0)
+	if (dot(cp2.point - refPoint1, normal) <= 0)
 	{
-		cp2.penetration = dot(cpCoords[1] - refPoint1, normal);
-		cp2.point = cpCoords[1];
+		cp2.penetration = dot(cp2.point - refPoint1, normal);
 		contactPoints.push_back(cp2);
 	}
 
+
 	ncp = contactPoints.size();
+
 	assert(ncp == 1 || ncp == 2);
 
 	// Project contact points onto the reference edge
@@ -170,6 +144,7 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 
 void PolyPolyContact::rebuild()
 {
+	// TODO: rebuild from another PolyPolyContact
 	for (int i = 0; i < ncp; ++i)
 	{
 		rebuildPoint(i);

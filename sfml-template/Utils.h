@@ -47,7 +47,7 @@ std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, con
 
 enum class ClipRegion
 {
-	In, Out, On
+	Out = 1, On = 2, In = 3
 };
 
 std::pair<real, ClipRegion> getClipRegion(const vec2& n, const vec2& ref, real eps, const vec2& p);

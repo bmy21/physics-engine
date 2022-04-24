@@ -156,6 +156,8 @@ clip(const vec2& n, const vec2& ref, real eps,
 	auto [d1, R1] = getClipRegion(n, ref, eps, cp1.point);
 	auto [d2, R2] = getClipRegion(n, ref, eps, cp2.point);
 
+	// TODO: speed up checks by adding region numbers?
+	// e.g. Out=1, On=2, In=3, so On+In=5
 	if (R1 == ClipRegion::On && R2 == ClipRegion::On
 		|| R1 == ClipRegion::In && R2 == ClipRegion::In
 		|| R1 == ClipRegion::On && R2 == ClipRegion::In
@@ -190,7 +192,7 @@ clip(const vec2& n, const vec2& ref, real eps,
 	{
 		// keep p2 and clipped p1
 		cp1.clippedAgainstPoint = clipPointIndex;
-		cp1.point = (d1 * cp2.point - d1 * cp1.point) / (d1 - d2);
+		cp1.point = (d1 * cp2.point - d2 * cp1.point) / (d1 - d2);
 		return { true, true };
 	}
 }
