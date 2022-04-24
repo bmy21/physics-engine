@@ -4,6 +4,7 @@
 #include "RigidBody.h"
 #include "ConvexPolygon.h"
 #include "ContactConstraint.h"
+#include "DistanceConstraint.h"
 
 class Game
 {
@@ -24,12 +25,17 @@ private:
 
 	bool vsync = true;
 	int fpsLimit = 144;
-	real dtPhysics = 1.0 / 200;
+	real dtPhysics = 1.0 / 100;
 	real dtMax = 1.0 / 10;
+
+	int velIter = 8;
+	int posIter = 3;
 	
 
 	// TODO: Capitalisation style?
 	std::vector<std::unique_ptr<RigidBody>> RigidBodies;
+	std::vector<std::unique_ptr<Constraint>> Constraints;
+
 	std::vector<std::unique_ptr<ContactConstraint>> ContactConstraints;
 	std::vector<std::unique_ptr<ContactConstraint>> NewContactConstraints;
 };

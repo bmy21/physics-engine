@@ -56,3 +56,20 @@ real RigidBody::interpolateAngle(real fraction) const
 
 	return std::atan2(dirInterp.y, dirInterp.x);
 }
+
+void RigidBody::applyDeltaVel(const vec2& dv, real dw)
+{
+	vel += dv;
+	omega += dw;
+}
+
+void RigidBody::applyDeltaPos(const vec2& dr, real dth)
+{
+	pos += dr;
+	theta += dth;
+
+	// TODO: need to update previous position and angle here?
+
+	onMove();
+	onRotate();
+}

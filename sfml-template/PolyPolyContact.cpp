@@ -156,8 +156,9 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 	{
 		return cp[0].matches(cpOther[0]);
 	}
-	else if (ncp == 2)
+	else // if (ncp == 2)
 	{
+		// TODO: Is it actually possible to have 0<->1 and 1<->0?
 		return ((cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]))
 				|| (cp[0].matches(cpOther[1]) && cp[1].matches(cpOther[0])));
 	}

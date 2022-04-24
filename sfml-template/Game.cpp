@@ -68,19 +68,49 @@ void Game::run()
 		{
 			// Step simulation forward by dtPhysics seconds 
 
+			vec2 mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
+			std::unique_ptr<DistanceConstraint> dc = std::make_unique<DistanceConstraint>();
+			dc->point = mousePos;
+			dc->rb = RigidBodies[0].get();
+			Constraints.push_back(std::move(dc));
+
+
 			for (auto& rb : RigidBodies)
 			{
 				rb->integrateVel(dtPhysics);
 			}
 
+			for (int i = 0; i < velIter; ++i)
+			{
+				for (auto& c : Constraints)
+				{
+					c->correctVel();
+				}
+			}
+
+			for (int i = 0; i < velIter; ++i)
+			{
+				for (auto& cc : ContactConstraints)
+				{
+					cc->correctVel();
+				}
+			}
 
 			for (auto& rb : RigidBodies)
 			{
 				rb->integratePos(dtPhysics);
 			}
 
+			for (int i = 0; i < posIter; ++i)
+			{
+				for (auto& c : Constraints)
+				{
+					c->correctPos();
+				}
+			}
+
 			// Snap first RB to mouse
-			RigidBodies[0]->moveTo(vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit));
+			// RigidBodies[0]->moveTo(vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit));
 
 
 			// Check for collisions
@@ -113,6 +143,8 @@ void Game::run()
 						// *newIt is not required; just keep and rebuild *it
 
 						++(*it)->numPersist;
+
+						// TODO: don't rebuild each time, use the calculated contact points from *newIt?
 						(*it)->rebuild();
 						matched = true;
 
@@ -139,25 +171,18 @@ void Game::run()
 
 			NewContactConstraints.clear();
 
-			/*
-			for each existing contact:
-
-				for each new contact:
-
-					if new matches existing (mostly fast!):
-						rebuild existing contact & increment persist count
-						remove this new contact
-
-
-				if this existing contact didn't match any new contact:
-					remove this existing contact
-			
-			for each remaining new contact:
-				move into existing contact vector
-			*/
-			
-
 			std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
+
+			for (int i = 0; i < posIter; ++i)
+			{
+				for (auto& cc : ContactConstraints)
+				{
+					cc->correctPos();
+				}
+			}
+
+			Constraints.clear();
+
 
 			accTime -= dtPhysics;
 		}

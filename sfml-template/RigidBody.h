@@ -32,10 +32,15 @@ public:
 
 	real angle() const { return theta; }
 	vec2 position() const { return pos; }
+	real angVel() const { return omega; }
+	vec2 velocity() const { return vel; }
+
+	void applyDeltaVel(const vec2& dv, real dw);
+	void applyDeltaPos(const vec2& dr, real dth);
 
 
 	// TODO: make these private
-	real mInv = 0, IInv = 0;
+	real mInv = 1, IInv = 1;
 	real grav = 0;
 
 private:
