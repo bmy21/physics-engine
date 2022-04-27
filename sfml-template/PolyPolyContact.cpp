@@ -134,23 +134,11 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 	{
 		return cp[0].matches(cpOther[0]);	
 	}
-	else if (cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]))
+	else
 	{
-		// 0->0, 1->1
-		cp[0].matchingIndex = cpOther[0].matchingIndex = 0;
-		cp[1].matchingIndex = cpOther[1].matchingIndex = 1;
-		return true;
+		return cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1])
+			|| cp[0].matches(cpOther[1]) && cp[1].matches(cpOther[0]);
 	}
-	else if (cp[0].matches(cpOther[1]) && cp[1].matches(cpOther[0]))
-	{
-		// 0->1, 1->0
-		cp[0].matchingIndex = cpOther[0].matchingIndex = 1;
-		cp[1].matchingIndex = cpOther[1].matchingIndex = 0;
-		return true;
-	}
-	
-	// The contact points don't match
-	return false;
 }
 
 void PolyPolyContact::rebuild()
@@ -169,11 +157,6 @@ void PolyPolyContact::rebuildFrom(ContactConstraint* other)
 
 	PolyPolyContact* ppOther = static_cast<PolyPolyContact*>(other);
 	contactPoints = std::move(ppOther->contactPoints);
-
-	for (auto& cp : contactPoints)
-	{
-		cp.matchingIndex = -1;
-	}
 }
 
 void PolyPolyContact::rebuildPoint(int i)
