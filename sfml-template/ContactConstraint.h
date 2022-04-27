@@ -18,6 +18,9 @@ public:
 	virtual bool matches(const PolyPolyContact* other) const = 0;
 
 	virtual void rebuild() = 0;
+	virtual void rebuildFrom(ContactConstraint* other) = 0;
+	//virtual void rebuild(const ContactConstraint* other) = 0;
+	//virtual void rebuild(const PolyPolyContact* other) = 0;
 
 	int numPersist = 0;
 

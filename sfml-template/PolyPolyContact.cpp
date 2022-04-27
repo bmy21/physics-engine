@@ -14,8 +14,6 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	vec2 incPoint1 = inc->vertex(incEdgeIndex);
 	vec2 incPoint2 = incPoint1 + incEdge;
 
-	//TODO: Make the clipping code more concise?
-
 	ContactPoint cp1, cp2;
 	cp1.incPointIndex = incEdgeIndex;
 	cp1.refEdgeIndex = refEdgeIndex;
@@ -25,30 +23,32 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	cp2.refEdgeIndex = refEdgeIndex;
 	cp2.point = incPoint2;
 
+
 	vec2 n = normalise(refEdge);
+	real eps = 1e-5;
 	
-	// TODO: handle cases where one of the clips returns 0 or 1 points, though in practice
-	// this situation shouldn't arise
-	// (0 points -> 0 contact points)
-	// (1 point -> only this point is a contact point)
+	bool OK1 = clip(-n, refPoint1, eps, refEdgeIndex, cp1, cp2);
+	bool OK2 = clip(n, refPoint2, eps, ref->nextIndex(refEdgeIndex), cp1, cp2);
 
-	real eps = 1e-3;
-	auto [valid11, valid12] = clip(-n, refPoint1, eps, refEdgeIndex, cp1, cp2);
-	auto [valid21, valid22] = clip(n, refPoint2, eps, ref->nextIndex(refEdgeIndex), cp1, cp2);
+	// If clipping returns no valid points, then both contact points were outside the plane
+	// This would suggest something went wrong with collision detection
+	assert(OK1 && OK2); 
 
-	assert(valid11 && valid12 && valid21 && valid22);
 
 	vec2 normal = ref->normal(refEdgeIndex);
 
-	if (dot(cp1.point - refPoint1, normal) <= 0)
+	real p1 = dot(cp1.point - refPoint1, normal);
+	real p2 = dot(cp2.point - refPoint1, normal);
+
+	if (p1 <= 0)
 	{
-		cp1.penetration = dot(cp1.point - refPoint1, normal);
+		cp1.penetration = p1;
 		contactPoints.push_back(cp1);
 	}
 
-	if (dot(cp2.point - refPoint1, normal) <= 0)
+	if (p2 <= 0)
 	{
-		cp2.penetration = dot(cp2.point - refPoint1, normal);
+		cp2.penetration = p2;
 		contactPoints.push_back(cp2);
 	}
 
@@ -125,21 +125,32 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 		return false;
 	}
 
-	const auto& cp = contactPoints;
-	const auto& cpOther = other->contactPoints;
+	auto& cp = contactPoints;
+	auto& cpOther = other->contactPoints;
 
 	assert(ncp == 1 || ncp == 2);
 	
 	if (ncp == 1)
 	{
-		return cp[0].matches(cpOther[0]);
+		return cp[0].matches(cpOther[0]);	
 	}
-	else // if (ncp == 2)
+	else if (cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]))
 	{
-		// TODO: Is it actually possible to have 0<->1 and 1<->0?
-		return ((cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]))
-				|| (cp[0].matches(cpOther[1]) && cp[1].matches(cpOther[0])));
+		// 0->0, 1->1
+		cp[0].matchingIndex = cpOther[0].matchingIndex = 0;
+		cp[1].matchingIndex = cpOther[1].matchingIndex = 1;
+		return true;
 	}
+	else if (cp[0].matches(cpOther[1]) && cp[1].matches(cpOther[0]))
+	{
+		// 0->1, 1->0
+		cp[0].matchingIndex = cpOther[0].matchingIndex = 1;
+		cp[1].matchingIndex = cpOther[1].matchingIndex = 0;
+		return true;
+	}
+	
+	// The contact points don't match
+	return false;
 }
 
 void PolyPolyContact::rebuild()
@@ -148,6 +159,20 @@ void PolyPolyContact::rebuild()
 	for (int i = 0; i < ncp; ++i)
 	{
 		rebuildPoint(i);
+	}
+}
+
+void PolyPolyContact::rebuildFrom(ContactConstraint* other)
+{
+	// This function should only be called if *other is known to match *this
+	// *other will be left in an invalid state
+
+	PolyPolyContact* ppOther = static_cast<PolyPolyContact*>(other);
+	contactPoints = std::move(ppOther->contactPoints);
+
+	for (auto& cp : contactPoints)
+	{
+		cp.matchingIndex = -1;
 	}
 }
 
@@ -172,7 +197,7 @@ void PolyPolyContact::rebuildPoint(int i)
 		vec2 a = inc->vertex(cp.incPointIndex);
 		vec2 b = ref->vertex(cp.clippedAgainstPoint);
 
-		// TODO: Can we do this with dot products?
+		// TODO: Quicker to do this with dot products?
 		vec2 intersect = a + p * zcross(q, b - a) / zcross(q, p);
 		cp.point = intersect;
 	}

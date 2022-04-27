@@ -17,6 +17,7 @@ public:
 	bool matches(const PolyPolyContact* other) const override;
 
 	void rebuild() override;
+	void rebuildFrom(ContactConstraint* other) override;
 
 private:
 	ConvexPolygon* ref = nullptr;

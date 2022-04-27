@@ -31,24 +31,6 @@ real zcross(const vec2& v, const vec2& w);
 void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Color col);
 void drawThickLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, real width, sf::Color col);
 
-enum class ClipType
-{
-	None,
-	First,
-	Second,
-	Both,
-	Invalid
-};
-
-// TODO: Thick planes?
-std::vector<vec2> clip(const vec2& dir, const vec2& ref, const vec2& point1, const vec2& point2, ClipType& type);
-
-
-
-enum class ClipRegion
-{
-	Out = 1, On = 2, In = 3
-};
-
+enum class ClipRegion { In, On, Out };
 std::pair<real, ClipRegion> getClipRegion(const vec2& n, const vec2& ref, real eps, const vec2& p);
-std::pair<bool, bool> clip(const vec2& n, const vec2& ref, real eps, int clipPointIndex, ContactPoint& cp1, ContactPoint& cp2);
+bool clip(const vec2& n, const vec2& ref, real eps, int clipPointIndex, ContactPoint& cp1, ContactPoint& cp2);

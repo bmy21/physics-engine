@@ -149,11 +149,11 @@ void Game::run()
 
 						++(*it)->numPersist;
 
-						// TODO: don't rebuild each time, use the calculated contact points from *newIt?
-						(*it)->rebuild();
+						(*it)->rebuildFrom(newIt->get());
+						NewContactConstraints.erase(newIt);
+
 						matched = true;
 
-						NewContactConstraints.erase(newIt);
 						break;
 					}
 				}

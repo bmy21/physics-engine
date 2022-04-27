@@ -12,8 +12,12 @@ public:
 	real penetration = 0;
 
 
+	// Index of contact point on other body that this one matches, if any
+	mutable int matchingIndex = -1;
+
 	// Complete set of information that specifies how this 
-	// contact point was generated
+	// contact point was generated. Can be used to recompute
+	// the contact point or to match agatinst other contact points.
 
 	// Index of point on incident body
 	int incPointIndex = -1;
