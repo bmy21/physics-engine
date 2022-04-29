@@ -9,6 +9,7 @@ public:
 	PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex);
 	~PolyPolyContact();
 
+	void warmStart() override;
 	void correctVel() override;
 	void correctPos() override;
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) override;

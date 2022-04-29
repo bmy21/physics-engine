@@ -25,12 +25,26 @@ Game::Game()
 
 
 	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(6, 1.2);
-	rb->grav = 5;
-	//rb->rotateTo(20 * pi / 180);
+	rb->grav = 8;
+	rb->rotateTo(35 * pi / 180);
+
+	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
+
 	RigidBodies.push_back(std::move(rb));
 
 	rb = std::make_unique<ConvexPolygon>(7, 1);
 	rb->moveTo({1920/(2*pixPerUnit), 1080/(2*pixPerUnit)});
+	rb->mInv = rb->IInv = 0;
+	RigidBodies.push_back(std::move(rb));
+
+	rb = std::make_unique<ConvexPolygon>(7, 1);
+	rb->moveTo({ 1920 / (4 * pixPerUnit), .75f*1080 / (pixPerUnit) });
+	rb->mInv = rb->IInv = 0;
+	RigidBodies.push_back(std::move(rb));
+
+	rb = std::make_unique<ConvexPolygon>(7, 1);
+	rb->moveTo({ .75f*1920 / (pixPerUnit), .75f*1080 / (pixPerUnit) });
+	rb->mInv = rb->IInv = 0;
 	RigidBodies.push_back(std::move(rb));
 }
 
@@ -53,7 +67,7 @@ void Game::run()
 				window.close();
 		}
 
-		dt = frameTimer.restart().asSeconds();
+		dt = frameTimer.restart().asSeconds()/2;
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -69,10 +83,10 @@ void Game::run()
 			// Step simulation forward by dtPhysics seconds 
 
 			vec2 mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
-			std::unique_ptr<DistanceConstraint> dc = std::make_unique<DistanceConstraint>();
-			dc->point = mousePos;
-			dc->rb = RigidBodies[0].get();
-			Constraints.push_back(std::move(dc));
+			//std::unique_ptr<DistanceConstraint> dc = std::make_unique<DistanceConstraint>();
+			//dc->point = mousePos;
+			//dc->rb = RigidBodies[0].get();
+			//Constraints.push_back(std::move(dc));
 
 
 			for (auto& rb : RigidBodies)
@@ -85,6 +99,13 @@ void Game::run()
 				c->warmStart();
 			}
 
+			for (auto& cc : ContactConstraints)
+			{
+				cc->warmStart();
+			}
+
+			// TODO: Constraints and ContactConstraints in the same vector?
+			// Or at least in the same outer loop?
 			for (int i = 0; i < velIter; ++i)
 			{
 				for (auto& c : Constraints)
@@ -124,11 +145,9 @@ void Game::run()
 				for (auto it2 = RigidBodies.begin(); it2 != it1; ++it2)
 				{
 					std::unique_ptr<ContactConstraint> result = (*it1)->checkCollision(it2->get());
-					//std::cout << (result ? "Overlaps" : " ") << "\n";
 
 					if (result)
 					{
-						//ContactConstraints.push_back(std::move(result));
 						NewContactConstraints.push_back(std::move(result));
 					}
 				}
@@ -148,6 +167,7 @@ void Game::run()
 						// *newIt is not required; just keep and rebuild *it
 
 						++(*it)->numPersist;
+						std::cout << (*it)->numPersist << '\n';
 
 						(*it)->rebuildFrom(newIt->get());
 						NewContactConstraints.erase(newIt);
@@ -200,12 +220,12 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, pixPerUnit, fraction, true, &text);
+			rb->draw(window, pixPerUnit, fraction, false, &text);
 		}
 
 		for (auto& cc : ContactConstraints)
 		{
-			cc->draw(window, pixPerUnit, fraction, true, &text);
+			//cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		// May not want to do this when warm starting implemented!

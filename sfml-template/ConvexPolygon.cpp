@@ -26,7 +26,8 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 
 	for (int i = 0; i < npoints; ++i)
 	{
-		sf::Vector2f pointCoord = sf::Vector2f(vertices[i].global()) * pixPerUnit;
+		// TODO: function for interpolated vertex coordinates?
+		sf::Vector2f pointCoord = sf::Vector2f(rotate(vertices[i].local(), itheta) + ipos) * pixPerUnit;
 
 		shape.setPoint(i, pointCoord);
 	
@@ -238,7 +239,7 @@ void ConvexPolygon::initShape()
 {
 	shape.setFillColor(sf::Color::Transparent);
 	shape.setOutlineColor(sf::Color::Black);
-	shape.setOutlineThickness(-2);
+	shape.setOutlineThickness(-1);
 
 	shape.setPointCount(npoints);
 }

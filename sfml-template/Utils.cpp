@@ -43,6 +43,7 @@ vec2 normalise(const vec2& v)
 
 real zcross(const vec2& v, const vec2& w)
 {
+	// z component of v x w
 	return v.x * w.y - v.y * w.x;
 }
 

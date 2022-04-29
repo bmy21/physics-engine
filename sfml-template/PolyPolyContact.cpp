@@ -37,6 +37,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	vec2 normal = ref->normal(refEdgeIndex);
 
+
 	real p1 = dot(cp1.point - refPoint1, normal);
 	real p2 = dot(cp2.point - refPoint1, normal);
 
@@ -62,11 +63,6 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	{
 		cp.point -= cp.penetration * normal;
 	}
-
-	//for (int i = 0; i < ncp; ++i)
-	//{
-	//	rebuildPoint(i);
-	//}
 }
 
 PolyPolyContact::~PolyPolyContact()
@@ -74,16 +70,98 @@ PolyPolyContact::~PolyPolyContact()
 	//std::cout << "~PolyPolyContact()\n";
 }
 
+void PolyPolyContact::warmStart()
+{
+	for (auto& cp : contactPoints)
+	{
+		const vec2& c = cp.point;
+		const vec2 ri = inc->position();
+		const vec2 rr = ref->position();
+		const vec2 n = ref->normal(refEdgeIndex);
+
+		real iCross = zcross(c - ri, n);
+		real rCross = zcross(c - rr, n);
+
+		inc->applyDeltaVel(n * inc->mInv * cp.lambda, iCross * inc->IInv * cp.lambda);
+		ref->applyDeltaVel(-n * ref->mInv * cp.lambda, -rCross * ref->IInv * cp.lambda);
+	}
+}
+
 void PolyPolyContact::correctVel()
 {
+	for (auto& cp : contactPoints)
+	{
+		// TODO: precompute these before this function is called?
+
+		// TODO: add restitution
+
+		const vec2& c = cp.point;
+		const vec2 ri = inc->position();
+		const vec2 rr = ref->position();
+		const vec2 n = ref->normal(refEdgeIndex);
+
+		real iCross = zcross(c - ri, n);
+		real rCross = zcross(c - rr, n);
+
+		real massFactor = inc->mInv + ref->mInv + inc->IInv * iCross * iCross + ref->IInv * rCross * rCross;
+		real vDotGradC = dot(inc->velocity() - ref->velocity(), n) + iCross * inc->angVel() - rCross * ref->angVel();
+		
+		//real C = dot(c - ref->vertex(refEdgeIndex), n);
+
+		real dLambda = 0;
+		if (massFactor != 0)
+		{
+			dLambda = -(vDotGradC) / massFactor;
+			dLambda = std::max(cp.lambda + dLambda, static_cast<real>(0)) - cp.lambda;
+		}
+
+		inc->applyDeltaVel(n * inc->mInv * dLambda, iCross * inc->IInv * dLambda);
+		ref->applyDeltaVel(-n * ref->mInv * dLambda, -rCross * ref->IInv * dLambda);
+
+		cp.lambda += dLambda;
+	}
 }
 
 void PolyPolyContact::correctPos()
 {
+	for (auto& cp : contactPoints)
+	{
+		// TODO: precompute these before this function is called?
+
+		// TODO: add slop
+
+		const vec2 c = cp.point;
+		const vec2 ri = inc->position();
+		const vec2 rr = ref->position();
+		const vec2 n = ref->normal(refEdgeIndex);
+
+		real iCross = zcross(c - ri, n);
+		real rCross = zcross(c - rr, n);
+
+		real massFactor = inc->mInv + ref->mInv + inc->IInv * iCross * iCross + ref->IInv * rCross * rCross;
+		
+		real slop = 0.001;
+		real C = std::min(cp.penetration + slop, static_cast<real>(0));
+
+		real beta = 0.5;
+
+		real dLambda = 0;
+		if (massFactor != 0)
+		{
+			dLambda = -beta * C / massFactor;
+		}
+		
+		inc->applyDeltaPos(n * inc->mInv * dLambda, iCross * inc->IInv * dLambda);
+		ref->applyDeltaPos(-n * ref->mInv * dLambda, -rCross * ref->IInv * dLambda);
+
+		rebuild();
+	}
 }
 
 void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
 {
+	// std::cout << numPersist << '\n';
+
 	vec2 refPoint1 = ref->vertex(refEdgeIndex) * pixPerUnit;
 	vec2 refPoint2 = refPoint1 + ref->edge(refEdgeIndex) * pixPerUnit;
 	drawThickLine(window, refPoint1, refPoint2, 3, sf::Color::Red);
@@ -130,15 +208,28 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 
 	assert(ncp == 1 || ncp == 2);
 	
-	if (ncp == 1)
+	// TODO: simplify with a findMatchingIndex function?
+	// TODO: order by depth so that we don't need matchingIndex?
+	//		 or somehow order according to id, to remove any ambiguity
+	if (ncp == 1 && cp[0].matches(cpOther[0]))
 	{
-		return cp[0].matches(cpOther[0]);	
+		cp[0].matchingIndex = cpOther[0].matchingIndex = 0;
+		return true;
 	}
-	else
+	else if (cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]))
 	{
-		return cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1])
-			|| cp[0].matches(cpOther[1]) && cp[1].matches(cpOther[0]);
+		cp[0].matchingIndex = cpOther[0].matchingIndex = 0;
+		cp[1].matchingIndex = cpOther[1].matchingIndex = 1;
+		return true;
 	}
+	else if (cp[0].matches(cpOther[1]) && cp[1].matches(cpOther[0]))
+	{
+		cp[0].matchingIndex = cpOther[0].matchingIndex = 1;
+		cp[1].matchingIndex = cpOther[1].matchingIndex = 0;
+		return true;
+	}
+
+	return false;
 }
 
 void PolyPolyContact::rebuild()
@@ -155,8 +246,20 @@ void PolyPolyContact::rebuildFrom(ContactConstraint* other)
 	// This function should only be called if *other is known to match *this
 	// *other will be left in an invalid state
 
+
+	// TODO: order of points matters for warm starting!
+	// Which point gets which accumulated lambda?
 	PolyPolyContact* ppOther = static_cast<PolyPolyContact*>(other);
+
+	for (auto& cpOther : ppOther->contactPoints)
+	{
+		cpOther.lambda = contactPoints[cpOther.matchingIndex].lambda;
+	}
+
 	contactPoints = std::move(ppOther->contactPoints);
+
+
+	//std::cout << contactPoints[0].lambda << '\n';
 }
 
 void PolyPolyContact::rebuildPoint(int i)
