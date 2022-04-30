@@ -26,14 +26,19 @@ Game::Game()
 
 	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(6, 1.2);
 	rb->grav = 8;
-	rb->rotateTo(35 * pi / 180);
+	rb->rotateTo(0. * pi / 180);
 
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
 
 	RigidBodies.push_back(std::move(rb));
 
-	rb = std::make_unique<ConvexPolygon>(7, 1);
+	rb = std::make_unique<ConvexPolygon>(6, 1);
 	rb->moveTo({1920/(2*pixPerUnit), 1080/(2*pixPerUnit)});
+	rb->mInv = rb->IInv = 0;
+	RigidBodies.push_back(std::move(rb));
+
+	rb = std::make_unique<ConvexPolygon>(7, 1);
+	rb->moveTo({ 1920 / (2 * pixPerUnit), .75f * 1080 / (pixPerUnit) });
 	rb->mInv = rb->IInv = 0;
 	RigidBodies.push_back(std::move(rb));
 
@@ -67,7 +72,7 @@ void Game::run()
 				window.close();
 		}
 
-		dt = frameTimer.restart().asSeconds()/2;
+		dt = frameTimer.restart().asSeconds()/1;
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -161,13 +166,15 @@ void Game::run()
 
 				for (auto newIt = NewContactConstraints.begin(); newIt != NewContactConstraints.end(); ++newIt)
 				{
+					// TODO: ensure a pair is always checked in the same order?
+					// e.g. by assigning a unique id
 					if ((*newIt)->matches(it->get()))
 					{
 						// *it represents the same contact constraint as *newIt
 						// *newIt is not required; just keep and rebuild *it
 
 						++(*it)->numPersist;
-						std::cout << (*it)->numPersist << '\n';
+						//std::cout << (*it)->numPersist << '\n';
 
 						(*it)->rebuildFrom(newIt->get());
 						NewContactConstraints.erase(newIt);
@@ -225,7 +232,7 @@ void Game::run()
 
 		for (auto& cc : ContactConstraints)
 		{
-			//cc->draw(window, pixPerUnit, fraction, true, &text);
+			cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		// May not want to do this when warm starting implemented!

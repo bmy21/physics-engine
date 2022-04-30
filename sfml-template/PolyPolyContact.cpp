@@ -63,6 +63,12 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	{
 		cp.point -= cp.penetration * normal;
 	}
+
+	// Sort by index off incident point to ensure a consistent ordering
+	// Note - clipping process above should give consistent order anyway?
+	//std::sort(contactPoints.begin(), contactPoints.end(),
+	//	[](const ContactPoint& cp1, const ContactPoint& cp2) 
+	//	{ return cp1.incPointIndex < cp2.incPointIndex; }); 
 }
 
 PolyPolyContact::~PolyPolyContact()
@@ -81,6 +87,8 @@ void PolyPolyContact::warmStart()
 
 		real iCross = zcross(c - ri, n);
 		real rCross = zcross(c - rr, n);
+
+		//cp.lambda = 0;
 
 		inc->applyDeltaVel(n * inc->mInv * cp.lambda, iCross * inc->IInv * cp.lambda);
 		ref->applyDeltaVel(-n * ref->mInv * cp.lambda, -rCross * ref->IInv * cp.lambda);
@@ -124,6 +132,7 @@ void PolyPolyContact::correctVel()
 
 void PolyPolyContact::correctPos()
 {
+	rebuild();
 	for (auto& cp : contactPoints)
 	{
 		// TODO: precompute these before this function is called?
@@ -140,10 +149,13 @@ void PolyPolyContact::correctPos()
 
 		real massFactor = inc->mInv + ref->mInv + inc->IInv * iCross * iCross + ref->IInv * rCross * rCross;
 		
-		real slop = 0.001;
+		real slop = 0.005;
 		real C = std::min(cp.penetration + slop, static_cast<real>(0));
 
-		real beta = 0.5;
+		//C = cp.penetration;// +slop;
+		std::cout << C << "\n";
+
+		real beta = 0.3;
 
 		real dLambda = 0;
 		if (massFactor != 0)
@@ -208,28 +220,17 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 
 	assert(ncp == 1 || ncp == 2);
 	
-	// TODO: simplify with a findMatchingIndex function?
-	// TODO: order by depth so that we don't need matchingIndex?
-	//		 or somehow order according to id, to remove any ambiguity
-	if (ncp == 1 && cp[0].matches(cpOther[0]))
-	{
-		cp[0].matchingIndex = cpOther[0].matchingIndex = 0;
-		return true;
-	}
-	else if (cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]))
-	{
-		cp[0].matchingIndex = cpOther[0].matchingIndex = 0;
-		cp[1].matchingIndex = cpOther[1].matchingIndex = 1;
-		return true;
-	}
-	else if (cp[0].matches(cpOther[1]) && cp[1].matches(cpOther[0]))
-	{
-		cp[0].matchingIndex = cpOther[0].matchingIndex = 1;
-		cp[1].matchingIndex = cpOther[1].matchingIndex = 0;
-		return true;
-	}
 
-	return false;
+	// Assumes that the contact points are ordered consistently in both constraints,
+	// i.e. cannot have 1 matching with 0 and 0 matching with 1
+	if (ncp == 1)
+	{
+		return cp[0].matches(cpOther[0]);
+	}
+	else
+	{
+		return cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]);
+	}
 }
 
 void PolyPolyContact::rebuild()
@@ -246,20 +247,14 @@ void PolyPolyContact::rebuildFrom(ContactConstraint* other)
 	// This function should only be called if *other is known to match *this
 	// *other will be left in an invalid state
 
-
-	// TODO: order of points matters for warm starting!
-	// Which point gets which accumulated lambda?
 	PolyPolyContact* ppOther = static_cast<PolyPolyContact*>(other);
 
-	for (auto& cpOther : ppOther->contactPoints)
+	for (int i = 0; i < ncp; ++i)
 	{
-		cpOther.lambda = contactPoints[cpOther.matchingIndex].lambda;
+		ppOther->contactPoints[i].lambda = contactPoints[i].lambda;
 	}
 
 	contactPoints = std::move(ppOther->contactPoints);
-
-
-	//std::cout << contactPoints[0].lambda << '\n';
 }
 
 void PolyPolyContact::rebuildPoint(int i)

@@ -42,9 +42,6 @@ void RigidBody::integratePos(real dt)
 
 vec2 RigidBody::interpolatePos(real fraction) const
 {
-	// real smooth = 6 * pow(fraction, 5) - 15*pow(fraction,4)+10*pow(fraction,3);
-	// fraction = smooth;
-
 	return (1 - fraction) * posPrev + fraction * pos;
 }
 
