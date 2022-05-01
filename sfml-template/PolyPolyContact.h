@@ -23,9 +23,10 @@ public:
 	void updateCache() override;
 
 private:
-	bool simulSolveVel = true; 
+	bool simulSolveVel = false; 
 	bool simulSolvePos = true;
 	real mu = 0.1;
+	// real e = 0.9;
 
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
@@ -40,9 +41,8 @@ private:
 	vec2 n, t;
 	std::vector<real> inCrossFactors, rnCrossFactors;
 	std::vector<real> itCrossFactors, rtCrossFactors;
-
-	// TODO: add nMassFactor, tMassFactor, A11, A22, A12 to cache
-
+	std::vector<real> nMassFactors, tMassFactors;
+	real A12 = 0, det = 0;
 
 	void rebuildPoint(int i);
 };

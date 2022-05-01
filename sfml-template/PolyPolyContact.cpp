@@ -65,6 +65,9 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	itCrossFactors.resize(ncp);
 	rnCrossFactors.resize(ncp);
 	rtCrossFactors.resize(ncp);
+	
+	nMassFactors.resize(ncp);
+	tMassFactors.resize(ncp);
 
 	// Sort by index off incident point to ensure a consistent ordering
 	// Note - clipping process above should give consistent order anyway?
@@ -99,13 +102,12 @@ void PolyPolyContact::correctVel()
 		ContactPoint& cp = contactPoints[i];
 		
 		// Friction
-		real massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(itCrossFactors[i], 2) + ref->IInv * std::pow(rtCrossFactors[i], 2);
 		real vDotGradC = dot(inc->velocity() - ref->velocity(), t) + itCrossFactors[i] * inc->angVel() - rtCrossFactors[i] * ref->angVel();
 
 		real dfLambda = 0;
-		if (massFactor != 0)
+		if (tMassFactors[i] != 0)
 		{
-			dfLambda = -(vDotGradC) / massFactor;
+			dfLambda = -(vDotGradC) / tMassFactors[i];
 			dfLambda = std::clamp(cp.fLambda + dfLambda, -mu * cp.lambda, mu * cp.lambda) - cp.fLambda;
 		}
 
@@ -117,20 +119,13 @@ void PolyPolyContact::correctVel()
 
 	if (simulSolveVel && ncp == 2)
 	{
-		real A11 = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[0], 2) + ref->IInv * std::pow(rnCrossFactors[0], 2);
-		real A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
-		real A22 = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[1], 2) + ref->IInv * std::pow(rnCrossFactors[1], 2);
-		real A21 = A12;
-
-		real det = A11 * A22 - A21 * A12;
-
 		if (det != 0)
 		{
 			real alpha1 = -(dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[0] * inc->angVel() - rnCrossFactors[0] * ref->angVel());
 			real alpha2 = -(dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[1] * inc->angVel() - rnCrossFactors[1] * ref->angVel());
 
-			real lam1 = (A22 * alpha1 - A12 * alpha2) / det;
-			real lam2 = (A11 * alpha2 - A21 * alpha1) / det;
+			real lam1 = (nMassFactors[1] * alpha1 - A12 * alpha2) / det;
+			real lam2 = (nMassFactors[0] * alpha2 - A12 * alpha1) / det;
 
 
 			if (contactPoints[0].lambda + lam1 >= 0 && contactPoints[1].lambda + lam2 >= 0)
@@ -154,14 +149,13 @@ void PolyPolyContact::correctVel()
 		// TODO: add restitution
 
 		ContactPoint& cp = contactPoints[i];
-
-		real massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[i], 2) + ref->IInv * std::pow(rnCrossFactors[i], 2);
+		
 		real vDotGradC = dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[i] * inc->angVel() - rnCrossFactors[i] * ref->angVel();
 
 		real dLambda = 0;
-		if (massFactor != 0)
+		if (nMassFactors[i] != 0)
 		{
-			dLambda = -(vDotGradC) / massFactor;
+			dLambda = -(vDotGradC) / nMassFactors[i];
 			dLambda = std::max(cp.lambda + dLambda, static_cast<real>(0)) - cp.lambda;
 		}
 
@@ -177,27 +171,19 @@ void PolyPolyContact::correctPos()
 {
 	if (simulSolvePos && ncp == 2)
 	{
-		rebuild();
-		updateCache();
-
-		real C1 = std::min(contactPoints[0].penetration + slop, static_cast<real>(0));
-		real C2 = std::min(contactPoints[1].penetration + slop, static_cast<real>(0));
-
-		real A11 = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[0], 2) + ref->IInv * std::pow(rnCrossFactors[0], 2);
-		real A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
-		real A22 = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[1], 2) + ref->IInv * std::pow(rnCrossFactors[1], 2);
-		real A21 = A12;
-
-		real det = A11 * A22 - A21 * A12;
-
-
 		if (det != 0)
 		{
+			rebuild();
+			updateCache();
+
+			real C1 = std::min(contactPoints[0].penetration + slop, static_cast<real>(0));
+			real C2 = std::min(contactPoints[1].penetration + slop, static_cast<real>(0));
+
 			real alpha1 = -beta * C1;
 			real alpha2 = -beta * C2;
 
-			real lam1 = (A22 * alpha1 - A12 * alpha2) / det;
-			real lam2 = (A11 * alpha2 - A21 * alpha1) / det;
+			real lam1 = (nMassFactors[1] * alpha1 - A12 * alpha2) / det;
+			real lam2 = (nMassFactors[0] * alpha2 - A12 * alpha1) / det;
 
 			inc->applyDeltaPos(n * inc->mInv * (lam1 + lam2), inc->IInv * (inCrossFactors[0] * lam1 + inCrossFactors[1] * lam2));
 			ref->applyDeltaPos(-n * ref->mInv * (lam1 + lam2), ref->IInv * (-rnCrossFactors[0] * lam1 - rnCrossFactors[1] * lam2));
@@ -214,15 +200,12 @@ void PolyPolyContact::correctPos()
 		updateCache();
 
 		ContactPoint& cp = contactPoints[i];
-
-		real massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[i], 2) + ref->IInv * std::pow(rnCrossFactors[i], 2);
 		real C = std::min(cp.penetration + slop, static_cast<real>(0));
 
-
 		real dLambda = 0;
-		if (massFactor != 0)
+		if (nMassFactors[i] != 0)
 		{
-			dLambda = -beta * C / massFactor;
+			dLambda = -beta * C / nMassFactors[i];
 		}
 		
 		inc->applyDeltaPos(n * inc->mInv * dLambda, inc->IInv * inCrossFactors[i] * dLambda);
@@ -295,7 +278,6 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 
 void PolyPolyContact::rebuild()
 {
-	// TODO: rebuild from another PolyPolyContact
 	for (int i = 0; i < ncp; ++i)
 	{
 		rebuildPoint(i);
@@ -365,5 +347,14 @@ void PolyPolyContact::updateCache()
 		itCrossFactors[i] = zcross(iRelPos, t);
 		rnCrossFactors[i] = zcross(rRelPos, n);
 		rtCrossFactors[i] = zcross(rRelPos, t);
+
+		nMassFactors[i] = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[i], 2) + ref->IInv * std::pow(rnCrossFactors[i], 2);
+		tMassFactors[i] = inc->mInv + ref->mInv + inc->IInv * std::pow(itCrossFactors[i], 2) + ref->IInv * std::pow(rtCrossFactors[i], 2);
+	}
+
+	if ((simulSolveVel || simulSolvePos) && ncp == 2)
+	{
+		A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
+		det = nMassFactors[0] * nMassFactors[1] - A12 * A12;
 	}
 }
