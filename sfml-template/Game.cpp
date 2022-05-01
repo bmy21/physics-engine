@@ -32,8 +32,9 @@ Game::Game()
 	for (int i = 0; i < 10; ++i)
 	{
 		rb = std::make_unique<ConvexPolygon>(6, 0.5);
-		rb->moveTo({ 1920 / (2 * pixPerUnit), i * 1.f});
+		rb->moveTo({ 1920 / (2 * pixPerUnit), i * 1.f}); //+ i*0.02f
 		rb->grav = 6;
+		//rb->rotateTo(3 * pi / 180);
 		RigidBodies.push_back(std::move(rb));
 	}
 	

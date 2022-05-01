@@ -23,15 +23,16 @@ public:
 	void updateCache() override;
 
 private:
+	bool simulSolveVel = true; 
+	bool simulSolvePos = true;
+	real mu = 0.1;
+
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
 
 	int refEdgeIndex = -1;
 	int incEdgeIndex = -1;
 
-	real mu = 0.1;
-
-	// TODO: is ncp really necessary?
 	std::vector<ContactPoint> contactPoints;
 	int ncp = -1;
 	
@@ -39,6 +40,9 @@ private:
 	vec2 n, t;
 	std::vector<real> inCrossFactors, rnCrossFactors;
 	std::vector<real> itCrossFactors, rtCrossFactors;
+
+	// TODO: add nMassFactor, tMassFactor, A11, A22, A12 to cache
+
 
 	void rebuildPoint(int i);
 };

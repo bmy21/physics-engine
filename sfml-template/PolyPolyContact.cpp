@@ -97,7 +97,7 @@ void PolyPolyContact::correctVel()
 	for (int i = 0; i < ncp; ++i)
 	{
 		ContactPoint& cp = contactPoints[i];
-
+		
 		// Friction
 		real massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(itCrossFactors[i], 2) + ref->IInv * std::pow(rtCrossFactors[i], 2);
 		real vDotGradC = dot(inc->velocity() - ref->velocity(), t) + itCrossFactors[i] * inc->angVel() - rtCrossFactors[i] * ref->angVel();
@@ -115,6 +115,40 @@ void PolyPolyContact::correctVel()
 		ref->applyDeltaVel(-t * ref->mInv * dfLambda, -rtCrossFactors[i] * ref->IInv * dfLambda);
 	}
 
+	if (simulSolveVel && ncp == 2)
+	{
+		real A11 = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[0], 2) + ref->IInv * std::pow(rnCrossFactors[0], 2);
+		real A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
+		real A22 = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[1], 2) + ref->IInv * std::pow(rnCrossFactors[1], 2);
+		real A21 = A12;
+
+		real det = A11 * A22 - A21 * A12;
+
+		if (det != 0)
+		{
+			real alpha1 = -(dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[0] * inc->angVel() - rnCrossFactors[0] * ref->angVel());
+			real alpha2 = -(dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[1] * inc->angVel() - rnCrossFactors[1] * ref->angVel());
+
+			real lam1 = (A22 * alpha1 - A12 * alpha2) / det;
+			real lam2 = (A11 * alpha2 - A21 * alpha1) / det;
+
+
+			if (contactPoints[0].lambda + lam1 >= 0 && contactPoints[1].lambda + lam2 >= 0)
+			{
+				inc->applyDeltaVel(n * inc->mInv * (lam1 + lam2), inc->IInv * (inCrossFactors[0] * lam1 + inCrossFactors[1] * lam2));
+				ref->applyDeltaVel(-n * ref->mInv * (lam1 + lam2), ref->IInv * (-rnCrossFactors[0] * lam1 - rnCrossFactors[1] * lam2));
+
+				contactPoints[0].lambda += lam1;
+				contactPoints[1].lambda += lam2;
+
+				return;
+			}
+		}
+		
+		// At this point, simultaneous solution failed either because the determinant was zero or because one of the accumulated
+		// impulses would become negative. So, we fall back to the iterative solution.
+	}
+
 	for (int i = 0; i < ncp; ++i)
 	{
 		// TODO: add restitution
@@ -123,7 +157,7 @@ void PolyPolyContact::correctVel()
 
 		real massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[i], 2) + ref->IInv * std::pow(rnCrossFactors[i], 2);
 		real vDotGradC = dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[i] * inc->angVel() - rnCrossFactors[i] * ref->angVel();
-		
+
 		real dLambda = 0;
 		if (massFactor != 0)
 		{
@@ -136,79 +170,52 @@ void PolyPolyContact::correctVel()
 		inc->applyDeltaVel(n * inc->mInv * dLambda, inCrossFactors[i] * inc->IInv * dLambda);
 		ref->applyDeltaVel(-n * ref->mInv * dLambda, -rnCrossFactors[i] * ref->IInv * dLambda);
 	}
+
 }
 
 void PolyPolyContact::correctPos()
 {
-	rebuild();
-
-	bool blockSolve = false;
-
-	if (blockSolve && ncp == 2)
+	if (simulSolvePos && ncp == 2)
 	{
-		const vec2 c1 = contactPoints[0].point;
-		const vec2 c2 = contactPoints[1].point;
+		rebuild();
+		updateCache();
 
-		const vec2 ri = inc->position();
-		const vec2 rr = ref->position();
-
-		const vec2 n = ref->normal(refEdgeIndex);
-
-		real iCross1 = zcross(c1 - ri, n);
-		real iCross2 = zcross(c2 - ri, n);
-		real rCross1 = zcross(c1 - rr, n);
-		real rCross2 = zcross(c2 - rr, n);
-
-		real slop = 0.005;
 		real C1 = std::min(contactPoints[0].penetration + slop, static_cast<real>(0));
 		real C2 = std::min(contactPoints[1].penetration + slop, static_cast<real>(0));
 
-		real A11 = inc->mInv + ref->mInv + inc->IInv * iCross1 * iCross1 + ref->IInv * rCross1 * rCross1;
-
-		real A12 = inc->mInv + ref->mInv + inc->IInv * iCross1 * iCross2 + ref->IInv * rCross1 * rCross2;
-
-		real A22 = inc->mInv + ref->mInv + inc->IInv * iCross2 * iCross2 + ref->IInv * rCross2 * rCross2;
-
+		real A11 = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[0], 2) + ref->IInv * std::pow(rnCrossFactors[0], 2);
+		real A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
+		real A22 = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[1], 2) + ref->IInv * std::pow(rnCrossFactors[1], 2);
 		real A21 = A12;
 
 		real det = A11 * A22 - A21 * A12;
 
 
+		if (det != 0)
+		{
+			real alpha1 = -beta * C1;
+			real alpha2 = -beta * C2;
 
-		real beta = 0.3;
+			real lam1 = (A22 * alpha1 - A12 * alpha2) / det;
+			real lam2 = (A11 * alpha2 - A21 * alpha1) / det;
 
-		real alpha1 = -beta * C1;
-		real alpha2 = -beta * C2;
+			inc->applyDeltaPos(n * inc->mInv * (lam1 + lam2), inc->IInv * (inCrossFactors[0] * lam1 + inCrossFactors[1] * lam2));
+			ref->applyDeltaPos(-n * ref->mInv * (lam1 + lam2), ref->IInv * (-rnCrossFactors[0] * lam1 - rnCrossFactors[1] * lam2));
 
-		
+			return;
+		}
 
-		real lam1 = (A22 * alpha1 - A12 * alpha2) / det;
-		real lam2 = (A11 * alpha2 - A21 * alpha1) / det;
-
-		inc->applyDeltaPos(n * inc->mInv * lam1, iCross1 * inc->IInv * lam1);
-		ref->applyDeltaPos(-n * ref->mInv * lam1, -rCross1 * ref->IInv * lam1);
-
-		inc->applyDeltaPos(n * inc->mInv * lam2, iCross2 * inc->IInv * lam2);
-		ref->applyDeltaPos(-n * ref->mInv * lam2, -rCross1 * ref->IInv * lam2);
-
-		rebuild();
-		return;
+		// At this point, the determinant was zero, so resort to iterative solution.
 	}
 
-	for (auto& cp : contactPoints)
+	for (int i = 0; i < ncp; ++i)
 	{
-		// TODO: precompute these before this function is called?
+		rebuild();
+		updateCache();
 
-		const vec2 c = cp.point;
-		const vec2 ri = inc->position();
-		const vec2 rr = ref->position();
-		const vec2 n = ref->normal(refEdgeIndex);
+		ContactPoint& cp = contactPoints[i];
 
-		real iCross = zcross(c - ri, n);
-		real rCross = zcross(c - rr, n);
-
-		real massFactor = inc->mInv + ref->mInv + inc->IInv * iCross * iCross + ref->IInv * rCross * rCross;
-		
+		real massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[i], 2) + ref->IInv * std::pow(rnCrossFactors[i], 2);
 		real C = std::min(cp.penetration + slop, static_cast<real>(0));
 
 
@@ -218,10 +225,8 @@ void PolyPolyContact::correctPos()
 			dLambda = -beta * C / massFactor;
 		}
 		
-		inc->applyDeltaPos(n * inc->mInv * dLambda, iCross * inc->IInv * dLambda);
-		ref->applyDeltaPos(-n * ref->mInv * dLambda, -rCross * ref->IInv * dLambda);
-
-		rebuild();
+		inc->applyDeltaPos(n * inc->mInv * dLambda, inc->IInv * inCrossFactors[i] * dLambda);
+		ref->applyDeltaPos(-n * ref->mInv * dLambda, ref->IInv * -rnCrossFactors[i] * dLambda);
 	}
 }
 
