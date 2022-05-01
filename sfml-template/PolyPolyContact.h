@@ -29,7 +29,7 @@ private:
 	int refEdgeIndex = -1;
 	int incEdgeIndex = -1;
 
-	real mu = 0.3;
+	real mu = 0.1;
 
 	// TODO: is ncp really necessary?
 	std::vector<ContactPoint> contactPoints;

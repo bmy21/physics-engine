@@ -28,6 +28,10 @@ public:
 
 	int numPersist = 0;
 
+protected:
+	real beta = 0.5;
+	real slop = 0.005;
+
 private:
 
 };

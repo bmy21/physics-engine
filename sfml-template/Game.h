@@ -25,11 +25,11 @@ private:
 
 	bool vsync = true;
 	int fpsLimit = 144;
-	real dtPhysics = 1.0 / 60;
+	real dtPhysics = 1.0 / 100;
 	real dtMax = 1.0 / 10;
 
-	int velIter = 8;
-	int posIter = 3;
+	int velIter = 10;
+	int posIter = 4;
 	
 
 	// TODO: Capitalisation style?

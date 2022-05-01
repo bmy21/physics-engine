@@ -96,15 +96,33 @@ void PolyPolyContact::correctVel()
 {
 	for (int i = 0; i < ncp; ++i)
 	{
+		ContactPoint& cp = contactPoints[i];
+
+		// Friction
+		real massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(itCrossFactors[i], 2) + ref->IInv * std::pow(rtCrossFactors[i], 2);
+		real vDotGradC = dot(inc->velocity() - ref->velocity(), t) + itCrossFactors[i] * inc->angVel() - rtCrossFactors[i] * ref->angVel();
+
+		real dfLambda = 0;
+		if (massFactor != 0)
+		{
+			dfLambda = -(vDotGradC) / massFactor;
+			dfLambda = std::clamp(cp.fLambda + dfLambda, -mu * cp.lambda, mu * cp.lambda) - cp.fLambda;
+		}
+
+		cp.fLambda += dfLambda;
+
+		inc->applyDeltaVel(t * inc->mInv * dfLambda, itCrossFactors[i] * inc->IInv * dfLambda);
+		ref->applyDeltaVel(-t * ref->mInv * dfLambda, -rtCrossFactors[i] * ref->IInv * dfLambda);
+	}
+
+	for (int i = 0; i < ncp; ++i)
+	{
 		// TODO: add restitution
 
 		ContactPoint& cp = contactPoints[i];
 
-		const vec2 vi = inc->velocity(), vr = ref->velocity();
-		const real ai = inc->angVel(), ar = ref->angVel();
-
 		real massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[i], 2) + ref->IInv * std::pow(rnCrossFactors[i], 2);
-		real vDotGradC = dot(vi - vr, n) + inCrossFactors[i] * ai - rnCrossFactors[i] * ar;
+		real vDotGradC = dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[i] * inc->angVel() - rnCrossFactors[i] * ref->angVel();
 		
 		real dLambda = 0;
 		if (massFactor != 0)
@@ -115,25 +133,8 @@ void PolyPolyContact::correctVel()
 
 		cp.lambda += dLambda;
 
-
-		// Friction
-		massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(itCrossFactors[i], 2) + ref->IInv * std::pow(rtCrossFactors[i], 2);
-		vDotGradC = dot(vi - vr, t) + itCrossFactors[i] * ai - rtCrossFactors[i] * ar;
-
-		real dfLambda = 0;
-		if (massFactor != 0)
-		{
-			dfLambda = -(vDotGradC) / massFactor;
-			dfLambda = std::clamp(cp.fLambda + dfLambda, -mu*cp.lambda, mu*cp.lambda) - cp.fLambda;
-		}
-
-		cp.fLambda += dfLambda;
-
-		inc->applyDeltaVel(n * inc->mInv * dLambda + t * inc->mInv * dfLambda,
-			inCrossFactors[i] * inc->IInv * dLambda + itCrossFactors[i] * inc->IInv * dfLambda);
-
-		ref->applyDeltaVel(-n * ref->mInv * dLambda - t * ref->mInv * dfLambda, 
-			-rnCrossFactors[i] * ref->IInv * dLambda - rtCrossFactors[i] * ref->IInv * dfLambda);
+		inc->applyDeltaVel(n * inc->mInv * dLambda, inCrossFactors[i] * inc->IInv * dLambda);
+		ref->applyDeltaVel(-n * ref->mInv * dLambda, -rnCrossFactors[i] * ref->IInv * dLambda);
 	}
 }
 
@@ -198,8 +199,6 @@ void PolyPolyContact::correctPos()
 	{
 		// TODO: precompute these before this function is called?
 
-		// TODO: add slop
-
 		const vec2 c = cp.point;
 		const vec2 ri = inc->position();
 		const vec2 rr = ref->position();
@@ -210,14 +209,8 @@ void PolyPolyContact::correctPos()
 
 		real massFactor = inc->mInv + ref->mInv + inc->IInv * iCross * iCross + ref->IInv * rCross * rCross;
 		
-		real slop = 0.005;
 		real C = std::min(cp.penetration + slop, static_cast<real>(0));
 
-		//C = cp.penetration;// +slop;
-		//std::cout << cp.penetration << " -- ";
-		//std::cout << C << "\n";
-
-		real beta = 0.3;
 
 		real dLambda = 0;
 		if (massFactor != 0)
@@ -284,7 +277,7 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 	
 
 	// Assumes that the contact points are ordered consistently in both constraints,
-	// i.e. cannot have 1 matching with 0 and 0 matching with 1
+	// i.e. cannot have 0 matching with 1 and 1 matching with 0
 	if (ncp == 1)
 	{
 		return cp[0].matches(cpOther[0]);

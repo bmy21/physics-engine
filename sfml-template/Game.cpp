@@ -24,14 +24,26 @@ Game::Game()
 	text.setFillColor(sf::Color::Blue);
 
 
-	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(6, 1.2);
-	rb->grav = 8;
-	rb->rotateTo(6 * pi / 180);
-	//rb->applyDeltaVel({ -.5, 0 }, 0);
+	std::unique_ptr<RigidBody> rb;
+	
+	
+	rb = std::make_unique<ConvexPolygon>(6, 1.2);
 
+	for (int i = 0; i < 10; ++i)
+	{
+		rb = std::make_unique<ConvexPolygon>(6, 0.5);
+		rb->moveTo({ 1920 / (2 * pixPerUnit), i * 1.f});
+		rb->grav = 6;
+		RigidBodies.push_back(std::move(rb));
+	}
+	
+	RigidBodies.back()->mInv = RigidBodies.back()->IInv = RigidBodies.back()->grav = 0;
+
+	/*rb->grav = 8;
+	rb->rotateTo(0 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
-
 	RigidBodies.push_back(std::move(rb));
+
 
 	rb = std::make_unique<ConvexPolygon>(6, 1);
 	rb->moveTo({1920/(2*pixPerUnit), 1080/(2*pixPerUnit)});
@@ -51,7 +63,7 @@ Game::Game()
 	rb = std::make_unique<ConvexPolygon>(7, 1);
 	rb->moveTo({ .75f*1920 / (pixPerUnit), .75f*1080 / (pixPerUnit) });
 	rb->mInv = rb->IInv = 0;
-	RigidBodies.push_back(std::move(rb));
+	RigidBodies.push_back(std::move(rb));*/
 }
 
 
@@ -206,8 +218,7 @@ void Game::run()
 			NewContactConstraints.clear();
 
 			//std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
-
-			//std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
+			std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
 
 
 			for (int i = 0; i < posIter; ++i)
