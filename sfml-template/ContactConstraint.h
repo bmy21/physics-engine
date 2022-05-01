@@ -20,6 +20,9 @@ public:
 
 	virtual void rebuild() = 0;
 	virtual void rebuildFrom(ContactConstraint* other) = 0;
+
+	virtual void updateCache() = 0;
+
 	//virtual void rebuild(const ContactConstraint* other) = 0;
 	//virtual void rebuild(const PolyPolyContact* other) = 0;
 

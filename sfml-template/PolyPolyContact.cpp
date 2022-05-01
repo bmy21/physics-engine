@@ -24,22 +24,20 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	cp2.point = incPoint2;
 
 
-	vec2 n = normalise(refEdge);
+	vec2 clipNormal = normalise(refEdge);
 	real eps = 1e-5;
 	
-	bool OK1 = clip(-n, refPoint1, eps, refEdgeIndex, cp1, cp2);
-	bool OK2 = clip(n, refPoint2, eps, ref->nextIndex(refEdgeIndex), cp1, cp2);
+	bool OK1 = clip(-clipNormal, refPoint1, eps, refEdgeIndex, cp1, cp2);
+	bool OK2 = clip(clipNormal, refPoint2, eps, ref->nextIndex(refEdgeIndex), cp1, cp2);
 
 	// If clipping returns no valid points, then both contact points were outside the plane
 	// This would suggest something went wrong with collision detection
 	assert(OK1 && OK2); 
 
 
-	vec2 normal = ref->normal(refEdgeIndex);
-
-
-	real p1 = dot(cp1.point - refPoint1, normal);
-	real p2 = dot(cp2.point - refPoint1, normal);
+	n = ref->normal(refEdgeIndex);
+	real p1 = dot(cp1.point - refPoint1, n);
+	real p2 = dot(cp2.point - refPoint1, n);
 
 	if (p1 <= 0)
 	{
@@ -53,7 +51,6 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 		contactPoints.push_back(cp2);
 	}
 
-
 	ncp = contactPoints.size();
 
 	assert(ncp == 1 || ncp == 2);
@@ -61,8 +58,13 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	// Project contact points onto the reference edge
 	for (auto& cp : contactPoints)
 	{
-		cp.point -= cp.penetration * normal;
+		cp.point -= cp.penetration * n;
 	}
+
+	inCrossFactors.resize(ncp);
+	itCrossFactors.resize(ncp);
+	rnCrossFactors.resize(ncp);
+	rtCrossFactors.resize(ncp);
 
 	// Sort by index off incident point to ensure a consistent ordering
 	// Note - clipping process above should give consistent order anyway?
@@ -78,44 +80,32 @@ PolyPolyContact::~PolyPolyContact()
 
 void PolyPolyContact::warmStart()
 {
-	for (auto& cp : contactPoints)
+	for (int i = 0; i < ncp; ++i)
 	{
-		const vec2& c = cp.point;
-		const vec2 ri = inc->position();
-		const vec2 rr = ref->position();
-		const vec2 n = ref->normal(refEdgeIndex);
+		const ContactPoint& cp = contactPoints[i];
 
-		real iCross = zcross(c - ri, n);
-		real rCross = zcross(c - rr, n);
+		inc->applyDeltaVel(n * inc->mInv * cp.lambda + t * inc->mInv * cp.fLambda,
+			inCrossFactors[i] * inc->IInv * cp.lambda + itCrossFactors[i] * inc->IInv * cp.fLambda);
 
-		//cp.lambda = 0;
-
-		inc->applyDeltaVel(n * inc->mInv * cp.lambda, iCross * inc->IInv * cp.lambda);
-		ref->applyDeltaVel(-n * ref->mInv * cp.lambda, -rCross * ref->IInv * cp.lambda);
+		ref->applyDeltaVel(-n * ref->mInv * cp.lambda - t * ref->mInv * cp.fLambda,
+			-rnCrossFactors[i] * ref->IInv * cp.lambda - rtCrossFactors[i] * ref->IInv * cp.fLambda);
 	}
 }
 
 void PolyPolyContact::correctVel()
 {
-	for (auto& cp : contactPoints)
+	for (int i = 0; i < ncp; ++i)
 	{
-		// TODO: precompute these before this function is called?
-
 		// TODO: add restitution
 
-		const vec2& c = cp.point;
-		const vec2 ri = inc->position();
-		const vec2 rr = ref->position();
-		const vec2 n = ref->normal(refEdgeIndex);
+		ContactPoint& cp = contactPoints[i];
 
-		real iCross = zcross(c - ri, n);
-		real rCross = zcross(c - rr, n);
+		const vec2 vi = inc->velocity(), vr = ref->velocity();
+		const real ai = inc->angVel(), ar = ref->angVel();
 
-		real massFactor = inc->mInv + ref->mInv + inc->IInv * iCross * iCross + ref->IInv * rCross * rCross;
-		real vDotGradC = dot(inc->velocity() - ref->velocity(), n) + iCross * inc->angVel() - rCross * ref->angVel();
+		real massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[i], 2) + ref->IInv * std::pow(rnCrossFactors[i], 2);
+		real vDotGradC = dot(vi - vr, n) + inCrossFactors[i] * ai - rnCrossFactors[i] * ar;
 		
-		//real C = dot(c - ref->vertex(refEdgeIndex), n);
-
 		real dLambda = 0;
 		if (massFactor != 0)
 		{
@@ -123,16 +113,87 @@ void PolyPolyContact::correctVel()
 			dLambda = std::max(cp.lambda + dLambda, static_cast<real>(0)) - cp.lambda;
 		}
 
-		inc->applyDeltaVel(n * inc->mInv * dLambda, iCross * inc->IInv * dLambda);
-		ref->applyDeltaVel(-n * ref->mInv * dLambda, -rCross * ref->IInv * dLambda);
-
 		cp.lambda += dLambda;
+
+
+		// Friction
+		massFactor = inc->mInv + ref->mInv + inc->IInv * std::pow(itCrossFactors[i], 2) + ref->IInv * std::pow(rtCrossFactors[i], 2);
+		vDotGradC = dot(vi - vr, t) + itCrossFactors[i] * ai - rtCrossFactors[i] * ar;
+
+		real dfLambda = 0;
+		if (massFactor != 0)
+		{
+			dfLambda = -(vDotGradC) / massFactor;
+			dfLambda = std::clamp(cp.fLambda + dfLambda, -mu*cp.lambda, mu*cp.lambda) - cp.fLambda;
+		}
+
+		cp.fLambda += dfLambda;
+
+		inc->applyDeltaVel(n * inc->mInv * dLambda + t * inc->mInv * dfLambda,
+			inCrossFactors[i] * inc->IInv * dLambda + itCrossFactors[i] * inc->IInv * dfLambda);
+
+		ref->applyDeltaVel(-n * ref->mInv * dLambda - t * ref->mInv * dfLambda, 
+			-rnCrossFactors[i] * ref->IInv * dLambda - rtCrossFactors[i] * ref->IInv * dfLambda);
 	}
 }
 
 void PolyPolyContact::correctPos()
 {
 	rebuild();
+
+	bool blockSolve = false;
+
+	if (blockSolve && ncp == 2)
+	{
+		const vec2 c1 = contactPoints[0].point;
+		const vec2 c2 = contactPoints[1].point;
+
+		const vec2 ri = inc->position();
+		const vec2 rr = ref->position();
+
+		const vec2 n = ref->normal(refEdgeIndex);
+
+		real iCross1 = zcross(c1 - ri, n);
+		real iCross2 = zcross(c2 - ri, n);
+		real rCross1 = zcross(c1 - rr, n);
+		real rCross2 = zcross(c2 - rr, n);
+
+		real slop = 0.005;
+		real C1 = std::min(contactPoints[0].penetration + slop, static_cast<real>(0));
+		real C2 = std::min(contactPoints[1].penetration + slop, static_cast<real>(0));
+
+		real A11 = inc->mInv + ref->mInv + inc->IInv * iCross1 * iCross1 + ref->IInv * rCross1 * rCross1;
+
+		real A12 = inc->mInv + ref->mInv + inc->IInv * iCross1 * iCross2 + ref->IInv * rCross1 * rCross2;
+
+		real A22 = inc->mInv + ref->mInv + inc->IInv * iCross2 * iCross2 + ref->IInv * rCross2 * rCross2;
+
+		real A21 = A12;
+
+		real det = A11 * A22 - A21 * A12;
+
+
+
+		real beta = 0.3;
+
+		real alpha1 = -beta * C1;
+		real alpha2 = -beta * C2;
+
+		
+
+		real lam1 = (A22 * alpha1 - A12 * alpha2) / det;
+		real lam2 = (A11 * alpha2 - A21 * alpha1) / det;
+
+		inc->applyDeltaPos(n * inc->mInv * lam1, iCross1 * inc->IInv * lam1);
+		ref->applyDeltaPos(-n * ref->mInv * lam1, -rCross1 * ref->IInv * lam1);
+
+		inc->applyDeltaPos(n * inc->mInv * lam2, iCross2 * inc->IInv * lam2);
+		ref->applyDeltaPos(-n * ref->mInv * lam2, -rCross1 * ref->IInv * lam2);
+
+		rebuild();
+		return;
+	}
+
 	for (auto& cp : contactPoints)
 	{
 		// TODO: precompute these before this function is called?
@@ -153,7 +214,8 @@ void PolyPolyContact::correctPos()
 		real C = std::min(cp.penetration + slop, static_cast<real>(0));
 
 		//C = cp.penetration;// +slop;
-		std::cout << C << "\n";
+		//std::cout << cp.penetration << " -- ";
+		//std::cout << C << "\n";
 
 		real beta = 0.3;
 
@@ -252,6 +314,7 @@ void PolyPolyContact::rebuildFrom(ContactConstraint* other)
 	for (int i = 0; i < ncp; ++i)
 	{
 		ppOther->contactPoints[i].lambda = contactPoints[i].lambda;
+		ppOther->contactPoints[i].fLambda = contactPoints[i].fLambda;
 	}
 
 	contactPoints = std::move(ppOther->contactPoints);
@@ -287,4 +350,22 @@ void PolyPolyContact::rebuildPoint(int i)
 
 	// Project onto reference edge
 	cp.point -= cp.penetration * normal;
+}
+
+void PolyPolyContact::updateCache()
+{
+	n = ref->normal(refEdgeIndex);
+	t = perp(n);
+
+	vec2 iRelPos, rRelPos;
+	for (int i = 0; i < ncp; ++i)
+	{
+		iRelPos = contactPoints[i].point - inc->position();
+		rRelPos = contactPoints[i].point - ref->position();
+
+		inCrossFactors[i] = zcross(iRelPos, n);
+		itCrossFactors[i] = zcross(iRelPos, t);
+		rnCrossFactors[i] = zcross(rRelPos, n);
+		rtCrossFactors[i] = zcross(rRelPos, t);
+	}
 }

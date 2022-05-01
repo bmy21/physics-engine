@@ -26,7 +26,8 @@ Game::Game()
 
 	std::unique_ptr<RigidBody> rb = std::make_unique<ConvexPolygon>(6, 1.2);
 	rb->grav = 8;
-	rb->rotateTo(0. * pi / 180);
+	rb->rotateTo(6 * pi / 180);
+	//rb->applyDeltaVel({ -.5, 0 }, 0);
 
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
 
@@ -106,6 +107,7 @@ void Game::run()
 
 			for (auto& cc : ContactConstraints)
 			{
+				cc->updateCache();
 				cc->warmStart();
 			}
 
@@ -219,6 +221,9 @@ void Game::run()
 			Constraints.clear();
 
 
+			//std::cout << RigidBodies[0]->velocity().x << "\t\t" << RigidBodies[0]->velocity().y << '\n';
+			//std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
+
 			accTime -= dtPhysics;
 		}
 
@@ -232,7 +237,7 @@ void Game::run()
 
 		for (auto& cc : ContactConstraints)
 		{
-			cc->draw(window, pixPerUnit, fraction, true, &text);
+			//cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		// May not want to do this when warm starting implemented!

@@ -12,6 +12,7 @@ public:
 	real penetration = 0;
 
 	real lambda = 0;
+	real fLambda = 0;
 
 	// Complete set of information that specifies how this 
 	// contact point was generated. Can be used to recompute

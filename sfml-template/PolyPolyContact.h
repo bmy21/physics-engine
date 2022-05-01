@@ -20,16 +20,26 @@ public:
 	void rebuild() override;
 	void rebuildFrom(ContactConstraint* other) override;
 
+	void updateCache() override;
+
 private:
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
 
-	void rebuildPoint(int i);
-
-	int ncp = -1;
 	int refEdgeIndex = -1;
 	int incEdgeIndex = -1;
 
+	real mu = 0.3;
+
+	// TODO: is ncp really necessary?
 	std::vector<ContactPoint> contactPoints;
+	int ncp = -1;
+	
+	// Geometric data - cached to avoid recomputation
+	vec2 n, t;
+	std::vector<real> inCrossFactors, rnCrossFactors;
+	std::vector<real> itCrossFactors, rtCrossFactors;
+
+	void rebuildPoint(int i);
 };
 
