@@ -58,6 +58,10 @@ void RigidBody::applyDeltaVel(const vec2& dv, real dw)
 {
 	vel += dv;
 	omega += dw;
+
+	assert(!isnan(dv.x));
+	assert(!isnan(dv.y));
+	assert(!isnan(dw));
 }
 
 void RigidBody::applyDeltaPos(const vec2& dr, real dth)
@@ -66,6 +70,10 @@ void RigidBody::applyDeltaPos(const vec2& dr, real dth)
 	theta += dth;
 
 	// TODO: need to update previous position and angle here?
+
+	assert(!isnan(dr.x));
+	assert(!isnan(dr.y));
+	assert(!isnan(dth));
 
 	onMove();
 	onRotate();

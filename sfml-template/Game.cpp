@@ -102,10 +102,10 @@ void Game::run()
 			// Step simulation forward by dtPhysics seconds 
 
 			vec2 mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
-			//std::unique_ptr<DistanceConstraint> dc = std::make_unique<DistanceConstraint>();
-			//dc->point = mousePos;
-			//dc->rb = RigidBodies[0].get();
-			//Constraints.push_back(std::move(dc));
+			std::unique_ptr<DistanceConstraint> dc = std::make_unique<DistanceConstraint>();
+			dc->point = mousePos;
+			dc->rb = RigidBodies[0].get();
+			Constraints.push_back(std::move(dc));
 
 
 			for (auto& rb : RigidBodies)
@@ -219,7 +219,7 @@ void Game::run()
 			NewContactConstraints.clear();
 
 			//std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
-			std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
+			//std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
 
 
 			for (int i = 0; i < posIter; ++i)
@@ -249,7 +249,7 @@ void Game::run()
 
 		for (auto& cc : ContactConstraints)
 		{
-			//cc->draw(window, pixPerUnit, fraction, true, &text);
+			cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		// May not want to do this when warm starting implemented!

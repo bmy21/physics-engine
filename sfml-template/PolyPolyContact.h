@@ -23,7 +23,7 @@ public:
 	void updateCache() override;
 
 private:
-	bool simulSolveVel = false; 
+	bool simulSolveVel = true; 
 	bool simulSolvePos = true;
 	real mu = 0.1;
 	// real e = 0.9;

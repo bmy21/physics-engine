@@ -171,10 +171,12 @@ void PolyPolyContact::correctPos()
 {
 	if (simulSolvePos && ncp == 2)
 	{
+		rebuild();
+		updateCache();
+
 		if (det != 0)
 		{
-			rebuild();
-			updateCache();
+			//std::cout << det << '\n';
 
 			real C1 = std::min(contactPoints[0].penetration + slop, static_cast<real>(0));
 			real C2 = std::min(contactPoints[1].penetration + slop, static_cast<real>(0));
@@ -187,6 +189,10 @@ void PolyPolyContact::correctPos()
 
 			inc->applyDeltaPos(n * inc->mInv * (lam1 + lam2), inc->IInv * (inCrossFactors[0] * lam1 + inCrossFactors[1] * lam2));
 			ref->applyDeltaPos(-n * ref->mInv * (lam1 + lam2), ref->IInv * (-rnCrossFactors[0] * lam1 - rnCrossFactors[1] * lam2));
+
+			
+			//rebuild();
+
 
 			return;
 		}
@@ -322,6 +328,7 @@ void PolyPolyContact::rebuildPoint(int i)
 		vec2 b = ref->vertex(cp.clippedAgainstPoint);
 
 		// TODO: Quicker to do this with dot products?
+		assert(zcross(q, p) != 0);
 		vec2 intersect = a + p * zcross(q, b - a) / zcross(q, p);
 		cp.point = intersect;
 	}
