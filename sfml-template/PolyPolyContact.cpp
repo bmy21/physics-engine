@@ -69,11 +69,27 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	nMassFactors.resize(ncp);
 	tMassFactors.resize(ncp);
 
+	
+
 	// Sort by index off incident point to ensure a consistent ordering
 	// Note - clipping process above should give consistent order anyway?
-	//std::sort(contactPoints.begin(), contactPoints.end(),
-	//	[](const ContactPoint& cp1, const ContactPoint& cp2) 
-	//	{ return cp1.incPointIndex < cp2.incPointIndex; }); 
+	std::sort(contactPoints.begin(), contactPoints.end(),
+		[](const ContactPoint& cp1, const ContactPoint& cp2) 
+		{ return cp1.incPointIndex < cp2.incPointIndex; }); 
+
+
+	// Store target relative velocities
+	for (const auto& cp : contactPoints)
+	{
+		// TODO: function to calculate velocity of a point
+
+		// TODO: only apply restitution above a threshold vRel?
+
+		real vRel = dot(inc->velocity() + inc->angVel() * -perp(cp.point - inc->position())
+			- (ref->velocity() + ref->angVel() * -perp(cp.point - ref->position())), n);
+
+		vRelTarget.push_back(vRel < 0 ? - e * vRel : 0);
+	}
 }
 
 PolyPolyContact::~PolyPolyContact()
@@ -117,33 +133,30 @@ void PolyPolyContact::correctVel()
 		ref->applyDeltaVel(-t * ref->mInv * dfLambda, -rtCrossFactors[i] * ref->IInv * dfLambda);
 	}
 
-	if (simulSolveVel && ncp == 2)
+	if (ncp == 2 && simulSolveVel && wellConditioned)
 	{
-		if (det != 0)
+		real alpha1 = vRelTarget[0] - (dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[0] * inc->angVel() - rnCrossFactors[0] * ref->angVel());
+		real alpha2 = vRelTarget[1] - (dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[1] * inc->angVel() - rnCrossFactors[1] * ref->angVel());
+
+		real lam1 = (nMassFactors[1] * alpha1 - A12 * alpha2) / det;
+		real lam2 = (nMassFactors[0] * alpha2 - A12 * alpha1) / det;
+
+
+		if (contactPoints[0].lambda + lam1 >= 0 && contactPoints[1].lambda + lam2 >= 0)
 		{
-			real alpha1 = -(dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[0] * inc->angVel() - rnCrossFactors[0] * ref->angVel());
-			real alpha2 = -(dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[1] * inc->angVel() - rnCrossFactors[1] * ref->angVel());
+			inc->applyDeltaVel(n * inc->mInv * (lam1 + lam2), inc->IInv * (inCrossFactors[0] * lam1 + inCrossFactors[1] * lam2));
+			ref->applyDeltaVel(-n * ref->mInv * (lam1 + lam2), ref->IInv * (-rnCrossFactors[0] * lam1 - rnCrossFactors[1] * lam2));
 
-			real lam1 = (nMassFactors[1] * alpha1 - A12 * alpha2) / det;
-			real lam2 = (nMassFactors[0] * alpha2 - A12 * alpha1) / det;
+			contactPoints[0].lambda += lam1;
+			contactPoints[1].lambda += lam2;
 
-
-			if (contactPoints[0].lambda + lam1 >= 0 && contactPoints[1].lambda + lam2 >= 0)
-			{
-				inc->applyDeltaVel(n * inc->mInv * (lam1 + lam2), inc->IInv * (inCrossFactors[0] * lam1 + inCrossFactors[1] * lam2));
-				ref->applyDeltaVel(-n * ref->mInv * (lam1 + lam2), ref->IInv * (-rnCrossFactors[0] * lam1 - rnCrossFactors[1] * lam2));
-
-				contactPoints[0].lambda += lam1;
-				contactPoints[1].lambda += lam2;
-
-				return;
-			}
+			return;
 		}
-		
-		// At this point, simultaneous solution failed either because the determinant was zero or because one of the accumulated
-		// impulses would become negative. So, we fall back to the iterative solution.
 	}
-
+		
+	// At this point, simultaneous solution failed, either because the condition number was too high or 
+	// because one of the accumulated impulses would become negative. So, resort to the iterative solution.
+	
 	for (int i = 0; i < ncp; ++i)
 	{
 		// TODO: add restitution
@@ -155,7 +168,7 @@ void PolyPolyContact::correctVel()
 		real dLambda = 0;
 		if (nMassFactors[i] != 0)
 		{
-			dLambda = -(vDotGradC) / nMassFactors[i];
+			dLambda = (vRelTarget[i] - vDotGradC) / nMassFactors[i];
 			dLambda = std::max(cp.lambda + dLambda, static_cast<real>(0)) - cp.lambda;
 		}
 
@@ -174,10 +187,8 @@ void PolyPolyContact::correctPos()
 		rebuild();
 		updateCache();
 
-		if (det != 0)
+		if (wellConditioned)
 		{
-			//std::cout << det << '\n';
-
 			real C1 = std::min(contactPoints[0].penetration + slop, static_cast<real>(0));
 			real C2 = std::min(contactPoints[1].penetration + slop, static_cast<real>(0));
 
@@ -190,15 +201,11 @@ void PolyPolyContact::correctPos()
 			inc->applyDeltaPos(n * inc->mInv * (lam1 + lam2), inc->IInv * (inCrossFactors[0] * lam1 + inCrossFactors[1] * lam2));
 			ref->applyDeltaPos(-n * ref->mInv * (lam1 + lam2), ref->IInv * (-rnCrossFactors[0] * lam1 - rnCrossFactors[1] * lam2));
 
-			
-			//rebuild();
-
-
 			return;
 		}
-
-		// At this point, the determinant was zero, so resort to iterative solution.
 	}
+
+	// At this point, the condition number was too high, so resort to the iterative solution.
 
 	for (int i = 0; i < ncp; ++i)
 	{
@@ -263,13 +270,12 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 	{
 		return false;
 	}
+	
+	assert(ncp == 1 || ncp == 2);
 
 	auto& cp = contactPoints;
 	auto& cpOther = other->contactPoints;
-
-	assert(ncp == 1 || ncp == 2);
 	
-
 	// Assumes that the contact points are ordered consistently in both constraints,
 	// i.e. cannot have 0 matching with 1 and 1 matching with 0
 	if (ncp == 1)
@@ -304,6 +310,7 @@ void PolyPolyContact::rebuildFrom(ContactConstraint* other)
 	}
 
 	contactPoints = std::move(ppOther->contactPoints);
+	vRelTarget = std::move(ppOther->vRelTarget);
 }
 
 void PolyPolyContact::rebuildPoint(int i)
@@ -362,6 +369,11 @@ void PolyPolyContact::updateCache()
 	if ((simulSolveVel || simulSolvePos) && ncp == 2)
 	{
 		A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
-		det = nMassFactors[0] * nMassFactors[1] - A12 * A12;
+		det = nMassFactors[0] * nMassFactors[1] - A12 * A12; 
+
+		norm = std::max(nMassFactors[0] + std::abs(A12), nMassFactors[1] + std::abs(A12));
+
+		// Is the condition number less than the threshold?
+		wellConditioned = norm * norm < maxCond * det;
 	}
 }

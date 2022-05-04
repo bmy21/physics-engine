@@ -2,7 +2,7 @@
 
 DistanceConstraint::DistanceConstraint()
 {
-	setBeta(0.2);
+	setBeta(0.1);
 }
 
 void DistanceConstraint::correctVel()

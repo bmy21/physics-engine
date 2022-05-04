@@ -29,19 +29,19 @@ Game::Game()
 	
 	rb = std::make_unique<ConvexPolygon>(6, 1.2);
 
-	for (int i = 0; i < 10; ++i)
-	{
-		rb = std::make_unique<ConvexPolygon>(6, 0.5);
-		rb->moveTo({ 1920 / (2 * pixPerUnit), i * 1.f}); //+ i*0.02f
-		rb->grav = 6;
-		//rb->rotateTo(3 * pi / 180);
-		RigidBodies.push_back(std::move(rb));
-	}
-	
-	RigidBodies.back()->mInv = RigidBodies.back()->IInv = RigidBodies.back()->grav = 0;
+	//for (int i = 0; i < 10; ++i)
+	//{
+	//	rb = std::make_unique<ConvexPolygon>(6, 0.5);
+	//	rb->moveTo({ 1920 / (2 * pixPerUnit), i * 1.f}); //+ i*0.02f
+	//	rb->grav = 6;
+	//	//rb->rotateTo(3 * pi / 180);
+	//	RigidBodies.push_back(std::move(rb));
+	//}
+	//
+	//RigidBodies.back()->mInv = RigidBodies.back()->IInv = RigidBodies.back()->grav = 0;
 
-	/*rb->grav = 8;
-	rb->rotateTo(0 * pi / 180);
+	rb->grav = 8;
+	rb->rotateTo(5 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
 	RigidBodies.push_back(std::move(rb));
 
@@ -64,7 +64,7 @@ Game::Game()
 	rb = std::make_unique<ConvexPolygon>(7, 1);
 	rb->moveTo({ .75f*1920 / (pixPerUnit), .75f*1080 / (pixPerUnit) });
 	rb->mInv = rb->IInv = 0;
-	RigidBodies.push_back(std::move(rb));*/
+	RigidBodies.push_back(std::move(rb));
 }
 
 
@@ -102,10 +102,10 @@ void Game::run()
 			// Step simulation forward by dtPhysics seconds 
 
 			vec2 mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
-			std::unique_ptr<DistanceConstraint> dc = std::make_unique<DistanceConstraint>();
-			dc->point = mousePos;
-			dc->rb = RigidBodies[0].get();
-			Constraints.push_back(std::move(dc));
+			//std::unique_ptr<DistanceConstraint> dc = std::make_unique<DistanceConstraint>();
+			//dc->point = mousePos;
+			//dc->rb = RigidBodies[0].get();
+			//Constraints.push_back(std::move(dc));
 
 
 			for (auto& rb : RigidBodies)
@@ -244,7 +244,7 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, pixPerUnit, fraction, false, &text);
+			rb->draw(window, pixPerUnit, 0, false, &text);
 		}
 
 		for (auto& cc : ContactConstraints)

@@ -23,10 +23,16 @@ public:
 	void updateCache() override;
 
 private:
-	bool simulSolveVel = true; 
-	bool simulSolvePos = true;
-	real mu = 0.1;
-	// real e = 0.9;
+	bool simulSolveVel = 1; 
+	bool simulSolvePos = 1;
+
+	// TODO: should these be protected members of ContactConstraint?
+	real mu = 0.3;
+	real e = 0.5;
+	std::vector<real> vRelTarget;
+
+	real maxCond = 1000;
+	bool wellConditioned = false;
 
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
@@ -42,7 +48,7 @@ private:
 	std::vector<real> inCrossFactors, rnCrossFactors;
 	std::vector<real> itCrossFactors, rtCrossFactors;
 	std::vector<real> nMassFactors, tMassFactors;
-	real A12 = 0, det = 0;
+	real A12 = 0, det = 0, norm = 0;
 
 	void rebuildPoint(int i);
 };
