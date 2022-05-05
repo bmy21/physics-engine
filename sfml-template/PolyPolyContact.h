@@ -23,12 +23,12 @@ public:
 	void updateCache() override;
 
 private:
-	bool simulSolveVel = 1; 
-	bool simulSolvePos = 1;
+	bool simulSolveVel = 0; 
+	bool simulSolvePos = 0;
 
 	// TODO: should these be protected members of ContactConstraint?
 	real mu = 0.3;
-	real e = 0.5;
+	real e = 0.4;
 	std::vector<real> vRelTarget;
 
 	real maxCond = 1000;

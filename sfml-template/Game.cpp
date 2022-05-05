@@ -27,7 +27,7 @@ Game::Game()
 	std::unique_ptr<RigidBody> rb;
 	
 	
-	rb = std::make_unique<ConvexPolygon>(6, 1.2);
+	rb = std::make_unique<ConvexPolygon>(12, 1);
 
 	//for (int i = 0; i < 10; ++i)
 	//{
@@ -40,21 +40,24 @@ Game::Game()
 	//
 	//RigidBodies.back()->mInv = RigidBodies.back()->IInv = RigidBodies.back()->grav = 0;
 
-	rb->grav = 8;
-	rb->rotateTo(5 * pi / 180);
+	rb->grav = 10;
+	rb->rotateTo(12 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
+	rb->mInv = 1;
+	rb->IInv = 20;
 	RigidBodies.push_back(std::move(rb));
 
 
-	rb = std::make_unique<ConvexPolygon>(6, 1);
-	rb->moveTo({1920/(2*pixPerUnit), 1080/(2*pixPerUnit)});
+	rb = std::make_unique<ConvexPolygon>(6, 2.5);
+	rb->moveTo({1920/(2*pixPerUnit), .75f*1080/(pixPerUnit)});
+	rb->rotateTo(0 * pi / 180);
 	rb->mInv = rb->IInv = 0;
 	RigidBodies.push_back(std::move(rb));
 
-	rb = std::make_unique<ConvexPolygon>(7, 1);
-	rb->moveTo({ 1920 / (2 * pixPerUnit), .75f * 1080 / (pixPerUnit) });
-	rb->mInv = rb->IInv = 0;
-	RigidBodies.push_back(std::move(rb));
+	//rb = std::make_unique<ConvexPolygon>(7, 1);
+	//rb->moveTo({ 1920 / (2 * pixPerUnit), .75f * 1080 / (pixPerUnit) });
+	//rb->mInv = rb->IInv = 0;
+	//RigidBodies.push_back(std::move(rb));
 
 	rb = std::make_unique<ConvexPolygon>(7, 1);
 	rb->moveTo({ 1920 / (4 * pixPerUnit), .75f*1080 / (pixPerUnit) });
@@ -86,7 +89,7 @@ void Game::run()
 				window.close();
 		}
 
-		dt = frameTimer.restart().asSeconds()/1;
+		dt = frameTimer.restart().asSeconds()/2;
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -233,7 +236,7 @@ void Game::run()
 			Constraints.clear();
 
 
-			//std::cout << RigidBodies[0]->velocity().x << "\t\t" << RigidBodies[0]->velocity().y << '\n';
+			//std::cout << RigidBodies[0]->position().x << "\t\t" << RigidBodies[0]->position().y << '\n';
 			//std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
 
 			accTime -= dtPhysics;
@@ -244,12 +247,12 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, pixPerUnit, 0, false, &text);
+			rb->draw(window, pixPerUnit, fraction, false, &text);
 		}
 
 		for (auto& cc : ContactConstraints)
 		{
-			cc->draw(window, pixPerUnit, fraction, true, &text);
+			//cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		// May not want to do this when warm starting implemented!

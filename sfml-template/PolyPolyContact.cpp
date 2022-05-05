@@ -53,7 +53,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	ncp = contactPoints.size();
 
-	assert(ncp == 1 || ncp == 2);
+	// TODO: handle ncp == 0 case (in matches() too)
 
 	// Project contact points onto the reference edge
 	for (auto& cp : contactPoints)
@@ -73,9 +73,9 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	// Sort by index off incident point to ensure a consistent ordering
 	// Note - clipping process above should give consistent order anyway?
-	std::sort(contactPoints.begin(), contactPoints.end(),
-		[](const ContactPoint& cp1, const ContactPoint& cp2) 
-		{ return cp1.incPointIndex < cp2.incPointIndex; }); 
+	//std::sort(contactPoints.begin(), contactPoints.end(),
+	//	[](const ContactPoint& cp1, const ContactPoint& cp2) 
+	//	{ return cp1.incPointIndex < cp2.incPointIndex; }); 
 
 
 	// Store target relative velocities
@@ -88,6 +88,9 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 		real vRel = dot(inc->velocity() + inc->angVel() * -perp(cp.point - inc->position())
 			- (ref->velocity() + ref->angVel() * -perp(cp.point - ref->position())), n);
 
+		//std::cout << vRel << '\n';
+		
+		
 		vRelTarget.push_back(vRel < 0 ? - e * vRel : 0);
 	}
 }
@@ -101,8 +104,10 @@ void PolyPolyContact::warmStart()
 {
 	for (int i = 0; i < ncp; ++i)
 	{
-		const ContactPoint& cp = contactPoints[i];
-
+		ContactPoint& cp = contactPoints[i];
+		
+		//cp.lambda = cp.fLambda = 0;
+		
 		inc->applyDeltaVel(n * inc->mInv * cp.lambda + t * inc->mInv * cp.fLambda,
 			inCrossFactors[i] * inc->IInv * cp.lambda + itCrossFactors[i] * inc->IInv * cp.fLambda);
 
@@ -116,7 +121,7 @@ void PolyPolyContact::correctVel()
 	for (int i = 0; i < ncp; ++i)
 	{
 		ContactPoint& cp = contactPoints[i];
-		
+
 		// Friction
 		real vDotGradC = dot(inc->velocity() - ref->velocity(), t) + itCrossFactors[i] * inc->angVel() - rtCrossFactors[i] * ref->angVel();
 
@@ -177,7 +182,6 @@ void PolyPolyContact::correctVel()
 		inc->applyDeltaVel(n * inc->mInv * dLambda, inCrossFactors[i] * inc->IInv * dLambda);
 		ref->applyDeltaVel(-n * ref->mInv * dLambda, -rnCrossFactors[i] * ref->IInv * dLambda);
 	}
-
 }
 
 void PolyPolyContact::correctPos()
@@ -266,12 +270,12 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 
 bool PolyPolyContact::matches(const PolyPolyContact* other) const
 {
+	// TODO: handle ncp == 0 case
+
 	if (ref != other->ref || inc != other->inc || ncp != other->ncp)
 	{
 		return false;
 	}
-	
-	assert(ncp == 1 || ncp == 2);
 
 	auto& cp = contactPoints;
 	auto& cpOther = other->contactPoints;
@@ -282,7 +286,7 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 	{
 		return cp[0].matches(cpOther[0]);
 	}
-	else
+	else if (ncp == 2)
 	{
 		return cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]);
 	}

@@ -168,6 +168,8 @@ std::tuple<bool, real, int, int> ConvexPolygon::maxSignedPenetration(const Conve
 			pointIndex = pindex;
 			normalIndex = i;
 		}
+
+		
 	}
 
 	return { earlyOut, maxPenetration, normalIndex, pointIndex };
