@@ -192,6 +192,7 @@ int ConvexPolygon::prevIndex(int i) const
 }
 
 
+
 Vertex ConvexPolygon::support(const vec2& d) const
 {
 	real largestDot = std::numeric_limits<real>::lowest();

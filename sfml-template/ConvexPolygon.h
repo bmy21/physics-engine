@@ -31,6 +31,7 @@ public:
 	int nextIndex(int i) const;
 	int prevIndex(int i) const;
 
+
 private:
 
 	void createRegularPolygon(real sideLength);

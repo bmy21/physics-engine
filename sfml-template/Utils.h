@@ -31,6 +31,8 @@ real zcross(const vec2& v, const vec2& w);
 void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Color col);
 void drawThickLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, real width, sf::Color col);
 
+real regularPolyInvMOI(real mInv, real side, int n);
+
 enum class ClipRegion { In, On, Out };
 std::pair<real, ClipRegion> getClipRegion(const vec2& n, const vec2& ref, real eps, const vec2& p);
 bool clip(const vec2& n, const vec2& ref, real eps, int clipPointIndex, ContactPoint& cp1, ContactPoint& cp2);

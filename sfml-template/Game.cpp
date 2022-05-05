@@ -27,7 +27,7 @@ Game::Game()
 	std::unique_ptr<RigidBody> rb;
 	
 	
-	rb = std::make_unique<ConvexPolygon>(12, 1);
+	rb = std::make_unique<ConvexPolygon>(5, 0.1);
 
 	//for (int i = 0; i < 10; ++i)
 	//{
@@ -41,10 +41,11 @@ Game::Game()
 	//RigidBodies.back()->mInv = RigidBodies.back()->IInv = RigidBodies.back()->grav = 0;
 
 	rb->grav = 10;
-	rb->rotateTo(12 * pi / 180);
+	rb->rotateTo(5 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
 	rb->mInv = 1;
-	rb->IInv = 20;
+	rb->IInv = regularPolyInvMOI(rb->mInv, 0.1, 5);
+	//std::cout << regularPolyInvMOI(rb->mInv, 0.6, 12) << '\n';
 	RigidBodies.push_back(std::move(rb));
 
 
@@ -89,7 +90,7 @@ void Game::run()
 				window.close();
 		}
 
-		dt = frameTimer.restart().asSeconds()/2;
+		dt = frameTimer.restart().asSeconds()/5;
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -237,7 +238,7 @@ void Game::run()
 
 
 			//std::cout << RigidBodies[0]->position().x << "\t\t" << RigidBodies[0]->position().y << '\n';
-			//std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
+			std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
 
 			accTime -= dtPhysics;
 		}
@@ -247,12 +248,12 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, pixPerUnit, fraction, false, &text);
+			rb->draw(window, pixPerUnit, 0, false, &text);
 		}
 
 		for (auto& cc : ContactConstraints)
 		{
-			//cc->draw(window, pixPerUnit, fraction, true, &text);
+			cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		// May not want to do this when warm starting implemented!

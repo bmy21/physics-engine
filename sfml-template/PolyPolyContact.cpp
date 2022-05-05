@@ -88,9 +88,6 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 		real vRel = dot(inc->velocity() + inc->angVel() * -perp(cp.point - inc->position())
 			- (ref->velocity() + ref->angVel() * -perp(cp.point - ref->position())), n);
 
-		//std::cout << vRel << '\n';
-		
-		
 		vRelTarget.push_back(vRel < 0 ? - e * vRel : 0);
 	}
 }
@@ -164,8 +161,6 @@ void PolyPolyContact::correctVel()
 	
 	for (int i = 0; i < ncp; ++i)
 	{
-		// TODO: add restitution
-
 		ContactPoint& cp = contactPoints[i];
 		
 		real vDotGradC = dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[i] * inc->angVel() - rnCrossFactors[i] * ref->angVel();
