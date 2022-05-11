@@ -43,11 +43,12 @@ Game::Game()
 	//RigidBodies.back()->mInv = RigidBodies.back()->IInv = RigidBodies.back()->grav = 0;
 
 	//rb->grav = 10;
-	rb->rotateTo(9 * pi / 180);
+	//rb->rotateTo(9 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
 	rb->mInv = 2;
 	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
-	rb->applyDeltaVel({ -1, 0 }, 0);
+	//rb->grav = 800;
+	//rb->applyDeltaVel({ -1, 0 }, 0);
 	//std::cout << regularPolyInvMOI(rb->mInv, 0.6, 12) << '\n';
 	RigidBodies.push_back(std::move(rb));
 
@@ -85,7 +86,10 @@ void Game::run()
 	vec2 mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
 	std::unique_ptr<SoftDistanceConstraint> dc;
 	RigidBodies[0]->onMove();
-	dc = std::make_unique<SoftDistanceConstraint>(RigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, 100.f, 8.f, 1 / dtPhysics);
+
+	mousePos = { 1.f,1.f };
+
+	dc = std::make_unique<SoftDistanceConstraint>(RigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, 300.f, 25.f, 1 / dtPhysics);
 	Constraints.push_back(std::move(dc));
 
 
@@ -116,7 +120,9 @@ void Game::run()
 		while (accTime >= dtPhysics)
 		{
 			// Step simulation forward by dtPhysics seconds 
-			static_cast<SoftDistanceConstraint*>(Constraints[0].get())->fixedPoint = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
+			auto mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
+			//mousePos = { 1.f,1.f };
+			static_cast<SoftDistanceConstraint*>(Constraints[0].get())->fixedPoint = mousePos;
 			
 
 			
@@ -252,6 +258,7 @@ void Game::run()
 
 			//std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
 			//std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
+			//std::cout << magnitude(RigidBodies[0]->velocity()) << "\n";
 
 
 			for (int i = 0; i < posIter; ++i)

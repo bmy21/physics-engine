@@ -26,10 +26,10 @@ public:
 	int numPersist = 0;
 
 protected:
-	real mu = 0.3;
+	real mu = 0.5;
 	real e = 0.5;
 
-	real beta = 0.5;
+	real beta = 0.3;
 	real slop = 0.005;
 
 private:

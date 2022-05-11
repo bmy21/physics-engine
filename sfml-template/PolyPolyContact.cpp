@@ -65,8 +65,18 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 		// TODO: only apply restitution above a threshold vRel?
 
 		real vRel = dot(inc->pointVel(cp.point) - ref->pointVel(cp.point), n);
-		std::cout << vRel << '\n';
-		vRelTarget.push_back(vRel < -1 ? - e * vRel : 0);
+		//std::cout << vRel << '\n';
+
+		real rest = e;
+
+		//if (vRel > -1)
+		//{
+			//rest = -vRel * e / 1;
+			//std::cout << rest << "\n";
+		//}
+
+
+		vRelTarget.push_back(vRel < 0 ? - rest * vRel : 0);
 	}
 }
 
@@ -183,7 +193,7 @@ void PolyPolyContact::correctPos()
 	}
 
 	// At this point, the condition number was too high, so resort to the iterative solution.
-
+	
 	for (int i = 0; i < ncp; ++i)
 	{
 		rebuild();
@@ -361,6 +371,9 @@ void PolyPolyContact::updateCache()
 		A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
 		det = nMassFactors[0] * nMassFactors[1] - A12 * A12; 
 		norm = std::max(nMassFactors[0], nMassFactors[1]) + std::abs(A12);
+
+		//std::cout << norm*norm/det << '\n';
+
 
 		// Is the condition number less than the threshold?
 		wellConditioned = norm * norm < maxCond * det;

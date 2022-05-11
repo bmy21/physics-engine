@@ -38,25 +38,21 @@ void SoftDistanceConstraint::correctVel()
 
 		real h = 1 / dtInv;
 
-		real beta1 = h * b * muInv1 / (1 + h * b * muInv1);
-		real beta2 = h * b * muInv2 / (1 + h * b * muInv2);
-
-		real gam1 = h * k * muInv1 / (1 + h * b * muInv1);
-		real gam2 = h * k * muInv2 / (1 + h * b * muInv2);
+		real beta = k / (h * k + b);
+		real gamma = dtInv / (h * k + b);
 
 		real C1 = dot(p - fixedPoint, dir1);
 		real C2 = dot(p - fixedPoint, dir2);
 
-		//std::cout << C2 << '\n';
+		// TODO: Why accLam *h?
 
-		real alpha1 = -beta1 * vDotGradC1 - gam1 * C1;
-		real alpha2 = -beta2 * vDotGradC2 - gam2 * C2;
+
+		real alpha1 = -vDotGradC1 - beta * C1 - gamma * accLam1*h;
+		real alpha2 = -vDotGradC2 - beta * C2 - gamma * accLam2*h;
+
 
 		real A12 = rb->mInv * 0 + rb->IInv * crossFactor1 * crossFactor2;
 		real det = muInv1 * muInv2 - A12 * A12;
-
-		
-
 
 
 		if (det != 0)
@@ -64,6 +60,8 @@ void SoftDistanceConstraint::correctVel()
 			real lam1 = (muInv2 * alpha1 - A12 * alpha2) / det;
 			real lam2 = (muInv1 * alpha2 - A12 * alpha1) / det;
 
+			//std::cout << lam1 << "\n" << lam2 << "\n";
+			
 			real prevAccLam1 = accLam1, prevAccLam2 = accLam2;
 
 			accLam1 += lam1;
@@ -71,12 +69,13 @@ void SoftDistanceConstraint::correctVel()
 		
 			real force = std::sqrt(accLam1 * accLam1 + accLam2 * accLam2) * dtInv;
 
-			real fMax = 500;
+			real fMax = 200;
 
 			//std::cout << force << "\n";
 
 			if (force > fMax)
 			{
+				//std::cout << force << '\n';
 				accLam1 *= fMax / force;
 				accLam2 *= fMax / force;
 			}
@@ -163,9 +162,10 @@ void SoftDistanceConstraint::correctPos()
 
 void SoftDistanceConstraint::warmStart()
 {
-	accLam1 = accLam2 = 0;
+	//accLam1 = accLam2 = 0;
+
+
 	
-	/*
 	vec2 dir1 = { 1,0 }; // fixedPoint - p;
 	real mag = magnitude(dir1);
 
@@ -182,5 +182,5 @@ void SoftDistanceConstraint::warmStart()
 	real crossFactor2 = zcross(p - rb->position(), dir2);
 
 	rb->applyDeltaVel(dir1 * rb->mInv * accLam1, crossFactor1 * rb->IInv * accLam1);
-	rb->applyDeltaVel(dir2 * rb->mInv * accLam2, crossFactor2 * rb->IInv * accLam2);*/
+	rb->applyDeltaVel(dir2 * rb->mInv * accLam2, crossFactor2 * rb->IInv * accLam2);
 }
