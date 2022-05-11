@@ -24,42 +24,23 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	cp2.point = incPoint2;
 
 
-	vec2 clipNormal = normalise(refEdge);
+	// Plane half-thickness for clipping
 	real eps = 1e-5;
-	
+
+	vec2 clipNormal = normalise(refEdge);
 	bool OK1 = clip(-clipNormal, refPoint1, eps, refEdgeIndex, cp1, cp2);
 	bool OK2 = clip(clipNormal, refPoint2, eps, ref->nextIndex(refEdgeIndex), cp1, cp2);
 
 	// If clipping returns no valid points, then both contact points were outside the plane
 	// This would suggest something went wrong with collision detection
-	assert(OK1 && OK2); 
-
+	//assert(OK1 && OK2); 
 
 	n = ref->normal(refEdgeIndex);
-	real p1 = dot(cp1.point - refPoint1, n);
-	real p2 = dot(cp2.point - refPoint1, n);
-
-	if (p1 <= 0)
-	{
-		cp1.penetration = p1;
-		contactPoints.push_back(cp1);
-	}
-
-	if (p2 <= 0)
-	{
-		cp2.penetration = p2;
-		contactPoints.push_back(cp2);
-	}
+	
+	checkAndAddPoint(cp1, refPoint1, eps);
+	checkAndAddPoint(cp2, refPoint1, eps);
 
 	ncp = contactPoints.size();
-
-	// TODO: handle ncp == 0 case (in matches() too)
-
-	// Project contact points onto the reference edge
-	for (auto& cp : contactPoints)
-	{
-		cp.point -= cp.penetration * n;
-	}
 
 	inCrossFactors.resize(ncp);
 	itCrossFactors.resize(ncp);
@@ -81,14 +62,11 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	// Store target relative velocities
 	for (const auto& cp : contactPoints)
 	{
-		// TODO: function to calculate velocity of a point
-
 		// TODO: only apply restitution above a threshold vRel?
 
-		real vRel = dot(inc->velocity() + inc->angVel() * -perp(cp.point - inc->position())
-			- (ref->velocity() + ref->angVel() * -perp(cp.point - ref->position())), n);
-
-		vRelTarget.push_back(vRel < 0 ? - e * vRel : 0);
+		real vRel = dot(inc->pointVel(cp.point) - ref->pointVel(cp.point), n);
+		std::cout << vRel << '\n';
+		vRelTarget.push_back(vRel < -1 ? - e * vRel : 0);
 	}
 }
 
@@ -265,9 +243,7 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 
 bool PolyPolyContact::matches(const PolyPolyContact* other) const
 {
-	// TODO: handle ncp == 0 case
-
-	if (ref != other->ref || inc != other->inc || ncp != other->ncp)
+	if (ref != other->ref || inc != other->inc || ncp != other->ncp || ncp == 0)
 	{
 		return false;
 	}
@@ -345,6 +321,21 @@ void PolyPolyContact::rebuildPoint(int i)
 	cp.point -= cp.penetration * normal;
 }
 
+void PolyPolyContact::checkAndAddPoint(ContactPoint& cp, const vec2& ref, real eps)
+{
+	// If cp lies inside the reference edge, store its penetration, project it into the edge, 
+	// and add it to the contactPoints vector.
+
+	real p = dot(cp.point - ref, n);
+
+	if (p <= eps)
+	{
+		cp.penetration = p;
+		cp.point -= cp.penetration * n;
+		contactPoints.push_back(cp);
+	}
+}
+
 void PolyPolyContact::updateCache()
 {
 	n = ref->normal(refEdgeIndex);
@@ -369,10 +360,19 @@ void PolyPolyContact::updateCache()
 	{
 		A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
 		det = nMassFactors[0] * nMassFactors[1] - A12 * A12; 
-
-		norm = std::max(nMassFactors[0] + std::abs(A12), nMassFactors[1] + std::abs(A12));
+		norm = std::max(nMassFactors[0], nMassFactors[1]) + std::abs(A12);
 
 		// Is the condition number less than the threshold?
 		wellConditioned = norm * norm < maxCond * det;
+		
+		//if (!wellConditioned)
+		//{
+		//	std::cout << "ill-conditioned\n";
+		//}
+		//else
+		//{
+		//	std::cout << "\n";
+		//}
+
 	}
 }

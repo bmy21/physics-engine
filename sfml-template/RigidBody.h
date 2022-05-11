@@ -38,6 +38,8 @@ public:
 	void applyDeltaVel(const vec2& dv, real dw);
 	void applyDeltaPos(const vec2& dr, real dth);
 
+	vec2 pointVel(const vec2& p) const { return vel + omega * -perp(p - pos); }
+
 
 	// TODO: make these private
 	real mInv = 1, IInv = 1;

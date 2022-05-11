@@ -23,12 +23,12 @@ public:
 
 	virtual void updateCache() = 0;
 
-	//virtual void rebuild(const ContactConstraint* other) = 0;
-	//virtual void rebuild(const PolyPolyContact* other) = 0;
-
 	int numPersist = 0;
 
 protected:
+	real mu = 0.3;
+	real e = 0.5;
+
 	real beta = 0.5;
 	real slop = 0.005;
 

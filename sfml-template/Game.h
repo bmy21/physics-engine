@@ -5,6 +5,7 @@
 #include "ConvexPolygon.h"
 #include "ContactConstraint.h"
 #include "DistanceConstraint.h"
+#include "SoftDistanceConstraint.h"
 
 class Game
 {
@@ -25,10 +26,10 @@ private:
 
 	bool vsync = true;
 	int fpsLimit = 144;
-	real dtPhysics = 1.0 / 120;
+	real dtPhysics = 1.0 / 50;
 	real dtMax = 1.0 / 10;
 
-	int velIter = 10;
+	int velIter = 12;
 	int posIter = 4;
 	
 

@@ -24,12 +24,7 @@ public:
 
 private:
 	bool simulSolveVel = 1; 
-	bool simulSolvePos = 1;
-
-	// TODO: should these be protected members of ContactConstraint?
-	real mu = 0.3;
-	real e = 0.3;
-	std::vector<real> vRelTarget;
+	bool simulSolvePos = 0;
 
 	real maxCond = 1000;
 	bool wellConditioned = false;
@@ -39,6 +34,8 @@ private:
 
 	int refEdgeIndex = -1;
 	int incEdgeIndex = -1;
+
+	std::vector<real> vRelTarget;
 
 	std::vector<ContactPoint> contactPoints;
 	int ncp = -1;
@@ -51,5 +48,6 @@ private:
 	real A12 = 0, det = 0, norm = 0;
 
 	void rebuildPoint(int i);
+	void checkAndAddPoint(ContactPoint& cp, const vec2& ref, real eps);
 };
 

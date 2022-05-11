@@ -27,7 +27,9 @@ Game::Game()
 	std::unique_ptr<RigidBody> rb;
 	
 	
-	rb = std::make_unique<ConvexPolygon>(5, 0.1);
+	real len = 0.4;
+	int nsides = 15;
+	rb = std::make_unique<ConvexPolygon>(nsides, len);
 
 	//for (int i = 0; i < 10; ++i)
 	//{
@@ -40,11 +42,12 @@ Game::Game()
 	//
 	//RigidBodies.back()->mInv = RigidBodies.back()->IInv = RigidBodies.back()->grav = 0;
 
-	rb->grav = 10;
-	rb->rotateTo(5 * pi / 180);
+	//rb->grav = 10;
+	rb->rotateTo(9 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
-	rb->mInv = 1;
-	rb->IInv = regularPolyInvMOI(rb->mInv, 0.1, 5);
+	rb->mInv = 2;
+	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
+	rb->applyDeltaVel({ -1, 0 }, 0);
 	//std::cout << regularPolyInvMOI(rb->mInv, 0.6, 12) << '\n';
 	RigidBodies.push_back(std::move(rb));
 
@@ -79,6 +82,13 @@ void Game::run()
 	real dt = 0;
 	real fraction = 0;
 
+	vec2 mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
+	std::unique_ptr<SoftDistanceConstraint> dc;
+	RigidBodies[0]->onMove();
+	dc = std::make_unique<SoftDistanceConstraint>(RigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, 100.f, 8.f, 1 / dtPhysics);
+	Constraints.push_back(std::move(dc));
+
+
 	while (window.isOpen())
 	{
 		window.clear(sf::Color::White);
@@ -90,7 +100,7 @@ void Game::run()
 				window.close();
 		}
 
-		dt = frameTimer.restart().asSeconds()/5;
+		dt = frameTimer.restart().asSeconds()/1;
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -101,15 +111,15 @@ void Game::run()
 		accTime += dt;
 
 
+		
+
 		while (accTime >= dtPhysics)
 		{
 			// Step simulation forward by dtPhysics seconds 
+			static_cast<SoftDistanceConstraint*>(Constraints[0].get())->fixedPoint = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
+			
 
-			vec2 mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
-			//std::unique_ptr<DistanceConstraint> dc = std::make_unique<DistanceConstraint>();
-			//dc->point = mousePos;
-			//dc->rb = RigidBodies[0].get();
-			//Constraints.push_back(std::move(dc));
+			
 
 
 			for (auto& rb : RigidBodies)
@@ -134,15 +144,33 @@ void Game::run()
 			{
 				for (auto& c : Constraints)
 				{
-					c->correctVel();
+					//c->correctVel();
 				}
 			}
 
 			for (int i = 0; i < velIter; ++i)
 			{
+				for (auto& c : Constraints)
+				{
+					c->correctVel();
+				}
+
 				for (auto& cc : ContactConstraints)
 				{
 					cc->correctVel();
+				}
+
+				for (auto& c : Constraints)
+				{
+					//c->correctVel();
+				}
+			}
+
+			for (int i = 0; i < velIter; ++i)
+			{
+				for (auto& c : Constraints)
+				{
+					//c->correctVel();
 				}
 			}
 
@@ -155,7 +183,7 @@ void Game::run()
 			{
 				for (auto& c : Constraints)
 				{
-					c->correctPos();
+					//c->correctPos();
 				}
 			}
 
@@ -234,12 +262,12 @@ void Game::run()
 				}
 			}
 
-			Constraints.clear();
+			//Constraints.clear();
 
 
 			//std::cout << RigidBodies[0]->position().x << "\t\t" << RigidBodies[0]->position().y << '\n';
-			std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
-
+			//std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
+			//std::cout << Constraints.size() << '\n';
 			accTime -= dtPhysics;
 		}
 
@@ -248,16 +276,14 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, pixPerUnit, 0, false, &text);
+			rb->draw(window, pixPerUnit, 0 * fraction, 0, &text);
 		}
 
 		for (auto& cc : ContactConstraints)
 		{
-			cc->draw(window, pixPerUnit, fraction, true, &text);
+			//cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
-		// May not want to do this when warm starting implemented!
-		// ContactConstraints.clear();
 
 		window.display();
 	}
