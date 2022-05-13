@@ -45,7 +45,7 @@ Game::Game()
 	//rb->grav = 10;
 	//rb->rotateTo(9 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
-	rb->mInv = 2;
+	rb->mInv = 0.5;
 	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
 	//rb->grav = 800;
 	//rb->applyDeltaVel({ -1, 0 }, 0);
@@ -126,155 +126,31 @@ void Game::run()
 			
 
 			
+			detectCollisions();
 
+			integrateVelocities();
 
-			for (auto& rb : RigidBodies)
-			{
-				rb->integrateVel(dtPhysics);
-			}
+			updateConstraintCaches();
 
-			for (auto& c : Constraints)
-			{
-				c->warmStart();
-			}
+			warmStart();
 
-			for (auto& cc : ContactConstraints)
-			{
-				cc->updateCache();
-				cc->warmStart();
-			}
+			correctVelocities();
 
-			// TODO: Constraints and ContactConstraints in the same vector?
-			// Or at least in the same outer loop?
-			for (int i = 0; i < velIter; ++i)
-			{
-				for (auto& c : Constraints)
-				{
-					//c->correctVel();
-				}
-			}
-
-			for (int i = 0; i < velIter; ++i)
-			{
-				for (auto& c : Constraints)
-				{
-					c->correctVel();
-				}
-
-				for (auto& cc : ContactConstraints)
-				{
-					cc->correctVel();
-				}
-
-				for (auto& c : Constraints)
-				{
-					//c->correctVel();
-				}
-			}
-
-			for (int i = 0; i < velIter; ++i)
-			{
-				for (auto& c : Constraints)
-				{
-					//c->correctVel();
-				}
-			}
-
-			for (auto& rb : RigidBodies)
-			{
-				rb->integratePos(dtPhysics);
-			}
-
-			for (int i = 0; i < posIter; ++i)
-			{
-				for (auto& c : Constraints)
-				{
-					//c->correctPos();
-				}
-			}
-
-			// Snap first RB to mouse
-			// RigidBodies[0]->moveTo(vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit));
-
-
-			// Check for collisions
-			for (auto it1 = RigidBodies.begin(); it1 != RigidBodies.end(); ++it1)
-			{
-				for (auto it2 = RigidBodies.begin(); it2 != it1; ++it2)
-				{
-					std::unique_ptr<ContactConstraint> result = (*it1)->checkCollision(it2->get());
-
-					if (result)
-					{
-						NewContactConstraints.push_back(std::move(result));
-					}
-				}
-			}
+			correctPositions();
+			
+			integratePositions();
 
 			
-			// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
-			for (auto it = ContactConstraints.begin(); it != ContactConstraints.end(); )
-			{
-				bool matched = false;
-
-				for (auto newIt = NewContactConstraints.begin(); newIt != NewContactConstraints.end(); ++newIt)
-				{
-					// TODO: ensure a pair is always checked in the same order?
-					// e.g. by assigning a unique id
-					if ((*newIt)->matches(it->get()))
-					{
-						// *it represents the same contact constraint as *newIt
-						// *newIt is not required; just keep and rebuild *it
-
-						++(*it)->numPersist;
-						//std::cout << (*it)->numPersist << '\n';
-
-						(*it)->rebuildFrom(newIt->get());
-						NewContactConstraints.erase(newIt);
-
-						matched = true;
-
-						break;
-					}
-				}
-
-				if (matched)
-				{
-					++it;
-				}
-				else
-				{
-					// The contact handled by *it no longer exists
-					it = ContactConstraints.erase(it);
-				}
-			}
-
-			// Move any new contact constraints into the main vector
-			ContactConstraints.insert(ContactConstraints.end(),
-				std::make_move_iterator(NewContactConstraints.begin()),
-				std::make_move_iterator(NewContactConstraints.end()));
-
-			NewContactConstraints.clear();
 
 			//std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
 			//std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
 			//std::cout << magnitude(RigidBodies[0]->velocity()) << "\n";
-
-
-			for (int i = 0; i < posIter; ++i)
-			{
-				for (auto& cc : ContactConstraints)
-				{
-					cc->correctPos();
-				}
-			}
-
-			//Constraints.clear();
-
-
+			
 			//std::cout << RigidBodies[0]->position().x << "\t\t" << RigidBodies[0]->position().y << '\n';
 			//std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
 			//std::cout << Constraints.size() << '\n';
+
+
 			accTime -= dtPhysics;
 		}
 
@@ -294,4 +170,158 @@ void Game::run()
 
 		window.display();
 	}
+}
+
+void Game::integrateVelocities()
+{
+	for (auto& rb : RigidBodies)
+	{
+		rb->integrateVel(dtPhysics);
+	}
+}
+
+void Game::integratePositions()
+{
+	for (auto& rb : RigidBodies)
+	{
+		rb->integratePos(dtPhysics);
+	}
+}
+
+void Game::updateConstraintCaches()
+{
+	for (auto& cc : ContactConstraints)
+	{
+		cc->updateCache();
+	}
+}
+
+void Game::warmStart()
+{
+	for (auto& c : Constraints)
+	{
+		c->warmStart();
+	}
+
+	for (auto& cc : ContactConstraints)
+	{
+		cc->warmStart();
+	}
+}
+
+void Game::correctVelocities()
+{
+	for (int i = 0; i < velIter; ++i)
+	{
+		for (auto& c : Constraints)
+		{
+			//c->correctVel();
+		}
+	}
+
+	for (int i = 0; i < velIter; ++i)
+	{
+		for (auto& c : Constraints)
+		{
+			c->correctVel();
+		}
+
+		for (auto& cc : ContactConstraints)
+		{
+			cc->correctVel();
+		}
+
+		for (auto& c : Constraints)
+		{
+			//c->correctVel();
+		}
+	}
+
+	for (int i = 0; i < velIter; ++i)
+	{
+		for (auto& c : Constraints)
+		{
+			//c->correctVel();
+		}
+	}
+}
+
+void Game::correctPositions()
+{
+	for (int i = 0; i < posIter; ++i)
+	{
+		for (auto& c : Constraints)
+		{
+			c->correctPos();
+		}
+
+		for (int i = 0; i < posIter; ++i)
+		{
+			for (auto& cc : ContactConstraints)
+			{
+				cc->correctPos();
+			}
+		}
+	}
+}
+
+void Game::detectCollisions()
+{
+	// Check for collisions
+	for (auto it1 = RigidBodies.begin(); it1 != RigidBodies.end(); ++it1)
+	{
+		for (auto it2 = RigidBodies.begin(); it2 != it1; ++it2)
+		{
+			std::unique_ptr<ContactConstraint> result = (*it1)->checkCollision(it2->get());
+
+			if (result)
+			{
+				NewContactConstraints.push_back(std::move(result));
+			}
+		}
+	}
+
+	// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
+	for (auto it = ContactConstraints.begin(); it != ContactConstraints.end(); )
+	{
+		bool matched = false;
+
+		for (auto newIt = NewContactConstraints.begin(); newIt != NewContactConstraints.end(); ++newIt)
+		{
+			// TODO: ensure a pair is always checked in the same order?
+			// e.g. by assigning a unique id
+			if ((*newIt)->matches(it->get()))
+			{
+				// *it represents the same contact constraint as *newIt
+				// *newIt is not required; just keep and rebuild *it
+
+				++(*it)->numPersist;
+				//std::cout << (*it)->numPersist << '\n';
+
+				(*it)->rebuildFrom(newIt->get());
+				NewContactConstraints.erase(newIt);
+
+				matched = true;
+
+				break;
+			}
+		}
+
+		if (matched)
+		{
+			++it;
+		}
+		else
+		{
+			// The contact handled by *it no longer exists
+			it = ContactConstraints.erase(it);
+		}
+	}
+
+	// Move any new contact constraints into the main vector
+	ContactConstraints.insert(ContactConstraints.end(),
+		std::make_move_iterator(NewContactConstraints.begin()),
+		std::make_move_iterator(NewContactConstraints.end()));
+
+	NewContactConstraints.clear();
 }

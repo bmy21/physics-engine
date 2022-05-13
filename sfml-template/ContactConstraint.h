@@ -27,7 +27,7 @@ public:
 
 protected:
 	real mu = 0.5;
-	real e = 0.5;
+	real e = 0.;
 
 	real beta = 0.3;
 	real slop = 0.005;

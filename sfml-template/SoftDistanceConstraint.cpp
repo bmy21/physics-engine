@@ -39,16 +39,17 @@ void SoftDistanceConstraint::correctVel()
 		real h = 1 / dtInv;
 
 		real beta = k / (h * k + b);
-		real gamma = dtInv / (h * k + b);
+		real gamma = 1 / (h * k + b); // TODO: why no /h?
 
 		real C1 = dot(p - fixedPoint, dir1);
 		real C2 = dot(p - fixedPoint, dir2);
 
 		// TODO: Why accLam *h?
+		// TODO: order of collision detection & solving?
 
 
-		real alpha1 = -vDotGradC1 - beta * C1 - gamma * accLam1*h;
-		real alpha2 = -vDotGradC2 - beta * C2 - gamma * accLam2*h;
+		real alpha1 = -vDotGradC1 - beta * C1 - gamma * accLam1;
+		real alpha2 = -vDotGradC2 - beta * C2 - gamma * accLam2;
 
 
 		real A12 = rb->mInv * 0 + rb->IInv * crossFactor1 * crossFactor2;
@@ -69,7 +70,7 @@ void SoftDistanceConstraint::correctVel()
 		
 			real force = std::sqrt(accLam1 * accLam1 + accLam2 * accLam2) * dtInv;
 
-			real fMax = 200;
+			real fMax = 1000;
 
 			//std::cout << force << "\n";
 

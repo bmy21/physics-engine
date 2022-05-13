@@ -26,11 +26,21 @@ private:
 
 	bool vsync = true;
 	int fpsLimit = 144;
-	real dtPhysics = 1.0 / 150;
+	real dtPhysics = 1.0 / 120;
 	real dtMax = 1.0 / 10;
 
-	int velIter = 12;
-	int posIter = 4;
+	int velIter = 8;
+	int posIter = 3;
+
+	void integrateVelocities();
+	void integratePositions();
+
+	void updateConstraintCaches();
+	void warmStart();
+
+	void correctVelocities();
+	void correctPositions();
+	void detectCollisions();
 	
 
 	// TODO: Capitalisation style?

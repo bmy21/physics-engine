@@ -65,7 +65,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 		// TODO: only apply restitution above a threshold vRel?
 
 		real vRel = dot(inc->pointVel(cp.point) - ref->pointVel(cp.point), n);
-		//std::cout << vRel << '\n';
+		std::cout << vRel << '\n';
 
 		real rest = e;
 
@@ -91,8 +91,13 @@ void PolyPolyContact::warmStart()
 	{
 		ContactPoint& cp = contactPoints[i];
 		
+
+
 		//cp.lambda = cp.fLambda = 0;
 		
+
+
+
 		inc->applyDeltaVel(n * inc->mInv * cp.lambda + t * inc->mInv * cp.fLambda,
 			inCrossFactors[i] * inc->IInv * cp.lambda + itCrossFactors[i] * inc->IInv * cp.fLambda);
 
