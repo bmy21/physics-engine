@@ -25,7 +25,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 
 	// Plane half-thickness for clipping
-	real eps = 1e-5;
+	real eps = 1e-8;
 
 	vec2 clipNormal = normalise(refEdge);
 	bool OK1 = clip(-clipNormal, refPoint1, eps, refEdgeIndex, cp1, cp2);
@@ -65,7 +65,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 		// TODO: only apply restitution above a threshold vRel?
 
 		real vRel = dot(inc->pointVel(cp.point) - ref->pointVel(cp.point), n);
-		std::cout << vRel << '\n';
+		//std::cout << vRel << '\n';
 
 		real rest = e;
 
@@ -207,6 +207,10 @@ void PolyPolyContact::correctPos()
 		ContactPoint& cp = contactPoints[i];
 		real C = std::min(cp.penetration + slop, static_cast<real>(0));
 
+		//C = std::clamp(cp.penetration + slop, -0.05f, static_cast<real>(0));
+
+		//std::cout << C << "\n";
+
 		real dLambda = 0;
 		if (nMassFactors[i] != 0)
 		{
@@ -215,6 +219,13 @@ void PolyPolyContact::correctPos()
 		
 		inc->applyDeltaPos(n * inc->mInv * dLambda, inc->IInv * inCrossFactors[i] * dLambda);
 		ref->applyDeltaPos(-n * ref->mInv * dLambda, ref->IInv * -rnCrossFactors[i] * dLambda);
+
+		/*if (dLambda)
+		{
+			std::cout << inc->mInv * dLambda << "\n";
+			std::cout << inc->IInv* inCrossFactors[i] * dLambda << "\n";
+			std::cout << "\n";
+		}*/
 	}
 }
 

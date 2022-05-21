@@ -45,7 +45,7 @@ Game::Game()
 	//rb->grav = 10;
 	//rb->rotateTo(9 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
-	rb->mInv = 0.5;
+	rb->mInv = 1;
 	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
 	//rb->grav = 800;
 	//rb->applyDeltaVel({ -1, 0 }, 0);
@@ -87,9 +87,9 @@ void Game::run()
 	std::unique_ptr<SoftDistanceConstraint> dc;
 	RigidBodies[0]->onMove();
 
-	mousePos = { 1.f,1.f };
+	mousePos = { 4.f,1.f };
 
-	dc = std::make_unique<SoftDistanceConstraint>(RigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, 300.f, 25.f, 1 / dtPhysics);
+	dc = std::make_unique<SoftDistanceConstraint>(RigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, 1.f, 0.8f, 1 / dtPhysics);
 	Constraints.push_back(std::move(dc));
 
 
@@ -122,24 +122,26 @@ void Game::run()
 			// Step simulation forward by dtPhysics seconds 
 			auto mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
 			//mousePos = { 1.f,1.f };
-			static_cast<SoftDistanceConstraint*>(Constraints[0].get())->fixedPoint = mousePos;
+			//static_cast<SoftDistanceConstraint*>(Constraints[0].get())->fixedPoint = mousePos;
 			
-
 			
-			detectCollisions();
-
-			integrateVelocities();
 
 			updateConstraintCaches();
 
 			warmStart();
 
-			correctVelocities();
+			integrateVelocities();
 
-			correctPositions();
+			correctVelocities();
 			
 			integratePositions();
 
+			detectCollisions();
+
+			correctPositions();
+
+
+			//std::cout << RigidBodies[0]->velocity().x << "\n";// " --- " << RigidBodies[0]->velocity().y << "\n";
 			
 
 			//std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
@@ -159,7 +161,7 @@ void Game::run()
 		// Draw world
 		for (auto& rb : RigidBodies)
 		{
-			rb->draw(window, pixPerUnit, 0 * fraction, 0, &text);
+			rb->draw(window, pixPerUnit, fraction, 0, &text);
 		}
 
 		for (auto& cc : ContactConstraints)
@@ -254,13 +256,10 @@ void Game::correctPositions()
 		{
 			c->correctPos();
 		}
-
-		for (int i = 0; i < posIter; ++i)
+		
+		for (auto& cc : ContactConstraints)
 		{
-			for (auto& cc : ContactConstraints)
-			{
-				cc->correctPos();
-			}
+			cc->correctPos();
 		}
 	}
 }

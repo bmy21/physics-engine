@@ -29,8 +29,8 @@ private:
 	real dtPhysics = 1.0 / 120;
 	real dtMax = 1.0 / 10;
 
-	int velIter = 8;
-	int posIter = 3;
+	int velIter = 10;
+	int posIter = 4;
 
 	void integrateVelocities();
 	void integratePositions();

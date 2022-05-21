@@ -4,7 +4,7 @@ class SoftDistanceConstraint : public Constraint
 {
 public:
 
-	SoftDistanceConstraint(RigidBody* rb, const vec2& fixedPoint, const vec2& localPoint, real d, real k, real b, real dtInv);
+	SoftDistanceConstraint(RigidBody* rb, const vec2& fixedPoint, const vec2& localPoint, real d, real tOsc, real tDec, real dtInv);
 
 	void correctVel() override;
 	void correctPos() override;
