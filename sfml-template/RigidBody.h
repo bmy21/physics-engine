@@ -34,6 +34,7 @@ public:
 	vec2 position() const { return pos; }
 	real angVel() const { return omega; }
 	vec2 velocity() const { return vel; }
+	real KE() const { return 0.5 * dot(vel, vel) / mInv; }
 
 	void applyDeltaVel(const vec2& dv, real dw);
 	void applyDeltaPos(const vec2& dr, real dth);

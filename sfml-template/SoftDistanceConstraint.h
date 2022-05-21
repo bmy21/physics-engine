@@ -4,11 +4,13 @@ class SoftDistanceConstraint : public Constraint
 {
 public:
 
-	SoftDistanceConstraint(RigidBody* rb, const vec2& fixedPoint, const vec2& localPoint, real d, real tOsc, real tDec, real dtInv);
+	SoftDistanceConstraint(RigidBody* rb, const vec2& fixedPoint, const vec2& localPoint, real d, real tOsc, real dampingRatio, real dtInv);
 
 	void correctVel() override;
 	void correctPos() override;
 	void warmStart() override;
+
+	//real energy() const {return }
 
 	RigidBody* rb = nullptr;
 	vec2 fixedPoint, localPoint;

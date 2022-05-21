@@ -44,7 +44,7 @@ Game::Game()
 
 	//rb->grav = 10;
 	//rb->rotateTo(9 * pi / 180);
-	rb->moveTo({ 1920 / (2 * pixPerUnit), 100 / (pixPerUnit) });
+	rb->moveTo({ 1920 / (2 * pixPerUnit), 1 });
 	rb->mInv = 1;
 	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
 	//rb->grav = 800;
@@ -89,7 +89,7 @@ void Game::run()
 
 	mousePos = { 4.f,1.f };
 
-	dc = std::make_unique<SoftDistanceConstraint>(RigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, 1.f, 0.8f, 1 / dtPhysics);
+	dc = std::make_unique<SoftDistanceConstraint>(RigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, .1f, 4.f, 1 / dtPhysics);
 	Constraints.push_back(std::move(dc));
 
 
@@ -122,7 +122,7 @@ void Game::run()
 			// Step simulation forward by dtPhysics seconds 
 			auto mousePos = vec2(sf::Mouse::getPosition(window).x / pixPerUnit, sf::Mouse::getPosition(window).y / pixPerUnit);
 			//mousePos = { 1.f,1.f };
-			//static_cast<SoftDistanceConstraint*>(Constraints[0].get())->fixedPoint = mousePos;
+			static_cast<SoftDistanceConstraint*>(Constraints[0].get())->fixedPoint = mousePos;
 			
 			
 
@@ -243,7 +243,7 @@ void Game::correctVelocities()
 	{
 		for (auto& c : Constraints)
 		{
-			//c->correctVel();
+			c->correctVel();
 		}
 	}
 }
