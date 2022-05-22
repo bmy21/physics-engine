@@ -39,6 +39,8 @@ public:
 	void applyDeltaVel(const vec2& dv, real dw);
 	void applyDeltaPos(const vec2& dr, real dth);
 
+	void applyDamping(real linearDamp, real angularDamp, real dt);
+
 	vec2 pointVel(const vec2& p) const { return vel + omega * -perp(p - pos); }
 
 

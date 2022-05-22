@@ -41,6 +41,10 @@ private:
 	void correctVelocities();
 	void correctPositions();
 	void detectCollisions();
+
+	void updateMousePos();
+
+	vec2 mousePos;
 	
 
 	// TODO: Capitalisation style?

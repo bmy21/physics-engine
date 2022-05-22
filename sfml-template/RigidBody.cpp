@@ -78,3 +78,14 @@ void RigidBody::applyDeltaPos(const vec2& dr, real dth)
 	onMove();
 	onRotate();
 }
+
+void RigidBody::applyDamping(real linearDamp, real angularDamp, real dt)
+{
+	// Apply damping s.t. dv/dt = -linearDamp * v;
+	// Ensure that the velocities don't have their directions reversed
+	real linearScale = 1 - linearDamp * dt;
+	real angularScale = 1 - angularDamp * dt;
+
+	vel *= linearScale > 0 ? linearScale : 0;
+	omega *= angularScale > 0 ? angularScale : 0;
+}

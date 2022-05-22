@@ -91,12 +91,7 @@ void PolyPolyContact::warmStart()
 	{
 		ContactPoint& cp = contactPoints[i];
 		
-
-
 		//cp.lambda = cp.fLambda = 0;
-		
-
-
 
 		inc->applyDeltaVel(n * inc->mInv * cp.lambda + t * inc->mInv * cp.fLambda,
 			inCrossFactors[i] * inc->IInv * cp.lambda + itCrossFactors[i] * inc->IInv * cp.fLambda);
@@ -219,13 +214,6 @@ void PolyPolyContact::correctPos()
 		
 		inc->applyDeltaPos(n * inc->mInv * dLambda, inc->IInv * inCrossFactors[i] * dLambda);
 		ref->applyDeltaPos(-n * ref->mInv * dLambda, ref->IInv * -rnCrossFactors[i] * dLambda);
-
-		/*if (dLambda)
-		{
-			std::cout << inc->mInv * dLambda << "\n";
-			std::cout << inc->IInv* inCrossFactors[i] * dLambda << "\n";
-			std::cout << "\n";
-		}*/
 	}
 }
 

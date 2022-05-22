@@ -67,7 +67,7 @@ void SoftDistanceConstraint::correctVel()
 
 		real fMax = 500;
 
-		std::cout << force << "\n";
+		//std::cout << force << "\n";
 
 		if (force > fMax)
 		{
