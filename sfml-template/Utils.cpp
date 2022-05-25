@@ -47,6 +47,11 @@ real zcross(const vec2& v, const vec2& w)
 	return v.x * w.y - v.y * w.x;
 }
 
+real decayConstant(real halfLife)
+{
+	return std::log(2) / halfLife;
+}
+
 void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Color col)
 {
 	sf::Vertex line[] = {

@@ -10,7 +10,10 @@ public:
 	void correctPos() override;
 	void warmStart() override;
 
-	//real energy() const {return }
+
+	// TODO: automatic mouse position update
+	// TODO: caching of geometrical factors
+	// TODO: store dt instead of dtInv!
 
 	RigidBody* rb = nullptr;
 	vec2 fixedPoint, localPoint;

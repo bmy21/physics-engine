@@ -1,6 +1,11 @@
 #include "RigidBody.h"
 
 
+RigidBody::RigidBody()
+{
+	
+}
+
 void RigidBody::moveTo(const vec2& p)
 {
 	pos = posPrev = p; 
@@ -79,7 +84,10 @@ void RigidBody::applyDeltaPos(const vec2& dr, real dth)
 	onRotate();
 }
 
-void RigidBody::applyDamping(real linearDamp, real angularDamp, real dt)
+
+// TODO: damping coefficients based on desired half-lives?
+
+void RigidBody::applyDamping(real dt)
 {
 	// Apply damping s.t. dv/dt = -linearDamp * v;
 	// Ensure that the velocities don't have their directions reversed

@@ -10,6 +10,8 @@ class RigidBody
 {
 public:
 
+	RigidBody();
+
 	virtual void update(real dt) = 0;
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, 
 		bool debug = false, sf::Text* text = nullptr) = 0;
@@ -39,7 +41,7 @@ public:
 	void applyDeltaVel(const vec2& dv, real dw);
 	void applyDeltaPos(const vec2& dr, real dth);
 
-	void applyDamping(real linearDamp, real angularDamp, real dt);
+	void applyDamping(real dt);
 
 	vec2 pointVel(const vec2& p) const { return vel + omega * -perp(p - pos); }
 
@@ -47,6 +49,8 @@ public:
 	// TODO: make these private
 	real mInv = 1, IInv = 1;
 	real grav = 0;
+
+	real linearDamp = 0, angularDamp = 0;
 
 private:
 

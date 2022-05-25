@@ -47,6 +47,8 @@ Game::Game()
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 1 });
 	rb->mInv = 1;
 	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
+	rb->angularDamp = decayConstant(1.5);
+
 	//rb->grav = 800;
 	//rb->applyDeltaVel({ -1, 0 }, 0);
 	//std::cout << regularPolyInvMOI(rb->mInv, 0.6, 12) << '\n';
@@ -178,9 +180,7 @@ void Game::integrateVelocities()
 	for (auto& rb : RigidBodies)
 	{
 		rb->integrateVel(dtPhysics);
-
-		real linearDamp = 0, angularDamp = 0.2;
-		rb->applyDamping(linearDamp, angularDamp, dtPhysics);
+		rb->applyDamping(dtPhysics);
 	}
 }
 
