@@ -33,7 +33,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	// If clipping returns no valid points, then both contact points were outside the plane
 	// This would suggest something went wrong with collision detection
-	//assert(OK1 && OK2); 
+	// assert(OK1 && OK2); 
 
 	n = ref->normal(refEdgeIndex);
 	
@@ -54,7 +54,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	// Sort by index off incident point to ensure a consistent ordering
 	// Note - clipping process above should give consistent order anyway?
-	//std::sort(contactPoints.begin(), contactPoints.end(),
+	// std::sort(contactPoints.begin(), contactPoints.end(),
 	//	[](const ContactPoint& cp1, const ContactPoint& cp2) 
 	//	{ return cp1.incPointIndex < cp2.incPointIndex; }); 
 
@@ -62,27 +62,14 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	// Store target relative velocities
 	for (const auto& cp : contactPoints)
 	{
-		// TODO: only apply restitution above a threshold vRel?
-
 		real vRel = dot(inc->pointVel(cp.point) - ref->pointVel(cp.point), n);
-		//std::cout << vRel << '\n';
-
-		real rest = e;
-
-		//if (vRel > -1)
-		//{
-			//rest = -vRel * e / 1;
-			//std::cout << rest << "\n";
-		//}
-
-
-		vRelTarget.push_back(vRel < 0 ? - rest * vRel : 0);
+		vRelTarget.push_back(vRel < -vRelThreshold ? - e * vRel : 0);
 	}
 }
 
 PolyPolyContact::~PolyPolyContact()
 {
-	//std::cout << "~PolyPolyContact()\n";
+	
 }
 
 void PolyPolyContact::warmStart()

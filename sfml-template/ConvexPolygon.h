@@ -5,9 +5,6 @@
 #include "Edge.h"
 #include "Vertex.h"
 
-
-// TODO: add Edge & Vertex classes?
-
 class ConvexPolygon : public RigidBody
 {
 public:

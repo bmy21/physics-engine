@@ -2,11 +2,9 @@
 
 bool ContactPoint::matches(const ContactPoint& other) const
 {
-	// TODO: does clippedAgainstPoint really need to match?
+	// Note: not requiring clippedAgainstPoint to be matched
 	return (incPointIndex == other.incPointIndex
 		&& refEdgeIndex == other.refEdgeIndex);
-
-		// && clippedAgainstPoint == other.clippedAgainstPoint);
 }
 
 std::string ContactPoint::idAsString() const

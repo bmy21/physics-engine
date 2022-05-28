@@ -27,9 +27,6 @@ void RigidBody::integrateVel(real dt)
 
 	// Reset acceleration for next frame
 	acc = { 0, 0 };
-
-	// TODO: Apply damping?
-
 }
 
 void RigidBody::integratePos(real dt)
@@ -71,10 +68,10 @@ void RigidBody::applyDeltaVel(const vec2& dv, real dw)
 
 void RigidBody::applyDeltaPos(const vec2& dr, real dth)
 {
+	// Note: previous position and angle are NOT updated here
+
 	pos += dr;
 	theta += dth;
-
-	// TODO: need to update previous position and angle here?
 
 	assert(!isnan(dr.x));
 	assert(!isnan(dr.y));
@@ -85,12 +82,11 @@ void RigidBody::applyDeltaPos(const vec2& dr, real dth)
 }
 
 
-// TODO: damping coefficients based on desired half-lives?
-
 void RigidBody::applyDamping(real dt)
 {
 	// Apply damping s.t. dv/dt = -linearDamp * v;
 	// Ensure that the velocities don't have their directions reversed
+
 	real linearScale = 1 - linearDamp * dt;
 	real angularScale = 1 - angularDamp * dt;
 

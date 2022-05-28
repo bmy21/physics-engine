@@ -28,6 +28,7 @@ public:
 protected:
 	real mu = 0.5;
 	real e = 0.3;
+	real vRelThreshold = 0;
 
 	real beta = 0.5;
 	real slop = 0.005;
