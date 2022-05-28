@@ -46,12 +46,10 @@ private:
 
 	vec2 mousePos;
 	
+	std::vector<std::unique_ptr<RigidBody>> rigidBodies;
+	std::vector<std::unique_ptr<Constraint>> constraints;
 
-	// TODO: Capitalisation style?
-	std::vector<std::unique_ptr<RigidBody>> RigidBodies;
-	std::vector<std::unique_ptr<Constraint>> Constraints;
-
-	std::vector<std::unique_ptr<ContactConstraint>> ContactConstraints;
-	std::vector<std::unique_ptr<ContactConstraint>> NewContactConstraints;
+	std::vector<std::unique_ptr<ContactConstraint>> contactConstraints;
+	std::vector<std::unique_ptr<ContactConstraint>> newContactConstraints;
 };
 

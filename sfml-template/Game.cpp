@@ -52,14 +52,14 @@ Game::Game()
 	//rb->grav = 800;
 	//rb->applyDeltaVel({ -1, 0 }, 0);
 	//std::cout << regularPolyInvMOI(rb->mInv, 0.6, 12) << '\n';
-	RigidBodies.push_back(std::move(rb));
+	rigidBodies.push_back(std::move(rb));
 
 
 	rb = std::make_unique<ConvexPolygon>(6, 2.5);
 	rb->moveTo({1920/(2*pixPerUnit), .75f*1080/(pixPerUnit)});
 	rb->rotateTo(0 * pi / 180);
 	rb->mInv = rb->IInv = 0;
-	RigidBodies.push_back(std::move(rb));
+	rigidBodies.push_back(std::move(rb));
 
 	//rb = std::make_unique<ConvexPolygon>(7, 1);
 	//rb->moveTo({ 1920 / (2 * pixPerUnit), .75f * 1080 / (pixPerUnit) });
@@ -69,12 +69,12 @@ Game::Game()
 	rb = std::make_unique<ConvexPolygon>(7, 1);
 	rb->moveTo({ 1920 / (4 * pixPerUnit), .75f*1080 / (pixPerUnit) });
 	rb->mInv = rb->IInv = 0;
-	RigidBodies.push_back(std::move(rb));
+	rigidBodies.push_back(std::move(rb));
 
 	rb = std::make_unique<ConvexPolygon>(7, 1);
 	rb->moveTo({ .75f*1920 / (pixPerUnit), .75f*1080 / (pixPerUnit) });
 	rb->mInv = rb->IInv = 0;
-	RigidBodies.push_back(std::move(rb));
+	rigidBodies.push_back(std::move(rb));
 }
 
 
@@ -88,12 +88,12 @@ void Game::run()
 	updateMousePos();
 	
 	std::unique_ptr<SoftDistanceConstraint> dc;
-	RigidBodies[0]->onMove();
+	rigidBodies[0]->onMove();
 
 	//mousePos = { 4.f,1.f };
 
-	dc = std::make_unique<SoftDistanceConstraint>(RigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, .1f, 4.f, 1 / dtPhysics);
-	Constraints.push_back(std::move(dc));
+	dc = std::make_unique<SoftDistanceConstraint>(rigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, .1f, 4.f, 1 / dtPhysics);
+	constraints.push_back(std::move(dc));
 
 
 	while (window.isOpen())
@@ -126,7 +126,7 @@ void Game::run()
 
 			updateMousePos();
 			//mousePos = { 1.f,1.f };
-			static_cast<SoftDistanceConstraint*>(Constraints[0].get())->fixedPoint = mousePos;
+			static_cast<SoftDistanceConstraint*>(constraints[0].get())->fixedPoint = mousePos;
 			
 			
 
@@ -160,12 +160,12 @@ void Game::run()
 		fraction = accTime / dtPhysics;
 
 		// Draw world
-		for (auto& rb : RigidBodies)
+		for (auto& rb : rigidBodies)
 		{
 			rb->draw(window, pixPerUnit, fraction, 0, &text);
 		}
 
-		for (auto& cc : ContactConstraints)
+		for (auto& cc : contactConstraints)
 		{
 			//cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
@@ -177,7 +177,7 @@ void Game::run()
 
 void Game::integrateVelocities()
 {
-	for (auto& rb : RigidBodies)
+	for (auto& rb : rigidBodies)
 	{
 		rb->integrateVel(dtPhysics);
 		rb->applyDamping(dtPhysics);
@@ -186,7 +186,7 @@ void Game::integrateVelocities()
 
 void Game::integratePositions()
 {
-	for (auto& rb : RigidBodies)
+	for (auto& rb : rigidBodies)
 	{
 		rb->integratePos(dtPhysics);
 	}
@@ -194,7 +194,7 @@ void Game::integratePositions()
 
 void Game::updateConstraintCaches()
 {
-	for (auto& cc : ContactConstraints)
+	for (auto& cc : contactConstraints)
 	{
 		cc->updateCache();
 	}
@@ -202,12 +202,12 @@ void Game::updateConstraintCaches()
 
 void Game::warmStart()
 {
-	for (auto& c : Constraints)
+	for (auto& c : constraints)
 	{
 		c->warmStart();
 	}
 
-	for (auto& cc : ContactConstraints)
+	for (auto& cc : contactConstraints)
 	{
 		cc->warmStart();
 	}
@@ -217,7 +217,7 @@ void Game::correctVelocities()
 {
 	for (int i = 0; i < velIter; ++i)
 	{
-		for (auto& c : Constraints)
+		for (auto& c : constraints)
 		{
 			//c->correctVel();
 		}
@@ -225,17 +225,17 @@ void Game::correctVelocities()
 
 	for (int i = 0; i < velIter; ++i)
 	{
-		for (auto& c : Constraints)
+		for (auto& c : constraints)
 		{
 			c->correctVel();
 		}
 
-		for (auto& cc : ContactConstraints)
+		for (auto& cc : contactConstraints)
 		{
 			cc->correctVel();
 		}
 
-		for (auto& c : Constraints)
+		for (auto& c : constraints)
 		{
 			//c->correctVel();
 		}
@@ -243,7 +243,7 @@ void Game::correctVelocities()
 
 	for (int i = 0; i < velIter; ++i)
 	{
-		for (auto& c : Constraints)
+		for (auto& c : constraints)
 		{
 			//c->correctVel();
 		}
@@ -254,12 +254,12 @@ void Game::correctPositions()
 {
 	for (int i = 0; i < posIter; ++i)
 	{
-		for (auto& c : Constraints)
+		for (auto& c : constraints)
 		{
 			c->correctPos();
 		}
 		
-		for (auto& cc : ContactConstraints)
+		for (auto& cc : contactConstraints)
 		{
 			cc->correctPos();
 		}
@@ -269,25 +269,25 @@ void Game::correctPositions()
 void Game::detectCollisions()
 {
 	// Check for collisions
-	for (auto it1 = RigidBodies.begin(); it1 != RigidBodies.end(); ++it1)
+	for (auto it1 = rigidBodies.begin(); it1 != rigidBodies.end(); ++it1)
 	{
-		for (auto it2 = RigidBodies.begin(); it2 != it1; ++it2)
+		for (auto it2 = rigidBodies.begin(); it2 != it1; ++it2)
 		{
 			std::unique_ptr<ContactConstraint> result = (*it1)->checkCollision(it2->get());
 
 			if (result)
 			{
-				NewContactConstraints.push_back(std::move(result));
+				newContactConstraints.push_back(std::move(result));
 			}
 		}
 	}
 
 	// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
-	for (auto it = ContactConstraints.begin(); it != ContactConstraints.end(); )
+	for (auto it = contactConstraints.begin(); it != contactConstraints.end(); )
 	{
 		bool matched = false;
 
-		for (auto newIt = NewContactConstraints.begin(); newIt != NewContactConstraints.end(); ++newIt)
+		for (auto newIt = newContactConstraints.begin(); newIt != newContactConstraints.end(); ++newIt)
 		{
 			// TODO: ensure a pair is always checked in the same order?
 			// e.g. by assigning a unique id
@@ -300,7 +300,7 @@ void Game::detectCollisions()
 				//std::cout << (*it)->numPersist << '\n';
 
 				(*it)->rebuildFrom(newIt->get());
-				NewContactConstraints.erase(newIt);
+				newContactConstraints.erase(newIt);
 
 				matched = true;
 
@@ -315,16 +315,16 @@ void Game::detectCollisions()
 		else
 		{
 			// The contact handled by *it no longer exists
-			it = ContactConstraints.erase(it);
+			it = contactConstraints.erase(it);
 		}
 	}
 
 	// Move any new contact constraints into the main vector
-	ContactConstraints.insert(ContactConstraints.end(),
-		std::make_move_iterator(NewContactConstraints.begin()),
-		std::make_move_iterator(NewContactConstraints.end()));
+	contactConstraints.insert(contactConstraints.end(),
+		std::make_move_iterator(newContactConstraints.begin()),
+		std::make_move_iterator(newContactConstraints.end()));
 
-	NewContactConstraints.clear();
+	newContactConstraints.clear();
 }
 
 void Game::updateMousePos()

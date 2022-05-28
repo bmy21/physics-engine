@@ -4,9 +4,6 @@
 ConvexPolygon::ConvexPolygon(int npoints, real sideLength):
 	npoints(npoints)
 {
-	//omega = 40.0 * pi / 180;
-	//vel = { 7, -7 };
-
 	createRegularPolygon(sideLength);
 	initEdgesAndNormals();
 	initShape();
