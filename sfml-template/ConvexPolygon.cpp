@@ -23,9 +23,7 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 
 	for (int i = 0; i < npoints; ++i)
 	{
-		// TODO: function for interpolated vertex coordinates?
-		sf::Vector2f pointCoord = sf::Vector2f(rotate(vertices[i].local(), itheta) + ipos) * pixPerUnit;
-
+		sf::Vector2f pointCoord = vertices[i].global(ipos, itheta) * pixPerUnit;
 		shape.setPoint(i, pointCoord);
 	
 		if (debug && text)

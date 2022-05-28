@@ -10,6 +10,7 @@ public:
 
 	vec2 local() const { return localCoords; }
 	vec2 global() const { return globalCoords; }
+	vec2 global(const vec2& pos, real angle) const { return transform(localCoords, pos, angle); }
 	int index() const { return i; }
 
 	// Recalculate the global coords
