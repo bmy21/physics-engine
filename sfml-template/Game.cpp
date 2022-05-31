@@ -194,6 +194,10 @@ void Game::integratePositions()
 
 void Game::updateConstraintCaches()
 {
+	for (auto& c : constraints)
+	{
+		c->updateCache();
+	}
 	for (auto& cc : contactConstraints)
 	{
 		cc->updateCache();
@@ -219,33 +223,12 @@ void Game::correctVelocities()
 	{
 		for (auto& c : constraints)
 		{
-			//c->correctVel();
-		}
-	}
-
-	for (int i = 0; i < velIter; ++i)
-	{
-		for (auto& c : constraints)
-		{
 			c->correctVel();
 		}
 
 		for (auto& cc : contactConstraints)
 		{
 			cc->correctVel();
-		}
-
-		for (auto& c : constraints)
-		{
-			//c->correctVel();
-		}
-	}
-
-	for (int i = 0; i < velIter; ++i)
-	{
-		for (auto& c : constraints)
-		{
-			//c->correctVel();
 		}
 	}
 }

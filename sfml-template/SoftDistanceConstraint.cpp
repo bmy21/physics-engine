@@ -4,8 +4,15 @@ SoftDistanceConstraint::SoftDistanceConstraint(RigidBody* rb, const vec2& fixedP
 	rb(rb), fixedPoint(fixedPoint), localPoint(localPoint),
 	d(d), dtInv(dtInv)
 {
+	// Set k and b based on specified oscillation timescale and damping ratio
 	k = 4 * pi * pi / (tOsc * tOsc * rb->mInv);
-	b = dampingRatio * 2 * std::sqrt(k / rb->mInv);
+	b = dampingRatio * 2 * std::sqrt(k / rb->mInv); // TODO: handle zero inverse mass case?
+
+	real h = 1 / dtInv;
+
+	real hkpb = h * k + b;
+	beta = k / hkpb;
+	gamma = 1 / (h * hkpb);
 
 	storedVel = rb->velocity();
 	storedAngVel = rb->angVel();
@@ -13,42 +20,11 @@ SoftDistanceConstraint::SoftDistanceConstraint(RigidBody* rb, const vec2& fixedP
 
 void SoftDistanceConstraint::correctVel()
 {
-	vec2 p = transform(localPoint, rb->position(), rb->angle());
-	vec2 dir1 = { 1,0 };// fixedPoint - p;
-	real mag = magnitude(dir1);
-
-	if (mag > 0)
-	{
-		dir1 /= mag;
-	}
-
-	vec2 dir2 = perp(dir1);
-
-	real crossFactor1 = zcross(p - rb->position(), dir1);
-	real crossFactor2 = zcross(p - rb->position(), dir2);
-
 	real vDotGradC1 = dot(rb->velocity(), dir1) + rb->angVel() * crossFactor1;
 	real vDotGradC2 = dot(rb->velocity(), dir2) + rb->angVel() * crossFactor2;
 
-	real muInv1 = rb->mInv + rb->IInv * crossFactor1 * crossFactor1;
-	real muInv2 = rb->mInv + rb->IInv * crossFactor2 * crossFactor2;
-
-	real h = 1 / dtInv;
-
-	real beta = k / (h * k + b);
-	real gamma = 1 / (h * (h * k + b));
-
-	real C1 = dot(p - fixedPoint, dir1);
-	real C2 = dot(p - fixedPoint, dir2);
-
 	real alpha1 = -vDotGradC1 - beta * C1 - gamma * accLam1;
 	real alpha2 = -vDotGradC2 - beta * C2 - gamma * accLam2;
-
-
-	real A11 = muInv1 + gamma;
-	real A22 = muInv2 + gamma;
-	real A12 = rb->IInv * crossFactor1 * crossFactor2;
-	real det = A11 * A22 - A12 * A12;
 
 	if (det != 0)
 	{
@@ -67,7 +43,7 @@ void SoftDistanceConstraint::correctVel()
 
 		real fMax = 500;
 
-		//std::cout << force << "\n";
+		//std::cout << force << " ---> " << force * rb->mInv << "\n";
 
 		if (force > fMax)
 		{
@@ -98,23 +74,36 @@ void SoftDistanceConstraint::warmStart()
 {
 	//accLam1 = accLam2 = 0;
 
+	rb->applyDeltaVel(dir1 * rb->mInv * accLam1, crossFactor1 * rb->IInv * accLam1);
+	rb->applyDeltaVel(dir2 * rb->mInv * accLam2, crossFactor2 * rb->IInv * accLam2);
+}
 
-	vec2 p = transform(localPoint, rb->position(), rb->angle());
-	
-	vec2 dir1 = { 1,0 }; // fixedPoint - p;
+void SoftDistanceConstraint::updateCache()
+{
+	globalPoint = transform(localPoint, rb->position(), rb->angle());
+
+	dir1 = { 1,0 }; // fixedPoint - globalPoint;
+
 	real mag = magnitude(dir1);
 
-	if (mag > 0)
+	if (mag != 1 && mag != 0)
 	{
 		dir1 /= mag;
 	}
 
-	vec2 dir2 = perp(dir1);
+	dir2 = perp(dir1);
 
+	crossFactor1 = zcross(globalPoint - rb->position(), dir1);
+	crossFactor2 = zcross(globalPoint - rb->position(), dir2);
 
-	real crossFactor1 = zcross(p - rb->position(), dir1);
-	real crossFactor2 = zcross(p - rb->position(), dir2);
+	muInv1 = rb->mInv + rb->IInv * crossFactor1 * crossFactor1;
+	muInv2 = rb->mInv + rb->IInv * crossFactor2 * crossFactor2;
 
-	rb->applyDeltaVel(dir1 * rb->mInv * accLam1, crossFactor1 * rb->IInv * accLam1);
-	rb->applyDeltaVel(dir2 * rb->mInv * accLam2, crossFactor2 * rb->IInv * accLam2);
+	C1 = dot(globalPoint - fixedPoint, dir1);
+	C2 = dot(globalPoint - fixedPoint, dir2);
+
+	A11 = muInv1 + gamma;
+	A22 = muInv2 + gamma;
+	A12 = rb->IInv * crossFactor1 * crossFactor2;
+	det = A11 * A22 - A12 * A12;
 }

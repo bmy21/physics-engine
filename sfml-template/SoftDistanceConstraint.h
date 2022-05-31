@@ -9,6 +9,7 @@ public:
 	void correctVel() override;
 	void correctPos() override;
 	void warmStart() override;
+	void updateCache() override;
 
 
 	// TODO: automatic mouse position update
@@ -25,5 +26,16 @@ public:
 
 private:
 	real accLam1 = 0, accLam2 = 0;
+
+	real crossFactor1 = 0, crossFactor2 = 0;
+	real muInv1 = 0, muInv2 = 0;
+	vec2 dir1, dir2;
+	vec2 globalPoint;
+
+
+	real beta = 0, gamma = 0;
+	real C1 = 0, C2 = 0;
+	real A11 = 0, A22 = 0, A12 = 0;
+	real det = 0;
 };
 

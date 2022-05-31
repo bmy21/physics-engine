@@ -7,7 +7,6 @@ class PolyPolyContact : public ContactConstraint
 {
 public:
 	PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex);
-	~PolyPolyContact();
 
 	void warmStart() override;
 	void correctVel() override;

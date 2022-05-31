@@ -67,11 +67,6 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	}
 }
 
-PolyPolyContact::~PolyPolyContact()
-{
-	
-}
-
 void PolyPolyContact::warmStart()
 {
 	for (int i = 0; i < ncp; ++i)
