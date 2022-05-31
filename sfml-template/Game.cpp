@@ -92,7 +92,7 @@ void Game::run()
 
 	//mousePos = { 4.f,1.f };
 
-	dc = std::make_unique<SoftDistanceConstraint>(rigidBodies[0].get(), mousePos, vec2(0, 0), 0.f, .1f, 4.f, 1 / dtPhysics);
+	dc = std::make_unique<SoftDistanceConstraint>(rigidBodies[0].get(), mousePos, vec2{}, dtPhysics, .1f, 4.f, 500.f);
 	constraints.push_back(std::move(dc));
 
 
@@ -125,6 +125,7 @@ void Game::run()
 			// Step simulation forward by dtPhysics seconds 
 
 			updateMousePos();
+
 			//mousePos = { 1.f,1.f };
 			static_cast<SoftDistanceConstraint*>(constraints[0].get())->fixedPoint = mousePos;
 			

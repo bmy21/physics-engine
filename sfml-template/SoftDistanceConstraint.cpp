@@ -1,21 +1,18 @@
 #include "SoftDistanceConstraint.h"
 
-SoftDistanceConstraint::SoftDistanceConstraint(RigidBody* rb, const vec2& fixedPoint, const vec2& localPoint, real d, real tOsc, real dampingRatio, real dtInv):
-	rb(rb), fixedPoint(fixedPoint), localPoint(localPoint),
-	d(d), dtInv(dtInv)
+SoftDistanceConstraint::SoftDistanceConstraint(RigidBody* rb, const vec2& fixedPoint, const vec2& localPoint, real dt, real tOsc, real dampingRatio, real fMax):
+	rb(rb), fixedPoint(fixedPoint), localPoint(localPoint), dt(dt), fMax(fMax)
 {
 	// Set k and b based on specified oscillation timescale and damping ratio
-	k = 4 * pi * pi / (tOsc * tOsc * rb->mInv);
-	b = dampingRatio * 2 * std::sqrt(k / rb->mInv); // TODO: handle zero inverse mass case?
+	if (rb->mInv != 0)
+	{
+		k = 4 * pi * pi / (tOsc * tOsc * rb->mInv);
+		b = dampingRatio * 2 * std::sqrt(k / rb->mInv);
 
-	real h = 1 / dtInv;
-
-	real hkpb = h * k + b;
-	beta = k / hkpb;
-	gamma = 1 / (h * hkpb);
-
-	storedVel = rb->velocity();
-	storedAngVel = rb->angVel();
+		real denom = dt * k + b;
+		beta = k / denom;
+		gamma = 1 / (dt * denom);
+	}
 }
 
 void SoftDistanceConstraint::correctVel()
@@ -39,9 +36,7 @@ void SoftDistanceConstraint::correctVel()
 
 
 		// TODO: fMax should depend on the mass? i.e. limit acceleration?
-		real force = std::sqrt(accLam1 * accLam1 + accLam2 * accLam2) * dtInv;
-
-		real fMax = 500;
+		real force = std::sqrt(accLam1 * accLam1 + accLam2 * accLam2) / dt;
 
 		//std::cout << force << " ---> " << force * rb->mInv << "\n";
 
@@ -57,8 +52,6 @@ void SoftDistanceConstraint::correctVel()
 
 		rb->applyDeltaVel(dir1 * rb->mInv * lam1, crossFactor1 * rb->IInv * lam1);
 		rb->applyDeltaVel(dir2 * rb->mInv * lam2, crossFactor2 * rb->IInv * lam2);
-
-
 
 		//real E = 0.5 * k * C1 * C1 + (0.5 / rb->mInv) * rb->KE(); //- 0.5*k*h*rb->velocity().x*C1;
 		//std::cout << E << "\n";
@@ -82,7 +75,7 @@ void SoftDistanceConstraint::updateCache()
 {
 	globalPoint = transform(localPoint, rb->position(), rb->angle());
 
-	dir1 = { 1,0 }; // fixedPoint - globalPoint;
+	dir1 = fixedPoint - globalPoint; // { 1,0 };
 
 	real mag = magnitude(dir1);
 
