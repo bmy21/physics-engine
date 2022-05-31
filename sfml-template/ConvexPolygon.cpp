@@ -106,6 +106,23 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex);
 }
 
+bool ConvexPolygon::pointInside(const vec2& p)
+{
+	for (int i = 0; i < npoints; ++i)
+	{
+		vec2 normal = edges[i].normal();
+		vec2 refPoint = vertices[i].global();
+		real signedDistance = dot(p - refPoint, normal);
+
+		if (signedDistance > 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void ConvexPolygon::onMove()
 {
 	for (int i = 0; i < npoints; ++i)

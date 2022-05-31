@@ -50,6 +50,7 @@ Game::Game()
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 1 });
 	rb->mInv = 1;
 	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
+	rb->grav = 8;
 	rb->angularDamp = decayConstant(1.5);
 
 	//rb->grav = 800;
@@ -88,22 +89,12 @@ void Game::run()
 	real dt = 0;
 	real fraction = 0;
 	
-	std::unique_ptr<MouseConstraint> dc = std::make_unique<MouseConstraint>(rigidBodies[0].get(), mh.get(), vec2{}, dtPhysics, .1f, 4.f, 500.f);
+	std::unique_ptr<MouseConstraint> dc = std::make_unique<MouseConstraint>(rigidBodies[0].get(), mh.get(), vec2(0, 0), dtPhysics, .1f, 4.f, 400.f);
 	constraints.push_back(std::move(dc));
-
 
 	while (window.isOpen())
 	{
-		window.clear(sf::Color::White);
-
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
-
-		dt = frameTimer.restart().asSeconds()/1;
+		dt = frameTimer.restart().asSeconds() / 1;
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -113,14 +104,42 @@ void Game::run()
 
 		accTime += dt;
 
+		window.clear(sf::Color::White);
 
+		mh->update();
+
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+			{
+				window.close();
+			}
+
+			if (event.type == sf::Event::MouseButtonPressed)
+			{
+				for (auto& rb : rigidBodies)
+				{
+					if (rb->pointInside(mh->coords()))
+					{
+						std::cout << "yes\n";
+
+					}
+				}
+			}
+
+			if (event.type == sf::Event::MouseButtonReleased)
+			{
+				
+			}
+		}
 		
 
 		while (accTime >= dtPhysics)
 		{
 			// Step simulation forward by dtPhysics seconds 
 
-			mh->update();
+			
 
 			updateConstraintCaches();
 
@@ -186,6 +205,18 @@ void Game::integratePositions()
 
 void Game::updateConstraintCaches()
 {
+	for (auto it = constraints.begin(); it != constraints.end(); )
+	{
+		if ((*it)->removeFlagSet())
+		{
+			it = constraints.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
 	for (auto& c : constraints)
 	{
 		c->updateCache();
