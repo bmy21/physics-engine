@@ -1,7 +1,8 @@
 #include "MouseConstraint.h"
 
-MouseConstraint::MouseConstraint(RigidBody* rb, const vec2& fixedPoint, const vec2& localPoint, real dt, real tOsc, real dampingRatio, real fMax) :
-	rb(rb), fixedPoint(fixedPoint), localPoint(localPoint), dt(dt), fMax(fMax)
+MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler* mh, 
+	const vec2& localPoint, real dt, real tOsc, real dampingRatio, real fMax):
+	rb(rb), mh(mh), localPoint(localPoint), dt(dt), fMax(fMax)
 {
 	// Set k and b based on specified oscillation timescale and damping ratio
 	if (rb->mInv != 0)
@@ -75,7 +76,9 @@ void MouseConstraint::updateCache()
 {
 	globalPoint = transform(localPoint, rb->position(), rb->angle());
 
-	dir1 = fixedPoint - globalPoint; // { 1,0 };
+	dir1 = mh->coords() - globalPoint; // { 1,0 };
+
+	std::cout << mh->coords().x << " --- " << mh->coords().y << "\n";
 
 	real mag = magnitude(dir1);
 
@@ -92,8 +95,8 @@ void MouseConstraint::updateCache()
 	muInv1 = rb->mInv + rb->IInv * crossFactor1 * crossFactor1;
 	muInv2 = rb->mInv + rb->IInv * crossFactor2 * crossFactor2;
 
-	C1 = dot(globalPoint - fixedPoint, dir1);
-	C2 = dot(globalPoint - fixedPoint, dir2);
+	C1 = dot(globalPoint - mh->coords(), dir1);
+	C2 = dot(globalPoint - mh->coords(), dir2);
 
 	A11 = muInv1 + gamma;
 	A22 = muInv2 + gamma;

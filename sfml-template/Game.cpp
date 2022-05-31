@@ -15,6 +15,9 @@ Game::Game()
 	window.setFramerateLimit(fpsLimit);
 	window.setMouseCursorVisible(true);
 
+	mh = std::make_unique<MouseHandler>(&window, pixPerUnit);
+
+
 	if (!font.loadFromFile("Fonts/saxmono/saxmono.ttf"))
 	{
 		std::cerr << "Couldn't load font 'Sax Mono'";
@@ -84,15 +87,8 @@ void Game::run()
 	real accTime = 0;
 	real dt = 0;
 	real fraction = 0;
-
-	updateMousePos();
 	
-	std::unique_ptr<MouseConstraint> dc;
-	rigidBodies[0]->onMove();
-
-	//mousePos = { 4.f,1.f };
-
-	dc = std::make_unique<MouseConstraint>(rigidBodies[0].get(), mousePos, vec2{}, dtPhysics, .1f, 4.f, 500.f);
+	std::unique_ptr<MouseConstraint> dc = std::make_unique<MouseConstraint>(rigidBodies[0].get(), mh.get(), vec2{}, dtPhysics, .1f, 4.f, 500.f);
 	constraints.push_back(std::move(dc));
 
 
@@ -124,12 +120,7 @@ void Game::run()
 		{
 			// Step simulation forward by dtPhysics seconds 
 
-			updateMousePos();
-
-			//mousePos = { 1.f,1.f };
-			static_cast<MouseConstraint*>(constraints[0].get())->fixedPoint = mousePos;
-			
-			
+			mh->update();
 
 			updateConstraintCaches();
 
@@ -309,10 +300,4 @@ void Game::detectCollisions()
 		std::make_move_iterator(newContactConstraints.end()));
 
 	newContactConstraints.clear();
-}
-
-void Game::updateMousePos()
-{
-	auto pix = sf::Mouse::getPosition(window);
-	mousePos = { pix.x / pixPerUnit, pix.y / pixPerUnit };
 }

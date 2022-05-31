@@ -7,6 +7,7 @@
 #include "DistanceConstraint.h"
 #include "SoftDistanceConstraint.h"
 #include "MouseConstraint.h"
+#include "MouseHandler.h"
 
 class Game
 {
@@ -43,9 +44,7 @@ private:
 	void correctPositions();
 	void detectCollisions();
 
-	void updateMousePos();
-
-	vec2 mousePos;
+	std::unique_ptr<MouseHandler> mh;
 	
 	std::vector<std::unique_ptr<RigidBody>> rigidBodies;
 	std::vector<std::unique_ptr<Constraint>> constraints;
