@@ -156,6 +156,7 @@
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MouseConstraint.cpp" />
     <ClCompile Include="PolyPolyContact.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="SoftDistanceConstraint.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="DistanceConstraint.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="MouseConstraint.h" />
     <ClInclude Include="PolyPolyContact.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="SoftDistanceConstraint.h" />

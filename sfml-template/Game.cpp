@@ -87,12 +87,12 @@ void Game::run()
 
 	updateMousePos();
 	
-	std::unique_ptr<SoftDistanceConstraint> dc;
+	std::unique_ptr<MouseConstraint> dc;
 	rigidBodies[0]->onMove();
 
 	//mousePos = { 4.f,1.f };
 
-	dc = std::make_unique<SoftDistanceConstraint>(rigidBodies[0].get(), mousePos, vec2{}, dtPhysics, .1f, 4.f, 500.f);
+	dc = std::make_unique<MouseConstraint>(rigidBodies[0].get(), mousePos, vec2{}, dtPhysics, .1f, 4.f, 500.f);
 	constraints.push_back(std::move(dc));
 
 
@@ -127,7 +127,7 @@ void Game::run()
 			updateMousePos();
 
 			//mousePos = { 1.f,1.f };
-			static_cast<SoftDistanceConstraint*>(constraints[0].get())->fixedPoint = mousePos;
+			static_cast<MouseConstraint*>(constraints[0].get())->fixedPoint = mousePos;
 			
 			
 

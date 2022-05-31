@@ -6,6 +6,7 @@
 #include "ContactConstraint.h"
 #include "DistanceConstraint.h"
 #include "SoftDistanceConstraint.h"
+#include "MouseConstraint.h"
 
 class Game
 {
