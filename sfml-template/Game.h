@@ -28,7 +28,7 @@ private:
 
 	bool vsync = true;
 	int fpsLimit = 144;
-	real dtPhysics = 1.0 / 200;
+	real dtPhysics = 1.0 / 120;
 	real dtMax = 1.0 / 10;
 
 	int velIter = 12;
@@ -37,12 +37,15 @@ private:
 	void integrateVelocities();
 	void integratePositions();
 
-	void updateConstraintCaches();
+	void updateConstraints();
 	void warmStart();
 
 	void correctVelocities();
 	void correctPositions();
 	void detectCollisions();
+
+	void setupMouseConstraint();
+	void removeMouseConstraint();
 
 	MouseConstraint* mc = nullptr;
 	std::unique_ptr<MouseHandler> mh;

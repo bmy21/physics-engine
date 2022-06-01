@@ -48,7 +48,7 @@ Game::Game()
 	//rb->grav = 10;
 	//rb->rotateTo(9 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 1 });
-	rb->mInv = 1;
+	rb->mInv = 0.1;
 	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
 	rb->grav = 10;
 	rb->angularDamp = decayConstant(1.5);
@@ -118,34 +118,12 @@ void Game::run()
 
 			if (event.type == sf::Event::MouseButtonPressed)
 			{
-				if (!mc)
-				{
-					for (auto& rb : rigidBodies)
-					{
-						if (rb->pointInside(mh->coords()))
-						{
-							vec2 local = { 0,0 };
-
-							//local = invTransform(mh->coords(), rb->position(), rb->angle());
-
-							std::unique_ptr<MouseConstraint> newMC = std::make_unique<MouseConstraint>(rb.get(), mh.get(), local, dtPhysics, .1f, 4.f, 400.f);
-							mc = newMC.get();
-
-							constraints.push_back(std::move(newMC));
-
-							break;
-						}
-					}
-				}
+				setupMouseConstraint();
 			}
 
 			if (event.type == sf::Event::MouseButtonReleased)
 			{
-				if (mc)
-				{
-					mc->markForRemoval();
-					mc = nullptr;
-				}
+				removeMouseConstraint();
 			}
 		}
 		
@@ -155,8 +133,7 @@ void Game::run()
 			// Step simulation forward by dtPhysics seconds 
 
 			
-
-			updateConstraintCaches();
+			updateConstraints();
 
 			warmStart();
 
@@ -193,7 +170,7 @@ void Game::run()
 
 		for (auto& cc : contactConstraints)
 		{
-			//cc->draw(window, pixPerUnit, fraction, true, &text);
+			cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 
@@ -218,8 +195,9 @@ void Game::integratePositions()
 	}
 }
 
-void Game::updateConstraintCaches()
+void Game::updateConstraints()
 {
+	// Remove any constraints that were marked for deletion
 	for (auto it = constraints.begin(); it != constraints.end(); )
 	{
 		if ((*it)->removeFlagSet())
@@ -232,6 +210,7 @@ void Game::updateConstraintCaches()
 		}
 	}
 
+	// Update cached data before correcting velocities
 	for (auto& c : constraints)
 	{
 		c->updateCache();
@@ -346,4 +325,38 @@ void Game::detectCollisions()
 		std::make_move_iterator(newContactConstraints.end()));
 
 	newContactConstraints.clear();
+}
+
+void Game::setupMouseConstraint()
+{
+	if (!mc)
+	{
+		for (auto& rb : rigidBodies)
+		{
+			if (rb->pointInside(mh->coords()))
+			{
+				vec2 local = { 0,0 };
+
+				//local = invTransform(mh->coords(), rb->position(), rb->angle());
+
+				// TODO: Consider force/acceleration limit & contact breaking
+				// Maybe limit the relative velocity?
+				std::unique_ptr<MouseConstraint> newMC = std::make_unique<MouseConstraint>(rb.get(), mh.get(), local, dtPhysics, .1f, 4.f, 300.f/rb->mInv);
+				mc = newMC.get();
+
+				constraints.push_back(std::move(newMC));
+
+				break;
+			}
+		}
+	}
+}
+
+void Game::removeMouseConstraint()
+{
+	if (mc)
+	{
+		mc->markForRemoval();
+		mc = nullptr;
+	}
 }
