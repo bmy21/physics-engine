@@ -31,6 +31,11 @@ vec2 transform(const vec2& v, const vec2& offset, real angle)
 	return offset + rotate(v, angle);
 }
 
+vec2 invTransform(const vec2& v, const vec2& offset, real angle)
+{
+	return rotate(v - offset, -angle);
+}
+
 real magnitude(const vec2& v)
 {
 	return std::sqrt(v.x * v.x + v.y * v.y);

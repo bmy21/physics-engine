@@ -25,6 +25,7 @@ vec2 rotate(const vec2& v, real theta);
 real dot(const vec2& v1, const vec2& v2);
 vec2 perp(const vec2& v);
 vec2 transform(const vec2& v, const vec2& offset, real angle);
+vec2 invTransform(const vec2& v, const vec2& offset, real angle);
 real magnitude(const vec2& v);
 vec2 normalise(const vec2& v); 
 real zcross(const vec2& v, const vec2& w);

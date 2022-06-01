@@ -50,7 +50,7 @@ Game::Game()
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 1 });
 	rb->mInv = 1;
 	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
-	rb->grav = 8;
+	rb->grav = 10;
 	rb->angularDamp = decayConstant(1.5);
 
 	//rb->grav = 800;
@@ -89,8 +89,8 @@ void Game::run()
 	real dt = 0;
 	real fraction = 0;
 	
-	std::unique_ptr<MouseConstraint> dc = std::make_unique<MouseConstraint>(rigidBodies[0].get(), mh.get(), vec2(0, 0), dtPhysics, .1f, 4.f, 400.f);
-	constraints.push_back(std::move(dc));
+	//std::unique_ptr<MouseConstraint> dc = std::make_unique<MouseConstraint>(rigidBodies[0].get(), mh.get(), vec2(0, 0), dtPhysics, .1f, 4.f, 400.f);
+	//constraints.push_back(std::move(dc));
 
 	while (window.isOpen())
 	{
@@ -118,19 +118,34 @@ void Game::run()
 
 			if (event.type == sf::Event::MouseButtonPressed)
 			{
-				for (auto& rb : rigidBodies)
+				if (!mc)
 				{
-					if (rb->pointInside(mh->coords()))
+					for (auto& rb : rigidBodies)
 					{
-						std::cout << "yes\n";
+						if (rb->pointInside(mh->coords()))
+						{
+							vec2 local = { 0,0 };
 
+							//local = invTransform(mh->coords(), rb->position(), rb->angle());
+
+							std::unique_ptr<MouseConstraint> newMC = std::make_unique<MouseConstraint>(rb.get(), mh.get(), local, dtPhysics, .1f, 4.f, 400.f);
+							mc = newMC.get();
+
+							constraints.push_back(std::move(newMC));
+
+							break;
+						}
 					}
 				}
 			}
 
 			if (event.type == sf::Event::MouseButtonReleased)
 			{
-				
+				if (mc)
+				{
+					mc->markForRemoval();
+					mc = nullptr;
+				}
 			}
 		}
 		

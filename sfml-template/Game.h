@@ -44,6 +44,7 @@ private:
 	void correctPositions();
 	void detectCollisions();
 
+	MouseConstraint* mc = nullptr;
 	std::unique_ptr<MouseHandler> mh;
 	
 	std::vector<std::unique_ptr<RigidBody>> rigidBodies;
