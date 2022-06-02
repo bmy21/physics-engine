@@ -5,7 +5,7 @@ ConvexPolygon::ConvexPolygon(int npoints, real sideLength):
 	npoints(npoints)
 {
 	createRegularPolygon(sideLength);
-	initEdgesAndNormals();
+	initEdges();
 	initShape();
 
 	moveTo({ 2, 7 });
@@ -243,7 +243,7 @@ void ConvexPolygon::createRegularPolygon(real sideLength)
 	}
 }
 
-void ConvexPolygon::initEdgesAndNormals()
+void ConvexPolygon::initEdges()
 {
 	assert(edges.empty());
 	

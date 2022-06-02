@@ -1,0 +1,25 @@
+#pragma once
+
+#include "Utils.h"
+
+struct PhysicsSettings
+{
+	real dt = 1.0 / 200;
+
+	real slop = 0.005;
+	real beta = 0.2;
+
+	real vRelThreshold = 0;
+	
+	bool simulSolveVel = true;
+	bool simulSolvePos = true;
+
+	real maxCondVel = 1000;
+	real maxCondPos = 500;
+
+	int velIter = 10;
+	int posIter = 4;
+
+	real muDefault = 0.5;
+	real eDefault = 0.3;
+};

@@ -8,6 +8,8 @@ class PolyPolyContact : public ContactConstraint
 public:
 	PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex);
 
+	void onInit() override;
+
 	void warmStart() override;
 	void correctVel() override;
 	void correctPos() override;
@@ -22,11 +24,8 @@ public:
 	void updateCache() override;
 
 private:
-	bool simulSolveVel = 1; 
-	bool simulSolvePos = 0;
-
-	real maxCond = 1000;
-	bool wellConditioned = false;
+	bool wellConditionedVel = false;
+	bool wellConditionedPos = false;
 
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;

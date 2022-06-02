@@ -2,11 +2,14 @@
 
 #include "Utils.h"
 #include "RigidBody.h"
+#include "PhysicsSettings.h"
 
 
 class Constraint
 {
 public:
+	Constraint(const PhysicsSettings* ps);
+
 	virtual void correctVel() = 0;
 	virtual void correctPos() = 0;
 	virtual void warmStart() = 0;
@@ -15,12 +18,10 @@ public:
 	void markForRemoval() { remove = true; }
 	bool removeFlagSet() const { return remove; }
 
-	void setBeta(real b) { posBeta = b; }
-	real beta() const { return posBeta; }
+protected:
+	const PhysicsSettings* ps = nullptr;
 
 private:
-	real posBeta = 0.3;
-
 	bool remove = false;
 };
 

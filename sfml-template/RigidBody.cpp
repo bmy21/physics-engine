@@ -1,9 +1,8 @@
 #include "RigidBody.h"
 
-
 RigidBody::RigidBody()
 {
-	
+
 }
 
 void RigidBody::moveTo(const vec2& p)

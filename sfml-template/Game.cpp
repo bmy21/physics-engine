@@ -15,9 +15,6 @@ Game::Game()
 	window.setFramerateLimit(fpsLimit);
 	window.setMouseCursorVisible(true);
 
-	mh = std::make_unique<MouseHandler>(&window, pixPerUnit);
-
-
 	if (!font.loadFromFile("Fonts/saxmono/saxmono.ttf"))
 	{
 		std::cerr << "Couldn't load font 'Sax Mono'";
@@ -26,9 +23,11 @@ Game::Game()
 	text.setFont(font);
 	text.setFillColor(sf::Color::Blue);
 
+	mh = std::make_unique<MouseHandler>(&window, pixPerUnit);
+	ps = std::make_unique<PhysicsSettings>();
+
 
 	std::unique_ptr<RigidBody> rb;
-	
 	
 	real len = 0.4;
 	int nsides = 15;
@@ -118,24 +117,29 @@ void Game::run()
 
 			if (event.type == sf::Event::MouseButtonPressed)
 			{
-				setupMouseConstraint();
+				if (event.mouseButton.button == sf::Mouse::Left)
+				{
+					setupMouseConstraint();
+				}
 			}
 
 			if (event.type == sf::Event::MouseButtonReleased)
 			{
-				removeMouseConstraint();
+				if (event.mouseButton.button == sf::Mouse::Left)
+				{
+					removeMouseConstraint();
+				}
 			}
 		}
 		
 
-		while (accTime >= dtPhysics)
+		while (accTime >= ps->dt)
 		{
 			// Step simulation forward by dtPhysics seconds 
-
 			
 			updateConstraints();
 
-			warmStart();
+			warmStart(); 
 
 			integrateVelocities();
 
@@ -157,10 +161,10 @@ void Game::run()
 			//std::cout << Constraints.size() << '\n';
 
 
-			accTime -= dtPhysics;
+			accTime -= ps->dt;
 		}
 
-		fraction = accTime / dtPhysics;
+		fraction = accTime / ps->dt;
 
 		// Draw world
 		for (auto& rb : rigidBodies)
@@ -170,7 +174,7 @@ void Game::run()
 
 		for (auto& cc : contactConstraints)
 		{
-			cc->draw(window, pixPerUnit, fraction, true, &text);
+			//cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 
@@ -182,8 +186,8 @@ void Game::integrateVelocities()
 {
 	for (auto& rb : rigidBodies)
 	{
-		rb->integrateVel(dtPhysics);
-		rb->applyDamping(dtPhysics);
+		rb->integrateVel(ps->dt);
+		rb->applyDamping(ps->dt);
 	}
 }
 
@@ -191,7 +195,7 @@ void Game::integratePositions()
 {
 	for (auto& rb : rigidBodies)
 	{
-		rb->integratePos(dtPhysics);
+		rb->integratePos(ps->dt);
 	}
 }
 
@@ -236,7 +240,7 @@ void Game::warmStart()
 
 void Game::correctVelocities()
 {
-	for (int i = 0; i < velIter; ++i)
+	for (int i = 0; i < ps->velIter; ++i)
 	{
 		for (auto& c : constraints)
 		{
@@ -252,7 +256,7 @@ void Game::correctVelocities()
 
 void Game::correctPositions()
 {
-	for (int i = 0; i < posIter; ++i)
+	for (int i = 0; i < ps->posIter; ++i)
 	{
 		for (auto& c : constraints)
 		{
@@ -277,6 +281,7 @@ void Game::detectCollisions()
 
 			if (result)
 			{
+				result->initialise(ps.get());
 				newContactConstraints.push_back(std::move(result));
 			}
 		}
@@ -336,14 +341,17 @@ void Game::setupMouseConstraint()
 			if (rb->pointInside(mh->coords()))
 			{
 				vec2 local = { 0,0 };
+				real fMax = 300.f / rb->mInv;
 
 				//local = invTransform(mh->coords(), rb->position(), rb->angle());
 
 				// TODO: Consider force/acceleration limit & contact breaking
-				// Maybe limit the relative velocity?
-				std::unique_ptr<MouseConstraint> newMC = std::make_unique<MouseConstraint>(rb.get(), mh.get(), local, dtPhysics, .1f, 4.f, 300.f/rb->mInv);
-				mc = newMC.get();
+				// Maybe limit the relative velocity? Or velocity-dependent CofR?
+				// RigidBody* rb, const MouseHandler* mh, const PhysicsSettings* ps,
+				// const vec2& localPoint, real tOsc, real dampingRatio, real fMax
 
+				auto newMC = std::make_unique<MouseConstraint>(rb.get(), mh.get(), ps.get(), local, .1f, 4.f, fMax);
+				mc = newMC.get();
 				constraints.push_back(std::move(newMC));
 
 				break;

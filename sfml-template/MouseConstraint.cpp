@@ -1,19 +1,18 @@
 #include "MouseConstraint.h"
 
-MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler* mh, 
-	const vec2& localPoint, real dt, real tOsc, real dampingRatio, real fMax):
-	rb(rb), mh(mh), localPoint(localPoint), dt(dt), fMax(fMax)
+MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler* mh, const PhysicsSettings* ps,
+	const vec2& localPoint, real tOsc, real dampingRatio, real fMax):
+	rb(rb), mh(mh), localPoint(localPoint), fMax(fMax),
+	Constraint(ps)
 {
 	// Set k and b based on specified oscillation timescale and damping ratio
 	if (rb->mInv != 0)
 	{
 		k = 4 * pi * pi / (tOsc * tOsc * rb->mInv);
 		b = dampingRatio * 2 * std::sqrt(k / rb->mInv);
-
-		real denom = dt * k + b;
-		beta = k / denom;
-		gamma = 1 / (dt * denom);
 	}
+
+	calculateParams();
 }
 
 void MouseConstraint::correctVel()
@@ -37,7 +36,7 @@ void MouseConstraint::correctVel()
 
 
 		// TODO: fMax should depend on the mass? i.e. limit acceleration?
-		real force = std::sqrt(accLam1 * accLam1 + accLam2 * accLam2) / dt;
+		real force = std::sqrt(accLam1 * accLam1 + accLam2 * accLam2) / ps->dt;
 
 		//std::cout << force << "\n"; // << " ---> " << force * rb->mInv << "\n";
 
@@ -102,4 +101,11 @@ void MouseConstraint::updateCache()
 	A22 = muInv2 + gamma;
 	A12 = rb->IInv * crossFactor1 * crossFactor2;
 	det = A11 * A22 - A12 * A12;
+}
+
+void MouseConstraint::calculateParams()
+{
+	real denom = ps->dt * k + b;
+	beta = k / denom;
+	gamma = 1 / (ps->dt * denom);
 }

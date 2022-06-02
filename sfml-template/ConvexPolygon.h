@@ -32,11 +32,9 @@ public:
 
 
 private:
-
 	void createRegularPolygon(real sideLength);
-	void initEdgesAndNormals();
+	void initEdges();
 	void initShape();
-
 
 	// Find penetration of other polygon into this polygon along normal i
 	std::pair<real, int> normalPenetration(int i, const ConvexPolygon& other) const;

@@ -8,6 +8,7 @@
 #include "SoftDistanceConstraint.h"
 #include "MouseConstraint.h"
 #include "MouseHandler.h"
+#include "PhysicsSettings.h"
 
 class Game
 {
@@ -19,7 +20,6 @@ public:
 	const real pixPerUnit = 120;
 
 private:
-
 	sf::RenderWindow window;
 	sf::Clock frameTimer;
 
@@ -28,11 +28,7 @@ private:
 
 	bool vsync = true;
 	int fpsLimit = 144;
-	real dtPhysics = 1.0 / 120;
 	real dtMax = 1.0 / 10;
-
-	int velIter = 12;
-	int posIter = 4;
 
 	void integrateVelocities();
 	void integratePositions();
@@ -48,6 +44,8 @@ private:
 	void removeMouseConstraint();
 
 	MouseConstraint* mc = nullptr;
+
+	std::unique_ptr<PhysicsSettings> ps;
 	std::unique_ptr<MouseHandler> mh;
 	
 	std::vector<std::unique_ptr<RigidBody>> rigidBodies;

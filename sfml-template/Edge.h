@@ -5,7 +5,6 @@
 class Edge
 {
 public:
-
 	Edge(int i, const vec2& edge, real angle);
 	Edge(int i, const vec2& edge, const RigidBody& rb);
 
@@ -19,7 +18,6 @@ public:
 	void recompute(real angle);
 
 private:
-	
 	vec2 localEdge;
 	vec2 globalEdge;
 
@@ -29,5 +27,6 @@ private:
 	// this Edge points from Vertex i to Vertex i + 1
 	int i = -1;
 
+	// TODO: pointers to previous & next edges
 };
 

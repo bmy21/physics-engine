@@ -13,6 +13,7 @@ public:
 private:
 	const sf::RenderWindow* window = nullptr;
 
+	// TODO: Handle case where pixPerUnit changes - include in PhysicsSettings?
 	real pixPerUnit = 1;
 	vec2 mPixCoords, mCoords;
 };

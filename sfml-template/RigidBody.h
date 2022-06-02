@@ -2,6 +2,7 @@
 
 #include "Utils.h"
 #include "ContactConstraint.h"
+#include "PhysicsSettings.h"
 
 class ConvexPolygon;
 class ContactConstraint;
@@ -9,7 +10,6 @@ class ContactConstraint;
 class RigidBody
 {
 public:
-
 	RigidBody();
 
 	virtual void update(real dt) = 0;
@@ -55,12 +55,9 @@ public:
 	real linearDamp = 0, angularDamp = 0;
 
 private:
-
 	vec2 pos, vel, acc;
 	real theta = 0, omega = 0, alpha = 0;
 
 	vec2 posPrev;
 	real thetaPrev = 0;
-
 };
-

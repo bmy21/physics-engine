@@ -2,12 +2,16 @@
 
 #include "Utils.h"
 #include "RigidBody.h"
+#include "PhysicsSettings.h"
 
 class PolyPolyContact;
 
 class ContactConstraint
 {
 public:
+	void initialise(const PhysicsSettings* ps);
+
+	virtual void onInit() = 0;
 
 	virtual void correctVel() = 0;
 	virtual void correctPos() = 0;
@@ -25,12 +29,10 @@ public:
 	int numPersist = 0;
 
 protected:
-	real mu = 0.5;
-	real e = 0.3;
-	real vRelThreshold = 0;
+	real mu = 0;
+	real e = 0;
 
-	real beta = 0.5;
-	real slop = 0.005;
+	const PhysicsSettings* ps = nullptr;
 
 private:
 

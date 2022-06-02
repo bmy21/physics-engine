@@ -6,6 +6,11 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	refEdgeIndex(refEdgeIndex),
 	incEdgeIndex(incEdgeIndex)
 {
+	
+}
+
+void PolyPolyContact::onInit()
+{
 	vec2 refEdge = ref->edge(refEdgeIndex);
 	vec2 refPoint1 = ref->vertex(refEdgeIndex);
 	vec2 refPoint2 = refPoint1 + refEdge;
@@ -36,7 +41,7 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	// assert(OK1 && OK2); 
 
 	n = ref->normal(refEdgeIndex);
-	
+
 	checkAndAddPoint(cp1, refPoint1, eps);
 	checkAndAddPoint(cp2, refPoint1, eps);
 
@@ -46,11 +51,11 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	itCrossFactors.resize(ncp);
 	rnCrossFactors.resize(ncp);
 	rtCrossFactors.resize(ncp);
-	
+
 	nMassFactors.resize(ncp);
 	tMassFactors.resize(ncp);
 
-	
+
 
 	// Sort by index off incident point to ensure a consistent ordering
 	// Note - clipping process above should give consistent order anyway?
@@ -63,7 +68,12 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	for (const auto& cp : contactPoints)
 	{
 		real vRel = dot(inc->pointVel(cp.point) - ref->pointVel(cp.point), n);
-		vRelTarget.push_back(vRel < -vRelThreshold ? - e * vRel : 0);
+
+		//std::cout << vRel << "\n";
+
+		//real rest = std::min(e * std::abs(vRel) / 50., 1.);
+
+		vRelTarget.push_back(vRel < -ps->vRelThreshold ? -e * vRel : 0);
 	}
 }
 
@@ -105,7 +115,7 @@ void PolyPolyContact::correctVel()
 		ref->applyDeltaVel(-t * ref->mInv * dfLambda, -rtCrossFactors[i] * ref->IInv * dfLambda);
 	}
 
-	if (ncp == 2 && simulSolveVel && wellConditioned)
+	if (ncp == 2 && ps->simulSolveVel && wellConditionedVel)
 	{
 		real alpha1 = vRelTarget[0] - (dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[0] * inc->angVel() - rnCrossFactors[0] * ref->angVel());
 		real alpha2 = vRelTarget[1] - (dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[1] * inc->angVel() - rnCrossFactors[1] * ref->angVel());
@@ -151,18 +161,18 @@ void PolyPolyContact::correctVel()
 
 void PolyPolyContact::correctPos()
 {
-	if (simulSolvePos && ncp == 2)
+	if (ps->simulSolvePos && ncp == 2)
 	{
 		rebuild();
 		updateCache();
 
-		if (wellConditioned)
+		if (wellConditionedPos)
 		{
-			real C1 = std::min(contactPoints[0].penetration + slop, static_cast<real>(0));
-			real C2 = std::min(contactPoints[1].penetration + slop, static_cast<real>(0));
+			real C1 = std::min(contactPoints[0].penetration + ps->slop, static_cast<real>(0));
+			real C2 = std::min(contactPoints[1].penetration + ps->slop, static_cast<real>(0));
 
-			real alpha1 = -beta * C1;
-			real alpha2 = -beta * C2;
+			real alpha1 = -(ps->beta) * C1;
+			real alpha2 = -(ps->beta) * C2;
 
 			real lam1 = (nMassFactors[1] * alpha1 - A12 * alpha2) / det;
 			real lam2 = (nMassFactors[0] * alpha2 - A12 * alpha1) / det;
@@ -182,17 +192,19 @@ void PolyPolyContact::correctPos()
 		updateCache();
 
 		ContactPoint& cp = contactPoints[i];
-		real C = std::min(cp.penetration + slop, static_cast<real>(0));
+		real C = std::min(cp.penetration + ps->slop, static_cast<real>(0));
 
-		//C = std::clamp(cp.penetration + slop, -0.05f, static_cast<real>(0));
+		//C = std::clamp(cp.penetration + slop, -slop, static_cast<real>(0));
 
 		//std::cout << C << "\n";
 
 		real dLambda = 0;
 		if (nMassFactors[i] != 0)
 		{
-			dLambda = -beta * C / nMassFactors[i];
+			dLambda = -(ps->beta) * C / nMassFactors[i];
 		}
+
+		//std::cout << inc->mInv * dLambda << "\n";
 		
 		inc->applyDeltaPos(n * inc->mInv * dLambda, inc->IInv * inCrossFactors[i] * dLambda);
 		ref->applyDeltaPos(-n * ref->mInv * dLambda, ref->IInv * -rnCrossFactors[i] * dLambda);
@@ -352,26 +364,30 @@ void PolyPolyContact::updateCache()
 		tMassFactors[i] = inc->mInv + ref->mInv + inc->IInv * std::pow(itCrossFactors[i], 2) + ref->IInv * std::pow(rtCrossFactors[i], 2);
 	}
 
-	if ((simulSolveVel || simulSolvePos) && ncp == 2)
+	/*vRelTarget.clear();
+	for (const auto& cp : contactPoints)
+	{
+		real vRel = dot(inc->pointVel(cp.point) - ref->pointVel(cp.point), n);
+
+		std::cout << vRel << "\n";
+
+		real rest = std::max(e*std::abs(vRel)/50., 1.);
+
+
+		vRelTarget.push_back(vRel < -vRelThreshold ? -rest * vRel : 0);
+	}*/
+
+	if ((ps->simulSolveVel || ps->simulSolvePos) && ncp == 2)
 	{
 		A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
 		det = nMassFactors[0] * nMassFactors[1] - A12 * A12; 
 		norm = std::max(nMassFactors[0], nMassFactors[1]) + std::abs(A12);
-
-		//std::cout << norm*norm/det << '\n';
-
+		real normSquared = norm * norm;
 
 		// Is the condition number less than the threshold?
-		wellConditioned = norm * norm < maxCond * det;
-		
-		//if (!wellConditioned)
-		//{
-		//	std::cout << "ill-conditioned\n";
-		//}
-		//else
-		//{
-		//	std::cout << "\n";
-		//}
+		wellConditionedVel = normSquared < ps->maxCondVel * det;
+		wellConditionedPos = normSquared < ps->maxCondPos * det;
 
+		//std::cout << wellConditionedVel << wellConditionedPos << "\n";
 	}
 }
