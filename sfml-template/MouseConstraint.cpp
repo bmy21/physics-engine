@@ -1,6 +1,6 @@
 #include "MouseConstraint.h"
 
-MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler* mh, const PhysicsSettings& ps,
+MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler& mh, const PhysicsSettings& ps,
 	const vec2& localPoint, real tOsc, real dampingRatio, real fMax):
 	rb(rb), mh(mh), localPoint(localPoint), fMax(fMax),
 	Constraint(ps)
@@ -94,8 +94,8 @@ void MouseConstraint::updateCache()
 	muInv1 = rb->mInv + rb->IInv * crossFactor1 * crossFactor1;
 	muInv2 = rb->mInv + rb->IInv * crossFactor2 * crossFactor2;
 
-	C1 = dot(globalPoint - mh->coords(), dir1);
-	C2 = dot(globalPoint - mh->coords(), dir2);
+	C1 = dot(globalPoint - mh.coords(), dir1);
+	C2 = dot(globalPoint - mh.coords(), dir2);
 
 	A11 = muInv1 + gamma;
 	A22 = muInv2 + gamma;

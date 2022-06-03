@@ -1,7 +1,8 @@
 #include "Game.h"
 
 
-Game::Game()
+Game::Game():
+	mh(window, pixPerUnit)
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
@@ -22,8 +23,6 @@ Game::Game()
 
 	text.setFont(font);
 	text.setFillColor(sf::Color::Blue);
-
-	mh = std::make_unique<MouseHandler>(&window, pixPerUnit);
 
 	real len = 0.5;
 	int nsides = 12;
@@ -56,7 +55,7 @@ void Game::run()
 
 		window.clear(sf::Color::White);
 
-		mh->update();
+		mh.update();
 
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -288,7 +287,7 @@ void Game::setupMouseConstraint()
 	{
 		for (auto& rb : rigidBodies)
 		{
-			if (rb->pointInside(mh->coords()))
+			if (rb->pointInside(mh.coords()))
 			{
 				vec2 local = { 0,0 };
 				real fMax = 300.f / rb->mInv;
@@ -297,7 +296,7 @@ void Game::setupMouseConstraint()
 
 				// TODO: Consider force/acceleration limit & contact breaking
 
-				auto newMC = std::make_unique<MouseConstraint>(rb.get(), mh.get(), ps, local, .1f, 4.f, fMax);
+				auto newMC = std::make_unique<MouseConstraint>(rb.get(), mh, ps, local, .1f, 4.f, fMax);
 				mc = newMC.get();
 				constraints.push_back(std::move(newMC));
 
