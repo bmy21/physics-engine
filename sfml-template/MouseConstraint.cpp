@@ -34,8 +34,6 @@ void MouseConstraint::correctVel()
 		accLam1 += lam1;
 		accLam2 += lam2;
 
-
-		// TODO: fMax should depend on the mass? i.e. limit acceleration?
 		real force = std::sqrt(accLam1 * accLam1 + accLam2 * accLam2) / ps.dt;
 
 		//std::cout << force << "\n"; // << " ---> " << force * rb->mInv << "\n";
@@ -80,9 +78,7 @@ void MouseConstraint::updateCache()
 {
 	globalPoint = transform(localPoint, rb->position(), rb->angle());
 
-	dir1 = { 1,0 }; // mh->coords() - globalPoint; // { 1,0 };
-
-	//std::cout << mh->coords().x << " --- " << mh->coords().y << "\n";
+	dir1 = { 1, 0 }; // mh->coords() - globalPoint; 
 
 	real mag = magnitude(dir1);
 

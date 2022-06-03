@@ -1,8 +1,7 @@
 #include "Edge.h"
 
 Edge::Edge(int i, const vec2& edge, real angle):
-	i(i),
-	localEdge(edge)
+	i(i), localEdge(edge)
 {
 	localNorm = perp(normalise(localEdge));
 	recompute(angle);

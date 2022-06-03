@@ -7,24 +7,24 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const E
 	incEdge(incEdge),
 	ContactConstraint(ps)
 {
-	vec2 refPoint1 = refEdge->v1->global();
-	vec2 refPoint2 = refEdge->v2->global();
+	vec2 refPoint1 = refEdge->point1();
+	vec2 refPoint2 = refEdge->point2();
 
-	vec2 incPoint1 = incEdge->v1->global();
-	vec2 incPoint2 = incEdge->v2->global();
+	vec2 incPoint1 = incEdge->point1();
+	vec2 incPoint2 = incEdge->point2();
 
 	ContactPoint cp1, cp2;
-	cp1.incPointIndex = incEdge->v1->index();
+	cp1.incPointIndex = incEdge->v1index();
 	cp1.refEdgeIndex = refEdge->index();
 	cp1.point = incPoint1;
 
-	cp2.incPointIndex = incEdge->v2->index();
+	cp2.incPointIndex = incEdge->v2index();
 	cp2.refEdgeIndex = refEdge->index();
 	cp2.point = incPoint2;
 
 	vec2 clipNormal = normalise(refEdge->global());
-	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdge->v1->index(), cp1, cp2);
-	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, refEdge->v2->index(), cp1, cp2);
+	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdge->v1index(), cp1, cp2);
+	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, refEdge->v2index(), cp1, cp2);
 
 	// If clipping returns no valid points, then both contact points were outside the plane
 	// This would suggest something went wrong with collision detection
@@ -212,11 +212,11 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 {
 	// std::cout << numPersist << '\n';
 
-	vec2 refPoint1 = refEdge->v1->global() * pixPerUnit;
-	vec2 refPoint2 = refEdge->v2->global() * pixPerUnit;
+	vec2 refPoint1 = refEdge->point1() * pixPerUnit;
+	vec2 refPoint2 = refEdge->point2() * pixPerUnit;
 
-	vec2 incPoint1 = incEdge->v1->global() * pixPerUnit;
-	vec2 incPoint2 = incEdge->v2->global() * pixPerUnit;
+	vec2 incPoint1 = incEdge->point1() * pixPerUnit;
+	vec2 incPoint2 = incEdge->point2() * pixPerUnit;
 
 	drawThickLine(window, refPoint1, refPoint2, 3, sf::Color::Red);
 	drawThickLine(window, incPoint1, incPoint2, 3, sf::Color::Green);
@@ -302,7 +302,7 @@ void PolyPolyContact::rebuildPoint(int i)
 	ContactPoint& cp = contactPoints[i];
 
 	vec2 normal = refEdge->normal();
-	vec2 refPoint = refEdge->v1->global();
+	vec2 refPoint = refEdge->point1();
 
 	if (cp.clippedAgainstPoint == -1)
 	{

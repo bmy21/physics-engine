@@ -91,13 +91,13 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	vec2 normal = refEdge->normal();
 	
 	// TODO: add tolerance?
-	if (inc->absEdgeDot(incVertex->e1, normal) < inc->absEdgeDot(incVertex->e2, normal))
+	if (inc->absEdgeDot(incVertex->e1(), normal) < inc->absEdgeDot(incVertex->e2(), normal))
 	{
-		incEdge = incVertex->e1;
+		incEdge = incVertex->e1();
 	}
 	else
 	{
-		incEdge = incVertex->e2;
+		incEdge = incVertex->e2();
 	}
 	
 	return std::make_unique<PolyPolyContact>(ref, inc, refEdge, incEdge, ps);
@@ -107,11 +107,7 @@ bool ConvexPolygon::pointInside(const vec2& p) const
 {
 	for (auto& e : edges)
 	{
-		vec2 normal = e->normal();
-		vec2 refPoint = e->v1->global();
-		real signedDistance = dot(p - refPoint, normal);
-
-		if (signedDistance > 0)
+		if (dot(p - e->point1(), e->normal()) > 0)
 		{
 			return false;
 		}
@@ -147,15 +143,13 @@ std::pair<real, const Vertex*> ConvexPolygon::normalPenetration(const Edge* e, c
 {
 	vec2 normal = e->normal();
 
-	const Vertex* supportPointThis = e->v1;
 	const Vertex* supportPointOther = other.support(-normal);
-
-	real signedDistance = dot(supportPointOther->global() - supportPointThis->global(), normal);
+	real signedDistance = dot(supportPointOther->global() - e->point1(), normal);
 
 	return {signedDistance, supportPointOther};
 }
 
-// Returns <early out, max signed penetration, edge that vertex penetrates into, deepest vertex> 
+// Returns <early out, max signed penetration, edge of max signed penetration, penetrating vertex> 
 // If the first return value is true, should discard the others
 std::tuple<bool, real, const Edge*, const Vertex*> ConvexPolygon::maxSignedPenetration(const ConvexPolygon& other) const
 {
@@ -254,22 +248,26 @@ void ConvexPolygon::initEdges()
 {
 	assert(edges.empty());
 	
+	// First populate the edge vector
 	for (int i = 0; i < npoints; ++i)
 	{
-		vec2 edge = vertices[nextIndex(i)]->local() - vertices[i]->local();
-		edges.emplace_back(std::make_unique<Edge>(i, edge, *this));
+		vec2 localEdge = vertices[nextIndex(i)]->local() - vertices[i]->local();
+		edges.emplace_back(std::make_unique<Edge>(i, localEdge, *this));
 	}
 
+	// Now link the edges & vertices together
 	for (int i = 0; i < npoints; ++i)
 	{
-		edges[i]->prev = edges[prevIndex(i)].get();
-		edges[i]->next = edges[nextIndex(i)].get();
+		int iPrev = prevIndex(i), iNext = nextIndex(i);
 
-		edges[i]->v1 = vertices[i].get();
-		edges[i]->v2 = vertices[nextIndex(i)].get();
+		edges[i]->linkPrev(edges[iPrev].get());
+		edges[i]->linkNext(edges[iNext].get());
 
-		vertices[i]->e1 = edges[i].get();
-		vertices[i]->e2 = edges[prevIndex(i)].get();
+		edges[i]->linkv1(vertices[i].get());
+		edges[i]->linkv2(vertices[iNext].get());
+
+		vertices[i]->linke1(edges[iPrev].get());
+		vertices[i]->linke2(edges[i].get());
 	}
 }
 

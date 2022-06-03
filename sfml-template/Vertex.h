@@ -15,15 +15,22 @@ public:
 	vec2 global(const vec2& pos, real angle) const { return transform(localCoords, pos, angle); }
 	int index() const { return i; }
 
+	const Edge* e1() const { return me1; }
+	const Edge* e2() const { return me2; }
+
+	void linke1(const Edge* e) { me1 = e; }
+	void linke2(const Edge* e) { me2 = e; }
+
 	// Recalculate the global coords
 	void recompute(const vec2& pos, real theta);
 
-	const Edge* e1 = nullptr;
-	const Edge* e2 = nullptr;
-
 private:
-	int i = -1;
+	const int i;
+
 	vec2 localCoords;
 	vec2 globalCoords;
+
+	const Edge* me1 = nullptr;
+	const Edge* me2 = nullptr;
 };
 

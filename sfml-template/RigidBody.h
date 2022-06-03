@@ -38,15 +38,13 @@ public:
 	vec2 position() const { return pos; }
 	real angVel() const { return omega; }
 	vec2 velocity() const { return vel; }
+	vec2 pointVel(const vec2& p) const { return vel + omega * -perp(p - pos); }
 	real KE() const { return 0.5 * dot(vel, vel) / mInv; }
 
 	void applyDeltaVel(const vec2& dv, real dw);
 	void applyDeltaPos(const vec2& dr, real dth);
 
 	void applyDamping(real dt);
-
-	vec2 pointVel(const vec2& p) const { return vel + omega * -perp(p - pos); }
-
 
 	// TODO: make these private
 	real mInv = 0, IInv = 0;

@@ -48,7 +48,7 @@ private:
 
 	const int npoints;
 	std::vector<std::unique_ptr<Edge>> edges;
-	std::vector< std::unique_ptr<Vertex>> vertices;
+	std::vector<std::unique_ptr<Vertex>> vertices;
 
 	sf::ConvexShape shape;
 };

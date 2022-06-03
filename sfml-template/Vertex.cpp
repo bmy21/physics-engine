@@ -1,8 +1,7 @@
 #include "Vertex.h"
 
 Vertex::Vertex(int i, const vec2& v, const vec2& pos, real angle):
-	i(i),
-	localCoords(v)
+	i(i), localCoords(v)
 {
 	recompute(pos, angle);
 }
