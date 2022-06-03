@@ -1,14 +1,15 @@
 #include "ConvexPolygon.h"
 
 
-ConvexPolygon::ConvexPolygon(int npoints, real sideLength):
-	npoints(npoints)
+ConvexPolygon::ConvexPolygon(int npoints, real sideLength, real mInv):
+	npoints(npoints),
+	RigidBody(mInv)
 {
 	createRegularPolygon(sideLength);
+	setupRegularPolyMOI(sideLength);
+
 	initEdges();
 	initShape();
-
-	moveTo({ 2, 7 });
 }
 
 void ConvexPolygon::update(real dt)
@@ -241,6 +242,15 @@ void ConvexPolygon::createRegularPolygon(real sideLength)
 
 		vertices.emplace_back(i, point, *this);
 	}
+}
+
+void ConvexPolygon::setupRegularPolyMOI(real sideLength)
+{
+	real preFactor = mInv * 24 / (sideLength * sideLength);
+	real cot = 1 / std::tan(pi / npoints);
+	real trigFactor = 1 + 3 * cot * cot;
+
+	IInv = preFactor / trigFactor;
 }
 
 void ConvexPolygon::initEdges()

@@ -21,11 +21,13 @@ constexpr real pi = 3.14159265359;
 
 void centre(sf::Text& text);
 
-vec2 rotate(const vec2& v, real theta);
 real dot(const vec2& v1, const vec2& v2);
 vec2 perp(const vec2& v);
+
+vec2 rotate(const vec2& v, real theta);
 vec2 transform(const vec2& v, const vec2& offset, real angle);
 vec2 invTransform(const vec2& v, const vec2& offset, real angle);
+
 real magnitude(const vec2& v);
 vec2 normalise(const vec2& v); 
 real zcross(const vec2& v, const vec2& w);
@@ -34,8 +36,6 @@ real decayConstant(real halfLife);
 
 void drawLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, sf::Color col);
 void drawThickLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, real width, sf::Color col);
-
-real regularPolyInvMOI(real mInv, real side, int n);
 
 enum class ClipRegion { In, On, Out };
 std::pair<real, ClipRegion> getClipRegion(const vec2& n, const vec2& ref, real eps, const vec2& p);

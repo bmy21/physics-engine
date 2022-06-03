@@ -1,6 +1,7 @@
 #include "RigidBody.h"
 
-RigidBody::RigidBody()
+RigidBody::RigidBody(real mInv, real IInv):
+	mInv(mInv), IInv(IInv)
 {
 
 }
@@ -59,6 +60,8 @@ void RigidBody::applyDeltaVel(const vec2& dv, real dw)
 {
 	vel += dv;
 	omega += dw;
+
+	//std::cout << theta << "\n";
 
 	assert(!isnan(dv.x));
 	assert(!isnan(dv.y));

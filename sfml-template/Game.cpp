@@ -31,26 +31,14 @@ Game::Game()
 	
 	real len = 0.4;
 	int nsides = 15;
-	rb = std::make_unique<ConvexPolygon>(nsides, len);
 
-	//for (int i = 0; i < 10; ++i)
-	//{
-	//	rb = std::make_unique<ConvexPolygon>(6, 0.5);
-	//	rb->moveTo({ 1920 / (2 * pixPerUnit), i * 1.f}); //+ i*0.02f
-	//	rb->grav = 6;
-	//	//rb->rotateTo(3 * pi / 180);
-	//	RigidBodies.push_back(std::move(rb));
-	//}
-	//
-	//RigidBodies.back()->mInv = RigidBodies.back()->IInv = RigidBodies.back()->grav = 0;
+	rb = std::make_unique<ConvexPolygon>(nsides, len, 0.1f);
 
-	//rb->grav = 10;
-	//rb->rotateTo(9 * pi / 180);
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 1 });
-	rb->mInv = 0.1;
-	rb->IInv = regularPolyInvMOI(rb->mInv, len, nsides);
 	rb->grav = 10;
 	rb->angularDamp = decayConstant(1.5);
+
+	// TODO: global grav in PhysicsSettings
 
 	//rb->grav = 800;
 	//rb->applyDeltaVel({ -1, 0 }, 0);
@@ -169,7 +157,7 @@ void Game::run()
 		// Draw world
 		for (auto& rb : rigidBodies)
 		{
-			rb->draw(window, pixPerUnit, fraction, 0, &text);
+			rb->draw(window, pixPerUnit, fraction, false, &text);
 		}
 
 		for (auto& cc : contactConstraints)
@@ -346,9 +334,6 @@ void Game::setupMouseConstraint()
 				//local = invTransform(mh->coords(), rb->position(), rb->angle());
 
 				// TODO: Consider force/acceleration limit & contact breaking
-				// Maybe limit the relative velocity? Or velocity-dependent CofR?
-				// RigidBody* rb, const MouseHandler* mh, const PhysicsSettings* ps,
-				// const vec2& localPoint, real tOsc, real dampingRatio, real fMax
 
 				auto newMC = std::make_unique<MouseConstraint>(rb.get(), mh.get(), ps.get(), local, .1f, 4.f, fMax);
 				mc = newMC.get();

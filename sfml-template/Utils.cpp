@@ -80,16 +80,6 @@ void drawThickLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, rea
 	window.draw(shape);
 }
 
-real regularPolyInvMOI(real mInv, real side, int n)
-{
-	real preFactor = mInv * 24 / (side * side);
-	real cot = 1 / std::tan(pi / n);
-	real trigFactor = 1 + 3 * cot * cot;
-
-	return preFactor / trigFactor;
-}
-
-
 // Returns signed distance to plane defined by point ref and normal n
 // eps is the plane half-thickness
 std::pair<real, ClipRegion> getClipRegion(const vec2& n, const vec2& ref, real eps, const vec2& p)

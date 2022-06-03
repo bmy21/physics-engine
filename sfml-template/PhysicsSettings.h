@@ -17,9 +17,11 @@ struct PhysicsSettings
 	real maxCondVel = 1000;
 	real maxCondPos = 500;
 
-	int velIter = 10;
+	int velIter = 8;
 	int posIter = 4;
 
 	real muDefault = 0.5;
 	real eDefault = 0.3;
+
+	// TODO: clip plane epsilon / reference edge bias / warmStarting
 };

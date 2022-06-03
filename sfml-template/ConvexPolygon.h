@@ -8,7 +8,7 @@
 class ConvexPolygon : public RigidBody
 {
 public:
-	ConvexPolygon(int npoints, real sideLength);
+	ConvexPolygon(int npoints, real sideLength, real mInv = 0);
 
 	void update(real dt) override;
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text) override;
@@ -33,6 +33,8 @@ public:
 
 private:
 	void createRegularPolygon(real sideLength);
+	void setupRegularPolyMOI(real sideLength);
+
 	void initEdges();
 	void initShape();
 

@@ -10,7 +10,7 @@ class ContactConstraint;
 class RigidBody
 {
 public:
-	RigidBody();
+	RigidBody(real mInv = 0, real IInv = 0);
 
 	virtual void update(real dt) = 0;
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, 
@@ -49,7 +49,7 @@ public:
 
 
 	// TODO: make these private
-	real mInv = 1, IInv = 1;
+	real mInv = 0, IInv = 0;
 	real grav = 0;
 
 	real linearDamp = 0, angularDamp = 0;
