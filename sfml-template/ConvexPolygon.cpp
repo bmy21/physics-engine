@@ -103,7 +103,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	return std::make_unique<PolyPolyContact>(ref, inc, refEdge, incEdge, ps);
 }
 
-bool ConvexPolygon::pointInside(const vec2& p)
+bool ConvexPolygon::pointInside(const vec2& p) const
 {
 	for (auto& e : edges)
 	{

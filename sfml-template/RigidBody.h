@@ -19,7 +19,7 @@ public:
 	virtual std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) = 0;
 	virtual std::unique_ptr<ContactConstraint> checkCollision(ConvexPolygon* other) = 0;
 
-	virtual bool pointInside(const vec2& p) = 0;
+	virtual bool pointInside(const vec2& p) const = 0;
 
 	void moveTo(const vec2& p);
 	void rotateTo(real t);
