@@ -290,6 +290,9 @@ void PolyPolyContact::rebuildFrom(ContactConstraint* other)
 		ppOther->contactPoints[i].fLambda = contactPoints[i].fLambda;
 	}
 
+	refEdge = ppOther->refEdge;
+	incEdge = ppOther->incEdge;
+
 	contactPoints = std::move(ppOther->contactPoints);
 	vRelTarget = std::move(ppOther->vRelTarget);
 }
