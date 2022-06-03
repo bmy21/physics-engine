@@ -24,7 +24,6 @@ Game::Game()
 	text.setFillColor(sf::Color::Blue);
 
 	mh = std::make_unique<MouseHandler>(&window, pixPerUnit);
-	ps = std::make_unique<PhysicsSettings>();
 
 	real len = 0.5;
 	int nsides = 12;
@@ -85,7 +84,7 @@ void Game::run()
 		}
 		
 
-		while (accTime >= ps->dt)
+		while (accTime >= ps.dt)
 		{
 			// Step simulation forward by dtPhysics seconds 
 			
@@ -113,10 +112,10 @@ void Game::run()
 			//std::cout << Constraints.size() << '\n';
 
 
-			accTime -= ps->dt;
+			accTime -= ps.dt;
 		}
 
-		fraction = accTime / ps->dt;
+		fraction = accTime / ps.dt;
 
 		// Draw world
 		for (auto& rb : rigidBodies)
@@ -138,8 +137,8 @@ void Game::integrateVelocities()
 {
 	for (auto& rb : rigidBodies)
 	{
-		rb->integrateVel(ps->dt);
-		rb->applyDamping(ps->dt);
+		rb->integrateVel(ps.dt);
+		rb->applyDamping(ps.dt);
 	}
 }
 
@@ -147,7 +146,7 @@ void Game::integratePositions()
 {
 	for (auto& rb : rigidBodies)
 	{
-		rb->integratePos(ps->dt);
+		rb->integratePos(ps.dt);
 	}
 }
 
@@ -192,7 +191,7 @@ void Game::warmStart()
 
 void Game::correctVelocities()
 {
-	for (int i = 0; i < ps->velIter; ++i)
+	for (int i = 0; i < ps.velIter; ++i)
 	{
 		for (auto& c : constraints)
 		{
@@ -208,7 +207,7 @@ void Game::correctVelocities()
 
 void Game::correctPositions()
 {
-	for (int i = 0; i < ps->posIter; ++i)
+	for (int i = 0; i < ps.posIter; ++i)
 	{
 		for (auto& c : constraints)
 		{
@@ -233,7 +232,6 @@ void Game::detectCollisions()
 
 			if (result)
 			{
-				result->initialise(ps.get());
 				newContactConstraints.push_back(std::move(result));
 			}
 		}
@@ -299,7 +297,7 @@ void Game::setupMouseConstraint()
 
 				// TODO: Consider force/acceleration limit & contact breaking
 
-				auto newMC = std::make_unique<MouseConstraint>(rb.get(), mh.get(), ps.get(), local, .1f, 4.f, fMax);
+				auto newMC = std::make_unique<MouseConstraint>(rb.get(), mh.get(), ps, local, .1f, 4.f, fMax);
 				mc = newMC.get();
 				constraints.push_back(std::move(newMC));
 
@@ -320,7 +318,7 @@ void Game::removeMouseConstraint()
 
 void Game::addConvexPolygon(int nsides, real len, vec2 coords, real mInv)
 {
-	auto rb = std::make_unique<ConvexPolygon>(ps.get(), nsides, len, mInv);
+	auto rb = std::make_unique<ConvexPolygon>(ps, nsides, len, mInv);
 	rb->moveTo(coords);
 
 	rigidBodies.push_back(std::move(rb));

@@ -1,15 +1,11 @@
 #include "PolyPolyContact.h"
 
-PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex):
+PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex, const PhysicsSettings& ps):
 	ref(ref),
 	inc(inc),
 	refEdgeIndex(refEdgeIndex),
-	incEdgeIndex(incEdgeIndex)
-{
-	
-}
-
-void PolyPolyContact::onInit()
+	incEdgeIndex(incEdgeIndex),
+	ContactConstraint(ps)
 {
 	vec2 refEdge = ref->edge(refEdgeIndex);
 	vec2 refPoint1 = ref->vertex(refEdgeIndex);
@@ -73,7 +69,7 @@ void PolyPolyContact::onInit()
 
 		//real rest = std::min(e * std::abs(vRel) / 50., 1.);
 
-		vRelTarget.push_back(vRel < -ps->vRelThreshold ? -e * vRel : 0);
+		vRelTarget.push_back(vRel < -ps.vRelThreshold ? -e * vRel : 0);
 	}
 }
 
@@ -115,7 +111,7 @@ void PolyPolyContact::correctVel()
 		ref->applyDeltaVel(-t * ref->mInv * dfLambda, -rtCrossFactors[i] * ref->IInv * dfLambda);
 	}
 
-	if (ncp == 2 && ps->simulSolveVel && wellConditionedVel)
+	if (ncp == 2 && ps.simulSolveVel && wellConditionedVel)
 	{
 		real alpha1 = vRelTarget[0] - (dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[0] * inc->angVel() - rnCrossFactors[0] * ref->angVel());
 		real alpha2 = vRelTarget[1] - (dot(inc->velocity() - ref->velocity(), n) + inCrossFactors[1] * inc->angVel() - rnCrossFactors[1] * ref->angVel());
@@ -161,18 +157,18 @@ void PolyPolyContact::correctVel()
 
 void PolyPolyContact::correctPos()
 {
-	if (ps->simulSolvePos && ncp == 2)
+	if (ps.simulSolvePos && ncp == 2)
 	{
 		rebuild();
 		updateCache();
 
 		if (wellConditionedPos)
 		{
-			real C1 = std::min(contactPoints[0].penetration + ps->slop, static_cast<real>(0));
-			real C2 = std::min(contactPoints[1].penetration + ps->slop, static_cast<real>(0));
+			real C1 = std::min(contactPoints[0].penetration + ps.slop, static_cast<real>(0));
+			real C2 = std::min(contactPoints[1].penetration + ps.slop, static_cast<real>(0));
 
-			real alpha1 = -(ps->beta) * C1;
-			real alpha2 = -(ps->beta) * C2;
+			real alpha1 = -ps.beta * C1;
+			real alpha2 = -ps.beta * C2;
 
 			real lam1 = (nMassFactors[1] * alpha1 - A12 * alpha2) / det;
 			real lam2 = (nMassFactors[0] * alpha2 - A12 * alpha1) / det;
@@ -192,7 +188,7 @@ void PolyPolyContact::correctPos()
 		updateCache();
 
 		ContactPoint& cp = contactPoints[i];
-		real C = std::min(cp.penetration + ps->slop, static_cast<real>(0));
+		real C = std::min(cp.penetration + ps.slop, static_cast<real>(0));
 
 		//C = std::clamp(cp.penetration + slop, -slop, static_cast<real>(0));
 
@@ -201,7 +197,7 @@ void PolyPolyContact::correctPos()
 		real dLambda = 0;
 		if (nMassFactors[i] != 0)
 		{
-			dLambda = -(ps->beta) * C / nMassFactors[i];
+			dLambda = -ps.beta * C / nMassFactors[i];
 		}
 
 		//std::cout << inc->mInv * dLambda << "\n";
@@ -377,7 +373,7 @@ void PolyPolyContact::updateCache()
 		vRelTarget.push_back(vRel < -vRelThreshold ? -rest * vRel : 0);
 	}*/
 
-	if ((ps->simulSolveVel || ps->simulSolvePos) && ncp == 2)
+	if ((ps.simulSolveVel || ps.simulSolvePos) && ncp == 2)
 	{
 		A12 = inc->mInv + ref->mInv + inc->IInv * inCrossFactors[0] * inCrossFactors[1] + ref->IInv * rnCrossFactors[0] * rnCrossFactors[1];
 		det = nMassFactors[0] * nMassFactors[1] - A12 * A12; 
@@ -385,8 +381,8 @@ void PolyPolyContact::updateCache()
 		real normSquared = norm * norm;
 
 		// Is the condition number less than the threshold?
-		wellConditionedVel = normSquared < ps->maxCondVel * det;
-		wellConditionedPos = normSquared < ps->maxCondPos * det;
+		wellConditionedVel = normSquared < ps.maxCondVel * det;
+		wellConditionedPos = normSquared < ps.maxCondPos * det;
 
 		//std::cout << wellConditionedVel << wellConditionedPos << "\n";
 	}

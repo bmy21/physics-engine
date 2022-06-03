@@ -5,7 +5,7 @@
 class MouseConstraint : public Constraint
 {
 public:
-	MouseConstraint(RigidBody* rb, const MouseHandler* mh, const PhysicsSettings* ps,
+	MouseConstraint(RigidBody* rb, const MouseHandler* mh, const PhysicsSettings& ps,
 		const vec2& localPoint, real tOsc, real dampingRatio, real fMax);
 
 	void correctVel() override;

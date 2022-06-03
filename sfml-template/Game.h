@@ -47,7 +47,8 @@ private:
 
 	MouseConstraint* mc = nullptr;
 
-	std::unique_ptr<PhysicsSettings> ps;
+	PhysicsSettings ps;
+
 	std::unique_ptr<MouseHandler> mh;
 	
 	std::vector<std::unique_ptr<RigidBody>> rigidBodies;

@@ -1,10 +1,8 @@
 #include "ContactConstraint.h"
 
-void ContactConstraint::initialise(const PhysicsSettings* ps)
+ContactConstraint::ContactConstraint(const PhysicsSettings& ps):
+	ps(ps)
 {
-	this->ps = ps;
-	e = ps->eDefault;
-	mu = ps->muDefault;
-
-	onInit();
+	e = ps.eDefault;
+	mu = ps.muDefault;
 }

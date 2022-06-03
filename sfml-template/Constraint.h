@@ -8,7 +8,7 @@
 class Constraint
 {
 public:
-	Constraint(const PhysicsSettings* ps);
+	Constraint(const PhysicsSettings& ps);
 
 	virtual void correctVel() = 0;
 	virtual void correctPos() = 0;
@@ -19,7 +19,7 @@ public:
 	bool removeFlagSet() const { return remove; }
 
 protected:
-	const PhysicsSettings* ps = nullptr;
+	const PhysicsSettings& ps;
 
 private:
 	bool remove = false;

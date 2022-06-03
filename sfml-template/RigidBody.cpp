@@ -1,6 +1,6 @@
 #include "RigidBody.h"
 
-RigidBody::RigidBody(const PhysicsSettings* ps, real mInv, real IInv):
+RigidBody::RigidBody(const PhysicsSettings& ps, real mInv, real IInv):
 	ps(ps), mInv(mInv), IInv(IInv)
 {
 
@@ -22,7 +22,7 @@ void RigidBody::integrateVel(real dt)
 {
 	if (mInv != 0)
 	{
-		acc.y += ps->grav;
+		acc.y += ps.grav;
 	}
 
 	vel += acc * dt;
@@ -92,8 +92,8 @@ void RigidBody::applyDamping(real dt)
 	// Apply damping s.t. dv/dt = -linearDamp * v;
 	// Ensure that the velocities don't have their directions reversed
 
-	real linearScale = 1 - ps->linearDamp * dt;
-	real angularScale = 1 - ps->angularDamp * dt;
+	real linearScale = 1 - ps.linearDamp * dt;
+	real angularScale = 1 - ps.angularDamp * dt;
 
 	vel *= linearScale > 0 ? linearScale : 0;
 	omega *= angularScale > 0 ? angularScale : 0;

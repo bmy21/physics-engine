@@ -9,9 +9,7 @@ class PolyPolyContact;
 class ContactConstraint
 {
 public:
-	void initialise(const PhysicsSettings* ps);
-
-	virtual void onInit() = 0;
+	ContactConstraint(const PhysicsSettings& ps);
 
 	virtual void correctVel() = 0;
 	virtual void correctPos() = 0;
@@ -32,7 +30,7 @@ protected:
 	real mu = 0;
 	real e = 0;
 
-	const PhysicsSettings* ps = nullptr;
+	const PhysicsSettings& ps;
 
 private:
 

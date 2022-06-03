@@ -6,9 +6,7 @@
 class PolyPolyContact : public ContactConstraint
 {
 public:
-	PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex);
-
-	void onInit() override;
+	PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex, const PhysicsSettings& ps);
 
 	void warmStart() override;
 	void correctVel() override;

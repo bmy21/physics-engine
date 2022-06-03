@@ -1,6 +1,6 @@
 #include "MouseConstraint.h"
 
-MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler* mh, const PhysicsSettings* ps,
+MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler* mh, const PhysicsSettings& ps,
 	const vec2& localPoint, real tOsc, real dampingRatio, real fMax):
 	rb(rb), mh(mh), localPoint(localPoint), fMax(fMax),
 	Constraint(ps)
@@ -36,7 +36,7 @@ void MouseConstraint::correctVel()
 
 
 		// TODO: fMax should depend on the mass? i.e. limit acceleration?
-		real force = std::sqrt(accLam1 * accLam1 + accLam2 * accLam2) / ps->dt;
+		real force = std::sqrt(accLam1 * accLam1 + accLam2 * accLam2) / ps.dt;
 
 		//std::cout << force << "\n"; // << " ---> " << force * rb->mInv << "\n";
 
@@ -105,7 +105,7 @@ void MouseConstraint::updateCache()
 
 void MouseConstraint::calculateParams()
 {
-	real denom = ps->dt * k + b;
+	real denom = ps.dt * k + b;
 	beta = k / denom;
-	gamma = 1 / (ps->dt * denom);
+	gamma = 1 / (ps.dt * denom);
 }

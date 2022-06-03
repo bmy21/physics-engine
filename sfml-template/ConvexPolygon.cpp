@@ -1,7 +1,7 @@
 #include "ConvexPolygon.h"
 
 
-ConvexPolygon::ConvexPolygon(const PhysicsSettings* ps, int npoints, real sideLength, real mInv):
+ConvexPolygon::ConvexPolygon(const PhysicsSettings& ps, int npoints, real sideLength, real mInv):
 	npoints(npoints),
 	RigidBody(ps, mInv)
 {
@@ -104,7 +104,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 		incEdgeIndex = alternativeEdgeIndex;
 	}
 	
-	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex);
+	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex, ps);
 }
 
 bool ConvexPolygon::pointInside(const vec2& p)
