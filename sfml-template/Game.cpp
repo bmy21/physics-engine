@@ -7,7 +7,7 @@ Game::Game():
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 
-	window.create(sf::VideoMode(1920, 1080),
+	window.create(sf::VideoMode(pixWidth, pixHeight),
 		"Physics",
 		sf::Style::Close,
 		settings);
@@ -27,10 +27,10 @@ Game::Game():
 	real len = 0.5;
 	int nsides = 12;
 
-	addConvexPolygon(nsides, len, { 1920 / (2 * pixPerUnit), 1 }, 0.1f);
-	addConvexPolygon(6, 2.5, { 1920 / (2 * pixPerUnit), .75f * 1080 / (pixPerUnit) });
-	addConvexPolygon(7, 1, { 1920 / (4 * pixPerUnit), .75f * 1080 / (pixPerUnit) });
-	addConvexPolygon(7, 1, { .75f * 1920 / (pixPerUnit), .75f * 1080 / (pixPerUnit) });
+	addConvexPolygon(nsides, len, pixToCoords(pixWidth * 0.5, 100), 0.1f);
+	addConvexPolygon(6, 2.5, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
+	addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
+	addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 }
 
 
@@ -321,4 +321,9 @@ void Game::addConvexPolygon(int nsides, real len, vec2 coords, real mInv)
 	rb->moveTo(coords);
 
 	rigidBodies.push_back(std::move(rb));
+}
+
+vec2 Game::pixToCoords(const vec2& pix) const
+{
+	return { pix.x / pixPerUnit, pix.y / pixPerUnit };
 }

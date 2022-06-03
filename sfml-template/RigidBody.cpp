@@ -64,8 +64,6 @@ void RigidBody::applyDeltaVel(const vec2& dv, real dw)
 	vel += dv;
 	omega += dw;
 
-	//std::cout << theta << "\n";
-
 	assert(!isnan(dv.x));
 	assert(!isnan(dv.y));
 	assert(!isnan(dw));

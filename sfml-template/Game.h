@@ -18,6 +18,8 @@ public:
 
 	// 1 Physics unit = pixPerUnit pixels
 	const real pixPerUnit = 120;
+	const int pixWidth = 1920;
+	const int pixHeight = 1080;
 
 private:
 	sf::RenderWindow window;
@@ -44,6 +46,9 @@ private:
 	void removeMouseConstraint();
 
 	void addConvexPolygon(int nsides, real len, vec2 coords = {0, 0}, real mInv = 0);
+
+	vec2 pixToCoords(const vec2& pix) const;
+	vec2 pixToCoords(real xPix, real yPix) const { return pixToCoords({ xPix, yPix }); }
 
 	MouseConstraint* mc = nullptr;
 
