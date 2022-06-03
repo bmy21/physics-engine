@@ -323,7 +323,7 @@ void Game::addConvexPolygon(int nsides, real len, vec2 coords, real mInv)
 	rigidBodies.push_back(std::move(rb));
 }
 
-vec2 Game::pixToCoords(const vec2& pix) const
+vec2 Game::pixToCoords(real xPix, real yPix) const
 {
-	return { pix.x / pixPerUnit, pix.y / pixPerUnit };
+	return { xPix / pixPerUnit, yPix / pixPerUnit };
 }
