@@ -1,7 +1,7 @@
 #include "RigidBody.h"
 
-RigidBody::RigidBody(real mInv, real IInv):
-	mInv(mInv), IInv(IInv)
+RigidBody::RigidBody(const PhysicsSettings* ps, real mInv, real IInv):
+	ps(ps), mInv(mInv), IInv(IInv)
 {
 
 }
@@ -20,7 +20,10 @@ void RigidBody::rotateTo(real t)
 
 void RigidBody::integrateVel(real dt)
 {
-	acc.y += grav;
+	if (mInv != 0)
+	{
+		acc.y += ps->grav;
+	}
 
 	vel += acc * dt;
 	omega += alpha * dt;

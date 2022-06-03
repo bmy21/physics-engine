@@ -29,42 +29,26 @@ Game::Game()
 
 	std::unique_ptr<RigidBody> rb;
 	
-	real len = 0.4;
-	int nsides = 15;
+	real len = 0.5;
+	int nsides = 12;
 
-	rb = std::make_unique<ConvexPolygon>(nsides, len, 0.1f);
+	rb = std::make_unique<ConvexPolygon>(ps.get(), nsides, len, 0.1f);
 
 	rb->moveTo({ 1920 / (2 * pixPerUnit), 1 });
-	rb->grav = 10;
 	rb->angularDamp = decayConstant(1.5);
-
-	// TODO: global grav in PhysicsSettings
-
-	//rb->grav = 800;
-	//rb->applyDeltaVel({ -1, 0 }, 0);
-	//std::cout << regularPolyInvMOI(rb->mInv, 0.6, 12) << '\n';
 	rigidBodies.push_back(std::move(rb));
 
 
-	rb = std::make_unique<ConvexPolygon>(6, 2.5);
+	rb = std::make_unique<ConvexPolygon>(ps.get(), 6, 2.5);
 	rb->moveTo({1920/(2*pixPerUnit), .75f*1080/(pixPerUnit)});
-	rb->rotateTo(0 * pi / 180);
-	rb->mInv = rb->IInv = 0;
 	rigidBodies.push_back(std::move(rb));
 
-	//rb = std::make_unique<ConvexPolygon>(7, 1);
-	//rb->moveTo({ 1920 / (2 * pixPerUnit), .75f * 1080 / (pixPerUnit) });
-	//rb->mInv = rb->IInv = 0;
-	//RigidBodies.push_back(std::move(rb));
-
-	rb = std::make_unique<ConvexPolygon>(7, 1);
+	rb = std::make_unique<ConvexPolygon>(ps.get(), 7, 1);
 	rb->moveTo({ 1920 / (4 * pixPerUnit), .75f*1080 / (pixPerUnit) });
-	rb->mInv = rb->IInv = 0;
 	rigidBodies.push_back(std::move(rb));
 
-	rb = std::make_unique<ConvexPolygon>(7, 1);
+	rb = std::make_unique<ConvexPolygon>(ps.get(), 7, 1);
 	rb->moveTo({ .75f*1920 / (pixPerUnit), .75f*1080 / (pixPerUnit) });
-	rb->mInv = rb->IInv = 0;
 	rigidBodies.push_back(std::move(rb));
 }
 

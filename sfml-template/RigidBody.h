@@ -10,7 +10,7 @@ class ContactConstraint;
 class RigidBody
 {
 public:
-	RigidBody(real mInv = 0, real IInv = 0);
+	RigidBody(const PhysicsSettings* ps, real mInv = 0, real IInv = 0);
 
 	virtual void update(real dt) = 0;
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, 
@@ -50,9 +50,10 @@ public:
 
 	// TODO: make these private
 	real mInv = 0, IInv = 0;
-	real grav = 0;
-
 	real linearDamp = 0, angularDamp = 0;
+
+protected:
+	const PhysicsSettings* ps;
 
 private:
 	vec2 pos, vel, acc;

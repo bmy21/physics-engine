@@ -1,9 +1,9 @@
 #include "ConvexPolygon.h"
 
 
-ConvexPolygon::ConvexPolygon(int npoints, real sideLength, real mInv):
+ConvexPolygon::ConvexPolygon(const PhysicsSettings* ps, int npoints, real sideLength, real mInv):
 	npoints(npoints),
-	RigidBody(mInv)
+	RigidBody(ps, mInv)
 {
 	createRegularPolygon(sideLength);
 	setupRegularPolyMOI(sideLength);

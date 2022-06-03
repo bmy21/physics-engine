@@ -23,5 +23,7 @@ struct PhysicsSettings
 	real muDefault = 0.5;
 	real eDefault = 0.3;
 
+	real grav = 10;
+
 	// TODO: clip plane epsilon / reference edge bias / warmStarting
 };
