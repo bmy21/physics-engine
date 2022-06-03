@@ -60,16 +60,13 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 		return nullptr;
 	}
 	
-
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
-
 	const Edge* refEdge = nullptr;
 	const Edge* incEdge = nullptr;
 	const Vertex* incVertex = nullptr;
 	
 	// TODO: include both relative & absolute tolerance?
-
 	if (penetrationBtoA > penetrationAtoB + ps.refEdgeAbsTol)
 	{
 		// Penetrations are signed, so here A penetrates into B more than B penetrates into A
@@ -93,7 +90,6 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	// and the previous edge. The incident edge is least well-aligned with the reference normal.
 	vec2 normal = refEdge->normal();
 	
-
 	// TODO: add tolerance?
 	if (inc->absEdgeDot(incVertex->e1, normal) < inc->absEdgeDot(incVertex->e2, normal))
 	{
@@ -190,16 +186,10 @@ std::tuple<bool, real, const Edge*, const Vertex*> ConvexPolygon::maxSignedPenet
 	return { earlyOut, maxPenetration, edge, vertex };
 }
 
-real ConvexPolygon::absEdgeDot(int i, const vec2& d) const
-{
-	return std::abs(dot(edges[i]->global(), d));
-}
-
 real ConvexPolygon::absEdgeDot(const Edge* e, const vec2& d) const
 {
 	return std::abs(dot(e->global(), d));
 }
-
 
 int ConvexPolygon::nextIndex(int i) const
 {
@@ -211,25 +201,23 @@ int ConvexPolygon::prevIndex(int i) const
 	return (i == 0) ? npoints - 1 : i - 1;
 }
 
-
-
 const Vertex* ConvexPolygon::support(const vec2& d) const
 {
 	real largestDot = std::numeric_limits<real>::lowest();
 
-	int index = -1;
-	for (int i = 0; i < npoints; ++i)
+	const Vertex* vertex = nullptr;
+	for (auto& v : vertices)
 	{
-		real dotProduct = dot(vertices[i]->global(), d);
+		real dotProduct = dot(v->global(), d);
 
 		if (dotProduct > largestDot)
 		{
 			largestDot = dotProduct;
-			index = i;
+			vertex = v.get();
 		}
 	}
 
-	return vertices[index].get();
+	return vertex;
 }
 
 void ConvexPolygon::createRegularPolygon(real sideLength)

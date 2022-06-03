@@ -38,13 +38,12 @@ private:
 	void initEdges();
 	void initShape();
 
-	// Find penetration of other polygon into this polygon through edge e
+	// Find penetration of other polygon into this polygon along normal of edge e
 	std::pair<real, const Vertex*> normalPenetration(const Edge* e, const ConvexPolygon& other) const;
 
 	// Find maximum signed penetration of other polygon into this polygon along any edge normal
 	std::tuple<bool, real, const Edge*, const Vertex*> maxSignedPenetration(const ConvexPolygon& other) const;
 
-	real absEdgeDot(int i, const vec2& d) const;
 	real absEdgeDot(const Edge* e, const vec2& d) const;
 
 	const int npoints;
