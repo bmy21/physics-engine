@@ -92,8 +92,8 @@ void RigidBody::applyDamping(real dt)
 	// Apply damping s.t. dv/dt = -linearDamp * v;
 	// Ensure that the velocities don't have their directions reversed
 
-	real linearScale = 1 - linearDamp * dt;
-	real angularScale = 1 - angularDamp * dt;
+	real linearScale = 1 - ps->linearDamp * dt;
+	real angularScale = 1 - ps->angularDamp * dt;
 
 	vel *= linearScale > 0 ? linearScale : 0;
 	omega *= angularScale > 0 ? angularScale : 0;

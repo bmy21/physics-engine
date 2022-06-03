@@ -50,7 +50,6 @@ public:
 
 	// TODO: make these private
 	real mInv = 0, IInv = 0;
-	real linearDamp = 0, angularDamp = 0;
 
 protected:
 	const PhysicsSettings* ps;

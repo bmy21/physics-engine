@@ -25,5 +25,8 @@ struct PhysicsSettings
 
 	real grav = 10;
 
+	real linearDamp = 0;
+	real angularDamp = decayConstant(5);
+
 	// TODO: clip plane epsilon / reference edge bias / warmStarting
 };

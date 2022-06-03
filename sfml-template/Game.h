@@ -43,6 +43,8 @@ private:
 	void setupMouseConstraint();
 	void removeMouseConstraint();
 
+	void addConvexPolygon(int nsides, real len, vec2 coords = {0, 0}, real mInv = 0);
+
 	MouseConstraint* mc = nullptr;
 
 	std::unique_ptr<PhysicsSettings> ps;

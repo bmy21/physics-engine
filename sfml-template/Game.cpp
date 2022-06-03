@@ -26,30 +26,13 @@ Game::Game()
 	mh = std::make_unique<MouseHandler>(&window, pixPerUnit);
 	ps = std::make_unique<PhysicsSettings>();
 
-
-	std::unique_ptr<RigidBody> rb;
-	
 	real len = 0.5;
 	int nsides = 12;
 
-	rb = std::make_unique<ConvexPolygon>(ps.get(), nsides, len, 0.1f);
-
-	rb->moveTo({ 1920 / (2 * pixPerUnit), 1 });
-	rb->angularDamp = decayConstant(1.5);
-	rigidBodies.push_back(std::move(rb));
-
-
-	rb = std::make_unique<ConvexPolygon>(ps.get(), 6, 2.5);
-	rb->moveTo({1920/(2*pixPerUnit), .75f*1080/(pixPerUnit)});
-	rigidBodies.push_back(std::move(rb));
-
-	rb = std::make_unique<ConvexPolygon>(ps.get(), 7, 1);
-	rb->moveTo({ 1920 / (4 * pixPerUnit), .75f*1080 / (pixPerUnit) });
-	rigidBodies.push_back(std::move(rb));
-
-	rb = std::make_unique<ConvexPolygon>(ps.get(), 7, 1);
-	rb->moveTo({ .75f*1920 / (pixPerUnit), .75f*1080 / (pixPerUnit) });
-	rigidBodies.push_back(std::move(rb));
+	addConvexPolygon(nsides, len, { 1920 / (2 * pixPerUnit), 1 }, 0.1f);
+	addConvexPolygon(6, 2.5, { 1920 / (2 * pixPerUnit), .75f * 1080 / (pixPerUnit) });
+	addConvexPolygon(7, 1, { 1920 / (4 * pixPerUnit), .75f * 1080 / (pixPerUnit) });
+	addConvexPolygon(7, 1, { .75f * 1920 / (pixPerUnit), .75f * 1080 / (pixPerUnit) });
 }
 
 
@@ -59,9 +42,6 @@ void Game::run()
 	real accTime = 0;
 	real dt = 0;
 	real fraction = 0;
-	
-	//std::unique_ptr<MouseConstraint> dc = std::make_unique<MouseConstraint>(rigidBodies[0].get(), mh.get(), vec2(0, 0), dtPhysics, .1f, 4.f, 400.f);
-	//constraints.push_back(std::move(dc));
 
 	while (window.isOpen())
 	{
@@ -336,4 +316,12 @@ void Game::removeMouseConstraint()
 		mc->markForRemoval();
 		mc = nullptr;
 	}
+}
+
+void Game::addConvexPolygon(int nsides, real len, vec2 coords, real mInv)
+{
+	auto rb = std::make_unique<ConvexPolygon>(ps.get(), nsides, len, mInv);
+	rb->moveTo(coords);
+
+	rigidBodies.push_back(std::move(rb));
 }
