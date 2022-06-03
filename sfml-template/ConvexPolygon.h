@@ -39,7 +39,7 @@ private:
 	void initShape();
 
 	// Find penetration of other polygon into this polygon through edge e
-	std::pair<real, const Vertex*> normalPenetration(Edge* e, const ConvexPolygon& other) const;
+	std::pair<real, const Vertex*> normalPenetration(const Edge* e, const ConvexPolygon& other) const;
 
 	// Find maximum signed penetration of other polygon into this polygon along any edge normal
 	std::tuple<bool, real, const Edge*, const Vertex*> maxSignedPenetration(const ConvexPolygon& other) const;

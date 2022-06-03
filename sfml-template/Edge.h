@@ -20,10 +20,10 @@ public:
 	void recompute(real angle);
 
 	// TODO: pointers to previous & next edges
-	Edge* prev = nullptr;
-	Edge* next = nullptr;
-	Vertex* v1 = nullptr;
-	Vertex* v2 = nullptr;
+	const Edge* prev = nullptr;
+	const Edge* next = nullptr;
+	const Vertex* v1 = nullptr;
+	const Vertex* v2 = nullptr;
 
 
 private:

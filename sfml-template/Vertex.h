@@ -2,6 +2,8 @@
 #include "Utils.h"
 #include "RigidBody.h"
 
+class Edge;
+
 class Vertex
 {
 public:
@@ -15,6 +17,9 @@ public:
 
 	// Recalculate the global coords
 	void recompute(const vec2& pos, real theta);
+
+	const Edge* e1 = nullptr;
+	const Edge* e2 = nullptr;
 
 private:
 	int i = -1;

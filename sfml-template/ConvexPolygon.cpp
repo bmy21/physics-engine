@@ -45,7 +45,7 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* other)
 {
 	// Check normal directions of *this
-	auto [earlyOutA, penetrationBtoA, normalIndexA, pointIndexB] = this->maxSignedPenetration(*other);
+	auto [earlyOutA, penetrationBtoA, edgeA, vertexB] = this->maxSignedPenetration(*other);
 
 	if (earlyOutA)
 	{
@@ -53,7 +53,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	}
 
 	// Check normal directions of *other
-	auto [earlyOutB, penetrationAtoB, normalIndexB, pointIndexA] = other->maxSignedPenetration(*this);
+	auto [earlyOutB, penetrationAtoB, edgeB, vertexA] = other->maxSignedPenetration(*this);
 
 	if (earlyOutB)
 	{
@@ -64,8 +64,9 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
 
-	Edge* refEdge = nullptr;
-	Edge* incEdge = nullptr;
+	const Edge* refEdge = nullptr;
+	const Edge* incEdge = nullptr;
+	const Vertex* incVertex = nullptr;
 	
 	// TODO: include both relative & absolute tolerance?
 
@@ -76,27 +77,31 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 		ref = this;
 		inc = other;
 
-		refEdge = edges[normalIndexA].get();
-		incEdge = other->edges[pointIndexB].get();
+		refEdge = edgeA;
+		incVertex = vertexB;
 	}
 	else
 	{
 		ref = other;
 		inc = this;
 
-		refEdge = other->edges[normalIndexB].get();
-		incEdge = edges[pointIndexA].get();
+		refEdge = edgeB;
+		incVertex = vertexA;
 	}
 
 	// The deepest point has index incPointIndex, which is part of both the edge with index incPointIndex
 	// and the previous edge. The incident edge is least well-aligned with the reference normal.
 	vec2 normal = refEdge->normal();
-	Edge* alternativeIncEdge = incEdge->prev;
 	
+
 	// TODO: add tolerance?
-	if (inc->absEdgeDot(alternativeIncEdge, normal) < inc->absEdgeDot(incEdge, normal))
+	if (inc->absEdgeDot(incVertex->e1, normal) < inc->absEdgeDot(incVertex->e2, normal))
 	{
-		incEdge = alternativeIncEdge;
+		incEdge = incVertex->e1;
+	}
+	else
+	{
+		incEdge = incVertex->e2;
 	}
 	
 	return std::make_unique<PolyPolyContact>(ref, inc, refEdge, incEdge, ps);
@@ -142,7 +147,7 @@ void ConvexPolygon::onRotate()
 
 
 // Returns <signed penetration, deepest vertex> 
-std::pair<real, const Vertex*> ConvexPolygon::normalPenetration(Edge* e, const ConvexPolygon& other) const
+std::pair<real, const Vertex*> ConvexPolygon::normalPenetration(const Edge* e, const ConvexPolygon& other) const
 {
 	vec2 normal = e->normal();
 
@@ -160,13 +165,13 @@ std::tuple<bool, real, const Edge*, const Vertex*> ConvexPolygon::maxSignedPenet
 {
 	bool earlyOut = false;
 	real maxPenetration = std::numeric_limits<real>::lowest();
-	int normalIndex = -1;
-	int pointIndex = -1;
 
+	const Edge* edge = nullptr;
+	const Vertex* vertex = nullptr;
 
-	for (int i = 0; i < npoints; ++i)
+	for (auto& e : edges)
 	{
-		auto [penetration, pindex] = normalPenetration(i, other);
+		auto [penetration, v] = normalPenetration(e.get(), other);
 
 		if (penetration > 0)
 		{
@@ -177,14 +182,12 @@ std::tuple<bool, real, const Edge*, const Vertex*> ConvexPolygon::maxSignedPenet
 		if (penetration > maxPenetration)
 		{
 			maxPenetration = penetration;
-			pointIndex = pindex;
-			normalIndex = i;
+			vertex = v;
+			edge = e.get();
 		}
-
-		
 	}
 
-	return { earlyOut, maxPenetration, normalIndex, pointIndex };
+	return { earlyOut, maxPenetration, edge, vertex };
 }
 
 real ConvexPolygon::absEdgeDot(int i, const vec2& d) const
@@ -273,8 +276,12 @@ void ConvexPolygon::initEdges()
 	{
 		edges[i]->prev = edges[prevIndex(i)].get();
 		edges[i]->next = edges[nextIndex(i)].get();
+
 		edges[i]->v1 = vertices[i].get();
 		edges[i]->v2 = vertices[nextIndex(i)].get();
+
+		vertices[i]->e1 = edges[i].get();
+		vertices[i]->e2 = edges[prevIndex(i)].get();
 	}
 }
 
