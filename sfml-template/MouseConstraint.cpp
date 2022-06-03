@@ -65,10 +65,15 @@ void MouseConstraint::correctPos()
 
 void MouseConstraint::warmStart()
 {
-	//accLam1 = accLam2 = 0;
-
-	rb->applyDeltaVel(dir1 * rb->mInv * accLam1, crossFactor1 * rb->IInv * accLam1);
-	rb->applyDeltaVel(dir2 * rb->mInv * accLam2, crossFactor2 * rb->IInv * accLam2);
+	if (ps.warmStart)
+	{
+		rb->applyDeltaVel(dir1 * rb->mInv * accLam1, crossFactor1 * rb->IInv * accLam1);
+		rb->applyDeltaVel(dir2 * rb->mInv * accLam2, crossFactor2 * rb->IInv * accLam2);
+	}
+	else
+	{
+		accLam1 = accLam2 = 0;
+	}
 }
 
 void MouseConstraint::updateCache()

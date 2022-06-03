@@ -67,13 +67,9 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	int incPointIndex = -1;
 	int refEdgeIndex = -1;
 	
-	// TODO: check tolerance and include both relative & absolute
+	// TODO: include both relative & absolute tolerance?
 
-	// Should be considerably less than the slop value, as for persistent contacts 
-	// the separation shouldn't exceed the slop
-
-	real tol = 5e-4; 
-	if (penetrationBtoA > penetrationAtoB + tol)
+	if (penetrationBtoA > penetrationAtoB + ps.refEdgeAbsTol)
 	{
 		// Penetrations are signed, so here A penetrates into B more than B penetrates into A
 		// i.e. the minimum translation vector points from A to B

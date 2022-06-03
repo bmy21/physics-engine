@@ -24,13 +24,9 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 	cp2.refEdgeIndex = refEdgeIndex;
 	cp2.point = incPoint2;
 
-
-	// Plane half-thickness for clipping
-	real eps = 1e-8;
-
 	vec2 clipNormal = normalise(refEdge);
-	bool OK1 = clip(-clipNormal, refPoint1, eps, refEdgeIndex, cp1, cp2);
-	bool OK2 = clip(clipNormal, refPoint2, eps, ref->nextIndex(refEdgeIndex), cp1, cp2);
+	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdgeIndex, cp1, cp2);
+	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, ref->nextIndex(refEdgeIndex), cp1, cp2);
 
 	// If clipping returns no valid points, then both contact points were outside the plane
 	// This would suggest something went wrong with collision detection
@@ -38,8 +34,8 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	n = ref->normal(refEdgeIndex);
 
-	checkAndAddPoint(cp1, refPoint1, eps);
-	checkAndAddPoint(cp2, refPoint1, eps);
+	checkAndAddPoint(cp1, refPoint1, ps.clipPlaneEpsilon);
+	checkAndAddPoint(cp2, refPoint1, ps.clipPlaneEpsilon);
 
 	ncp = contactPoints.size();
 
@@ -50,7 +46,6 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 	nMassFactors.resize(ncp);
 	tMassFactors.resize(ncp);
-
 
 
 	// Sort by index off incident point to ensure a consistent ordering
@@ -75,17 +70,25 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int ref
 
 void PolyPolyContact::warmStart()
 {
-	for (int i = 0; i < ncp; ++i)
+	if (ps.warmStart)
 	{
-		ContactPoint& cp = contactPoints[i];
-		
-		//cp.lambda = cp.fLambda = 0;
+		for (int i = 0; i < ncp; ++i)
+		{
+			ContactPoint& cp = contactPoints[i];
 
-		inc->applyDeltaVel(n * inc->mInv * cp.lambda + t * inc->mInv * cp.fLambda,
-			inCrossFactors[i] * inc->IInv * cp.lambda + itCrossFactors[i] * inc->IInv * cp.fLambda);
+			inc->applyDeltaVel(n * inc->mInv * cp.lambda + t * inc->mInv * cp.fLambda,
+				inCrossFactors[i] * inc->IInv * cp.lambda + itCrossFactors[i] * inc->IInv * cp.fLambda);
 
-		ref->applyDeltaVel(-n * ref->mInv * cp.lambda - t * ref->mInv * cp.fLambda,
-			-rnCrossFactors[i] * ref->IInv * cp.lambda - rtCrossFactors[i] * ref->IInv * cp.fLambda);
+			ref->applyDeltaVel(-n * ref->mInv * cp.lambda - t * ref->mInv * cp.fLambda,
+				-rnCrossFactors[i] * ref->IInv * cp.lambda - rtCrossFactors[i] * ref->IInv * cp.fLambda);
+		}
+	}
+	else
+	{
+		for (auto& cp : contactPoints)
+		{
+			cp.lambda = cp.fLambda = 0;
+		}
 	}
 }
 
@@ -359,19 +362,6 @@ void PolyPolyContact::updateCache()
 		nMassFactors[i] = inc->mInv + ref->mInv + inc->IInv * std::pow(inCrossFactors[i], 2) + ref->IInv * std::pow(rnCrossFactors[i], 2);
 		tMassFactors[i] = inc->mInv + ref->mInv + inc->IInv * std::pow(itCrossFactors[i], 2) + ref->IInv * std::pow(rtCrossFactors[i], 2);
 	}
-
-	/*vRelTarget.clear();
-	for (const auto& cp : contactPoints)
-	{
-		real vRel = dot(inc->pointVel(cp.point) - ref->pointVel(cp.point), n);
-
-		std::cout << vRel << "\n";
-
-		real rest = std::max(e*std::abs(vRel)/50., 1.);
-
-
-		vRelTarget.push_back(vRel < -vRelThreshold ? -rest * vRel : 0);
-	}*/
 
 	if ((ps.simulSolveVel || ps.simulSolvePos) && ncp == 2)
 	{

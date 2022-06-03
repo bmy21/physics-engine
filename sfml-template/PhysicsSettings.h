@@ -13,6 +13,7 @@ struct PhysicsSettings
 	
 	bool simulSolveVel = true;
 	bool simulSolvePos = true;
+	bool warmStart = true;
 
 	real maxCondVel = 1000;
 	real maxCondPos = 500;
@@ -28,5 +29,11 @@ struct PhysicsSettings
 	real linearDamp = 0;
 	real angularDamp = decayConstant(5);
 
-	// TODO: clip plane epsilon / reference edge bias / warmStarting
+	// Plane half-thickness for clipping
+	real clipPlaneEpsilon = 1e-5;
+
+	// Weighting applied in separating axis test to favour one edge over the other
+	// Should be considerably less than the slop value, as for persistent contacts 
+	// the separation shouldn't exceed the slop
+	real refEdgeAbsTol = 5e-4;
 };
