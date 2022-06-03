@@ -24,7 +24,7 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 
 	for (int i = 0; i < npoints; ++i)
 	{
-		sf::Vector2f pointCoord = vertices[i].global(ipos, itheta) * pixPerUnit;
+		sf::Vector2f pointCoord = vertices[i]->global(ipos, itheta) * pixPerUnit;
 		shape.setPoint(i, pointCoord);
 	
 		if (debug && text)
@@ -64,8 +64,8 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
 
-	int incPointIndex = -1;
-	int refEdgeIndex = -1;
+	Edge* refEdge = nullptr;
+	Edge* incEdge = nullptr;
 	
 	// TODO: include both relative & absolute tolerance?
 
@@ -76,39 +76,38 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 		ref = this;
 		inc = other;
 
-		refEdgeIndex = normalIndexA;
-		incPointIndex = pointIndexB;
+		refEdge = edges[normalIndexA].get();
+		incEdge = other->edges[pointIndexB].get();
 	}
 	else
 	{
 		ref = other;
 		inc = this;
 
-		refEdgeIndex = normalIndexB;
-		incPointIndex = pointIndexA;
+		refEdge = other->edges[normalIndexB].get();
+		incEdge = edges[pointIndexA].get();
 	}
 
 	// The deepest point has index incPointIndex, which is part of both the edge with index incPointIndex
 	// and the previous edge. The incident edge is least well-aligned with the reference normal.
-	vec2 normal = ref->edges[refEdgeIndex].normal();
-	int incEdgeIndex = incPointIndex;
-	int alternativeEdgeIndex = inc->prevIndex(incPointIndex);
+	vec2 normal = refEdge->normal();
+	Edge* alternativeIncEdge = incEdge->prev;
 	
 	// TODO: add tolerance?
-	if (inc->absEdgeDot(alternativeEdgeIndex, normal) < inc->absEdgeDot(incPointIndex, normal))
+	if (inc->absEdgeDot(alternativeIncEdge, normal) < inc->absEdgeDot(incEdge, normal))
 	{
-		incEdgeIndex = alternativeEdgeIndex;
+		incEdge = alternativeIncEdge;
 	}
 	
-	return std::make_unique<PolyPolyContact>(ref, inc, refEdgeIndex, incEdgeIndex, ps);
+	return std::make_unique<PolyPolyContact>(ref, inc, refEdge, incEdge, ps);
 }
 
 bool ConvexPolygon::pointInside(const vec2& p)
 {
-	for (int i = 0; i < npoints; ++i)
+	for (auto& e : edges)
 	{
-		vec2 normal = edges[i].normal();
-		vec2 refPoint = vertices[i].global();
+		vec2 normal = e->normal();
+		vec2 refPoint = e->v1->global();
 		real signedDistance = dot(p - refPoint, normal);
 
 		if (signedDistance > 0)
@@ -122,42 +121,48 @@ bool ConvexPolygon::pointInside(const vec2& p)
 
 void ConvexPolygon::onMove()
 {
-	for (int i = 0; i < npoints; ++i)
+	for (auto& v : vertices)
 	{
-		vertices[i].recompute(position(), angle());
+		v->recompute(position(), angle());
 	}
 }
 
 void ConvexPolygon::onRotate()
 {
-	for (int i = 0; i < npoints; ++i)
+	for (auto& v : vertices)
 	{
-		vertices[i].recompute(position(), angle());
-		edges[i].recompute(angle());
+		v->recompute(position(), angle());
+	}
+
+	for (auto& e : edges)
+	{
+		e->recompute(angle());
 	}
 }
 
 
-// Returns <signed penetration, index of deepest point> 
-std::pair<real, int> ConvexPolygon::normalPenetration(int i, const ConvexPolygon& other) const
+// Returns <signed penetration, deepest vertex> 
+std::pair<real, const Vertex*> ConvexPolygon::normalPenetration(Edge* e, const ConvexPolygon& other) const
 {
-	vec2 normal = edges[i].normal();
+	vec2 normal = e->normal();
 
-	Vertex supportPointThis = vertices[i];
-	Vertex supportPointOther = other.support(-normal);
-	real signedDistance = dot(supportPointOther.global() - supportPointThis.global(), normal);
+	const Vertex* supportPointThis = e->v1;
+	const Vertex* supportPointOther = other.support(-normal);
 
-	return {signedDistance, supportPointOther.index()};
+	real signedDistance = dot(supportPointOther->global() - supportPointThis->global(), normal);
+
+	return {signedDistance, supportPointOther};
 }
 
-// Returns <early out, max signed penetration, index of normal, index of deepest point> 
+// Returns <early out, max signed penetration, edge that vertex penetrates into, deepest vertex> 
 // If the first return value is true, should discard the others
-std::tuple<bool, real, int, int> ConvexPolygon::maxSignedPenetration(const ConvexPolygon& other) const
+std::tuple<bool, real, const Edge*, const Vertex*> ConvexPolygon::maxSignedPenetration(const ConvexPolygon& other) const
 {
 	bool earlyOut = false;
 	real maxPenetration = std::numeric_limits<real>::lowest();
 	int normalIndex = -1;
 	int pointIndex = -1;
+
 
 	for (int i = 0; i < npoints; ++i)
 	{
@@ -184,7 +189,12 @@ std::tuple<bool, real, int, int> ConvexPolygon::maxSignedPenetration(const Conve
 
 real ConvexPolygon::absEdgeDot(int i, const vec2& d) const
 {
-	return std::abs(dot(edges[i].global(), d));
+	return std::abs(dot(edges[i]->global(), d));
+}
+
+real ConvexPolygon::absEdgeDot(const Edge* e, const vec2& d) const
+{
+	return std::abs(dot(e->global(), d));
 }
 
 
@@ -200,14 +210,14 @@ int ConvexPolygon::prevIndex(int i) const
 
 
 
-Vertex ConvexPolygon::support(const vec2& d) const
+const Vertex* ConvexPolygon::support(const vec2& d) const
 {
 	real largestDot = std::numeric_limits<real>::lowest();
 
 	int index = -1;
 	for (int i = 0; i < npoints; ++i)
 	{
-		real dotProduct = dot(vertices[i].global(), d);
+		real dotProduct = dot(vertices[i]->global(), d);
 
 		if (dotProduct > largestDot)
 		{
@@ -216,7 +226,7 @@ Vertex ConvexPolygon::support(const vec2& d) const
 		}
 	}
 
-	return vertices[index];
+	return vertices[index].get();
 }
 
 void ConvexPolygon::createRegularPolygon(real sideLength)
@@ -236,7 +246,7 @@ void ConvexPolygon::createRegularPolygon(real sideLength)
 
 		vec2 point = { r * std::cos(pointAngle), r * std::sin(pointAngle) };
 
-		vertices.emplace_back(i, point, *this);
+		vertices.emplace_back(std::make_unique<Vertex>(i, point, *this));
 	}
 }
 
@@ -255,8 +265,16 @@ void ConvexPolygon::initEdges()
 	
 	for (int i = 0; i < npoints; ++i)
 	{
-		vec2 edge = vertices[nextIndex(i)].local() - vertices[i].local();
-		edges.emplace_back(i, edge, *this);
+		vec2 edge = vertices[nextIndex(i)]->local() - vertices[i]->local();
+		edges.emplace_back(std::make_unique<Edge>(i, edge, *this));
+	}
+
+	for (int i = 0; i < npoints; ++i)
+	{
+		edges[i]->prev = edges[prevIndex(i)].get();
+		edges[i]->next = edges[nextIndex(i)].get();
+		edges[i]->v1 = vertices[i].get();
+		edges[i]->v2 = vertices[nextIndex(i)].get();
 	}
 }
 

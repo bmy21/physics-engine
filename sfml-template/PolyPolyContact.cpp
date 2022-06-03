@@ -1,38 +1,36 @@
 #include "PolyPolyContact.h"
 
-PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex, const PhysicsSettings& ps):
+PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const Edge* refEdge, const Edge* incEdge, const PhysicsSettings& ps):
 	ref(ref),
 	inc(inc),
-	refEdgeIndex(refEdgeIndex),
-	incEdgeIndex(incEdgeIndex),
+	refEdge(refEdge),
+	incEdge(incEdge),
 	ContactConstraint(ps)
 {
-	vec2 refEdge = ref->edge(refEdgeIndex);
-	vec2 refPoint1 = ref->vertex(refEdgeIndex);
-	vec2 refPoint2 = refPoint1 + refEdge;
+	vec2 refPoint1 = refEdge->v1->global();
+	vec2 refPoint2 = refEdge->v2->global();
 
-	vec2 incEdge = inc->edge(incEdgeIndex);
-	vec2 incPoint1 = inc->vertex(incEdgeIndex);
-	vec2 incPoint2 = incPoint1 + incEdge;
+	vec2 incPoint1 = incEdge->v1->global();
+	vec2 incPoint2 = incEdge->v2->global();
 
 	ContactPoint cp1, cp2;
-	cp1.incPointIndex = incEdgeIndex;
-	cp1.refEdgeIndex = refEdgeIndex;
+	cp1.incPointIndex = incEdge->v1->index();
+	cp1.refEdgeIndex = refEdge->index();
 	cp1.point = incPoint1;
 
-	cp2.incPointIndex = inc->nextIndex(incEdgeIndex);
-	cp2.refEdgeIndex = refEdgeIndex;
+	cp2.incPointIndex = incEdge->v2->index();
+	cp2.refEdgeIndex = refEdge->index();
 	cp2.point = incPoint2;
 
-	vec2 clipNormal = normalise(refEdge);
-	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdgeIndex, cp1, cp2);
-	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, ref->nextIndex(refEdgeIndex), cp1, cp2);
+	vec2 clipNormal = normalise(refEdge->global());
+	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdge->v1->index(), cp1, cp2);
+	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, refEdge->v2->index(), cp1, cp2);
 
 	// If clipping returns no valid points, then both contact points were outside the plane
 	// This would suggest something went wrong with collision detection
 	// assert(OK1 && OK2); 
 
-	n = ref->normal(refEdgeIndex);
+	n = refEdge->normal();
 
 	checkAndAddPoint(cp1, refPoint1, ps.clipPlaneEpsilon);
 	checkAndAddPoint(cp2, refPoint1, ps.clipPlaneEpsilon);
@@ -214,12 +212,13 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 {
 	// std::cout << numPersist << '\n';
 
-	vec2 refPoint1 = ref->vertex(refEdgeIndex) * pixPerUnit;
-	vec2 refPoint2 = refPoint1 + ref->edge(refEdgeIndex) * pixPerUnit;
+	vec2 refPoint1 = refEdge->v1->global() * pixPerUnit;
+	vec2 refPoint2 = refEdge->v2->global() * pixPerUnit;
+
+	vec2 incPoint1 = incEdge->v1->global() * pixPerUnit;
+	vec2 incPoint2 = incEdge->v2->global() * pixPerUnit;
+
 	drawThickLine(window, refPoint1, refPoint2, 3, sf::Color::Red);
-	
-	vec2 incPoint1 = inc->vertex(incEdgeIndex) * pixPerUnit;
-	vec2 incPoint2 = incPoint1 + inc->edge(incEdgeIndex) * pixPerUnit;
 	drawThickLine(window, incPoint1, incPoint2, 3, sf::Color::Green);
 
 
@@ -299,8 +298,8 @@ void PolyPolyContact::rebuildPoint(int i)
 {
 	ContactPoint& cp = contactPoints[i];
 
-	vec2 normal = ref->normal(refEdgeIndex);
-	vec2 refPoint = ref->vertex(refEdgeIndex);
+	vec2 normal = refEdge->normal();
+	vec2 refPoint = refEdge->v1->global();
 
 	if (cp.clippedAgainstPoint == -1)
 	{
@@ -310,7 +309,7 @@ void PolyPolyContact::rebuildPoint(int i)
 	else
 	{
 		// Find the point where the incident edge crosses the clip plane
-		vec2 p = inc->edge(incEdgeIndex);
+		vec2 p = incEdge->global();
 		vec2 q = normal;
 
 		vec2 a = inc->vertex(cp.incPointIndex);
@@ -345,7 +344,7 @@ void PolyPolyContact::checkAndAddPoint(ContactPoint& cp, const vec2& ref, real e
 
 void PolyPolyContact::updateCache()
 {
-	n = ref->normal(refEdgeIndex);
+	n = refEdge->normal();
 	t = perp(n);
 
 	vec2 iRelPos, rRelPos;

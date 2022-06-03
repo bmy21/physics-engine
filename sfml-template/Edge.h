@@ -2,6 +2,8 @@
 #include "Utils.h"
 #include "RigidBody.h"
 
+class Vertex;
+
 class Edge
 {
 public:
@@ -17,6 +19,13 @@ public:
 	// Recalculate the global vector and global normal
 	void recompute(real angle);
 
+	// TODO: pointers to previous & next edges
+	Edge* prev = nullptr;
+	Edge* next = nullptr;
+	Vertex* v1 = nullptr;
+	Vertex* v2 = nullptr;
+
+
 private:
 	vec2 localEdge;
 	vec2 globalEdge;
@@ -26,7 +35,6 @@ private:
 
 	// this Edge points from Vertex i to Vertex i + 1
 	int i = -1;
-
-	// TODO: pointers to previous & next edges
+	
 };
 

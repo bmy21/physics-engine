@@ -21,11 +21,11 @@ public:
 	void onMove() override;
 	void onRotate() override;
 
-	Vertex support(const vec2& d) const;
+	const Vertex* support(const vec2& d) const; 
 
-	vec2 edge(int i) const { return edges[i].global(); }
-	vec2 vertex(int i) const { return vertices[i].global(); }
-	vec2 normal(int i) const { return edges[i].normal(); }
+	vec2 edge(int i) const { return edges[i]->global(); }
+	vec2 vertex(int i) const { return vertices[i]->global(); }
+	vec2 normal(int i) const { return edges[i]->normal(); }
 
 	int nextIndex(int i) const;
 	int prevIndex(int i) const;
@@ -38,17 +38,18 @@ private:
 	void initEdges();
 	void initShape();
 
-	// Find penetration of other polygon into this polygon along normal i
-	std::pair<real, int> normalPenetration(int i, const ConvexPolygon& other) const;
+	// Find penetration of other polygon into this polygon through edge e
+	std::pair<real, const Vertex*> normalPenetration(Edge* e, const ConvexPolygon& other) const;
 
 	// Find maximum signed penetration of other polygon into this polygon along any edge normal
-	std::tuple<bool, real, int, int> maxSignedPenetration(const ConvexPolygon& other) const;
+	std::tuple<bool, real, const Edge*, const Vertex*> maxSignedPenetration(const ConvexPolygon& other) const;
 
 	real absEdgeDot(int i, const vec2& d) const;
+	real absEdgeDot(const Edge* e, const vec2& d) const;
 
 	const int npoints;
-	std::vector<Edge> edges;
-	std::vector<Vertex> vertices;
+	std::vector<std::unique_ptr<Edge>> edges;
+	std::vector< std::unique_ptr<Vertex>> vertices;
 
 	sf::ConvexShape shape;
 };

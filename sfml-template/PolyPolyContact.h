@@ -2,11 +2,12 @@
 #include "ContactConstraint.h"
 #include "ContactPoint.h"
 #include "ConvexPolygon.h"
+#include "Edge.h"
 
 class PolyPolyContact : public ContactConstraint
 {
 public:
-	PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, int refEdgeIndex, int incEdgeIndex, const PhysicsSettings& ps);
+	PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const Edge* refEdge, const Edge* incEdge, const PhysicsSettings& ps);
 
 	void warmStart() override;
 	void correctVel() override;
@@ -28,11 +29,10 @@ private:
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
 
-	int refEdgeIndex = -1;
-	int incEdgeIndex = -1;
+	const Edge* refEdge = nullptr;
+	const Edge* incEdge = nullptr;
 
 	std::vector<real> vRelTarget;
-
 	std::vector<ContactPoint> contactPoints;
 	int ncp = -1;
 	
