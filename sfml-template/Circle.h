@@ -1,5 +1,6 @@
 #pragma once
 #include "RigidBody.h"
+#include "CircleCircleContact.h"
 
 class Circle : public RigidBody
 {

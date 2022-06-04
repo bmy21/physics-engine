@@ -36,7 +36,14 @@ void Circle::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool
 
 std::unique_ptr<ContactConstraint> Circle::checkCollision(Circle* other)
 {
-	return nullptr; 
+	if (magnitude(other->position() - position()) < rad + other->rad)
+	{
+		return std::make_unique<CircleCircleContact>(this, other, ps);
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 bool Circle::pointInside(const vec2& p) const
@@ -49,4 +56,5 @@ void Circle::initShape()
 	shape.setFillColor(sf::Color::Transparent);
 	shape.setOutlineColor(sf::Color::Black);
 	shape.setOutlineThickness(-1);
+	shape.setPointCount(50);
 }
