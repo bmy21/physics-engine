@@ -32,10 +32,14 @@ Game::Game():
 	addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 
-	std::unique_ptr<RigidBody> c = std::make_unique<Circle>(ps, 0.5, 0.);
-	c->moveTo({ 3, 3 });
-	c->mInv = 1;
-	rigidBodies.push_back(std::move(c));
+	addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
+	addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
+	addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
+
+	//std::unique_ptr<RigidBody> c = std::make_unique<Circle>(ps, 0.5, 0.);
+	//c->moveTo({ 3, 3 });
+	//c->mInv = 1;
+	//rigidBodies.push_back(std::move(c));
 }
 
 
@@ -330,6 +334,14 @@ void Game::removeMouseConstraint()
 void Game::addConvexPolygon(int nsides, real len, vec2 coords, real mInv)
 {
 	auto rb = std::make_unique<ConvexPolygon>(ps, nsides, len, mInv);
+	rb->moveTo(coords);
+
+	rigidBodies.push_back(std::move(rb));
+}
+
+void Game::addCircle(real rad, vec2 coords, real mInv)
+{
+	auto rb = std::make_unique<Circle>(ps, rad, mInv);
 	rb->moveTo(coords);
 
 	rigidBodies.push_back(std::move(rb));
