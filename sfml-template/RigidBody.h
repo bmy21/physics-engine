@@ -7,6 +7,8 @@
 class ConvexPolygon;
 class ContactConstraint;
 
+using idType = unsigned long;
+
 class RigidBody
 {
 public:
@@ -46,6 +48,8 @@ public:
 
 	void applyDamping(real dt);
 
+	const idType id;
+
 	// TODO: make these private
 	real mInv = 0, IInv = 0;
 
@@ -58,4 +62,6 @@ private:
 
 	vec2 posPrev;
 	real thetaPrev = 0;
+
+	static inline idType counter = 0;
 };

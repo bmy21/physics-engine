@@ -1,7 +1,8 @@
 #include "RigidBody.h"
 
 RigidBody::RigidBody(const PhysicsSettings& ps, real mInv, real IInv):
-	ps(ps), mInv(mInv), IInv(IInv)
+	ps(ps), mInv(mInv), IInv(IInv),
+	id(counter++)
 {
 
 }

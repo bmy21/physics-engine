@@ -227,7 +227,16 @@ void Game::detectCollisions()
 	{
 		for (auto it2 = rigidBodies.begin(); it2 != it1; ++it2)
 		{
-			std::unique_ptr<ContactConstraint> result = (*it1)->checkCollision(it2->get());
+			// Ensure the two rigid bodies are always checked in the same order
+			RigidBody* largerID = it1->get();
+			RigidBody* smallerID = it2->get();
+			
+			if (smallerID->id > largerID->id)
+			{
+				std::swap(smallerID, largerID);
+			}
+
+			std::unique_ptr<ContactConstraint> result = smallerID->checkCollision(largerID);
 
 			if (result)
 			{
@@ -243,8 +252,6 @@ void Game::detectCollisions()
 
 		for (auto newIt = newContactConstraints.begin(); newIt != newContactConstraints.end(); ++newIt)
 		{
-			// TODO: ensure a pair is always checked in the same order?
-			// e.g. by assigning a unique id
 			if ((*newIt)->matches(it->get()))
 			{
 				// *it represents the same contact constraint as *newIt
