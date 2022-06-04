@@ -5,6 +5,7 @@
 #include "PhysicsSettings.h"
 
 class ConvexPolygon;
+class Circle;
 class ContactConstraint;
 
 using idType = unsigned long;
@@ -14,12 +15,14 @@ class RigidBody
 public:
 	RigidBody(const PhysicsSettings& ps, real mInv = 0, real IInv = 0);
 
+	// TODO: is update really necessary?
 	virtual void update(real dt) = 0;
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, 
 		bool debug = false, sf::Text* text = nullptr) = 0;
 
 	virtual std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) = 0;
 	virtual std::unique_ptr<ContactConstraint> checkCollision(ConvexPolygon* other) = 0;
+	virtual std::unique_ptr<ContactConstraint> checkCollision(Circle* other) = 0;
 
 	virtual bool pointInside(const vec2& p) const = 0;
 

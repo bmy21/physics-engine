@@ -107,6 +107,14 @@ void MouseConstraint::updateCache()
 void MouseConstraint::calculateParams()
 {
 	real denom = ps.dt * k + b;
-	beta = k / denom;
-	gamma = 1 / (ps.dt * denom);
+
+	if (denom == 0)
+	{
+		beta = gamma = 0;
+	}
+	else
+	{
+		beta = k / denom;
+		gamma = 1 / (ps.dt * denom);
+	}
 }

@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "RigidBody.h"
 #include "ConvexPolygon.h"
+#include "Circle.h"
 #include "ContactConstraint.h"
 #include "MouseConstraint.h"
 #include "MouseHandler.h"

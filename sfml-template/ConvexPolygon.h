@@ -15,6 +15,7 @@ public:
 
 	std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) override { return other->checkCollision(this); }
 	std::unique_ptr<ContactConstraint> checkCollision(ConvexPolygon* other) override;
+	std::unique_ptr<ContactConstraint> checkCollision(Circle* other) override { return nullptr; };
 
 	bool pointInside(const vec2& p) const override;
 
