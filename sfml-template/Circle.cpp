@@ -26,6 +26,9 @@ void Circle::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool
 	shape.setOrigin(rad * pixPerUnit, rad * pixPerUnit);
 	shape.setRadius(rad * pixPerUnit);
 
+	std::cout << angle() << "\n";
+	drawThickLine(window, position() * pixPerUnit, position() * pixPerUnit + vec2(rad* std::cos(angle())* pixPerUnit, rad* std::sin(angle())* pixPerUnit), 1, sf::Color::Black);
+
 	if (debug && text)
 	{
 		

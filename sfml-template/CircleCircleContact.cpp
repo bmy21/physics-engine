@@ -138,6 +138,6 @@ void CircleCircleContact::updateCache()
 	tCrossFactor2 = zcross(relPos2, t);
 
 	nMassFactor = c1->mInv + c2->mInv + c1->IInv * std::pow(nCrossFactor1, 2) + c2->IInv * std::pow(nCrossFactor2, 2);
-	nMassFactor = c1->mInv + c2->mInv + c1->IInv * std::pow(tCrossFactor1, 2) + c2->IInv * std::pow(tCrossFactor2, 2);
+	tMassFactor = c1->mInv + c2->mInv + c1->IInv * std::pow(tCrossFactor1, 2) + c2->IInv * std::pow(tCrossFactor2, 2);
 }
 
