@@ -33,18 +33,12 @@ private:
 	const Edge* refEdge = nullptr;
 	const Edge* incEdge = nullptr;
 
-	std::vector<real> vRelTarget;
 	std::vector<ContactPoint> contactPoints;
 	int ncp = -1;
 	
-	// Geometric data - cached to avoid recomputation
-	vec2 n, t;
-	std::vector<real> inCrossFactors, rnCrossFactors;
-	std::vector<real> itCrossFactors, rtCrossFactors;
-	std::vector<real> nMassFactors, tMassFactors;
+	// Cached data for simultaneous solution
 	real A12 = 0, det = 0, norm = 0;
 
-	void rebuildPoint(int i);
 	void checkAndAddPoint(ContactPoint& cp, const vec2& ref, real eps);
 };
 

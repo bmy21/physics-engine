@@ -52,19 +52,21 @@ void CircleCircleContact::rebuild()
 void CircleCircleContact::rebuildFrom(ContactConstraint* other)
 {
 	// This function should only be called if *other is known to match *this
-	// *other will be left in an invalid state
+	// *other may be left in an invalid state
 
 	CircleCircleContact* ccOther = static_cast<CircleCircleContact*>(other);
-
-	cp.lambda = ccOther->cp.lambda;
-	cp.fLambda = ccOther->cp.fLambda;
 	cp.vRelTarget = ccOther->cp.vRelTarget;
 }
 
 void CircleCircleContact::updateCache()
 {
-	// TODO: handle zero normal case?
-	n = normalise(c2->position() - c1->position());
+	n = c2->position() - c1->position();
+	
+	if (magnitude(n) != 0)
+	{
+		n = normalise(n);
+	}
+
 	t = perp(n);
 
 	updatePointCache(cp);

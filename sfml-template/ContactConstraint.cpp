@@ -9,7 +9,6 @@ ContactConstraint::ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1, 
 
 void ContactConstraint::solvePointFriction(ContactPoint& cp)
 {
-	// TODO: relative velocity function in ContactConstraint?
 	real vDotGradCf = dot(rb2->velocity() - rb1->velocity(), t) + cp.tCrossFactor2 * rb2->angVel() - cp.tCrossFactor1 * rb1->angVel();
 
 	real dfLambda = 0;

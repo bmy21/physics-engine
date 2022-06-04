@@ -27,20 +27,16 @@ Game::Game():
 	real len = 0.5;
 	int nsides = 12;
 
-	//addConvexPolygon(nsides, len, pixToCoords(pixWidth * 0.5, 200), 0.1f);
-	//addConvexPolygon(6, 2.5, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
-	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
-	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
+	/*addConvexPolygon(nsides, len, pixToCoords(pixWidth * 0.5, 200), 0.1f);
+	addConvexPolygon(6, 2.5, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
+	addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
+	addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));*/
 
 	addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
 	addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 	addCircle(1.2, { 3,3 }, 1);
 
-	//std::unique_ptr<RigidBody> c = std::make_unique<Circle>(ps, 0.5, 0.);
-	//c->moveTo({ 3, 3 });
-	//c->mInv = 1;
-	//rigidBodies.push_back(std::move(c));
 }
 
 

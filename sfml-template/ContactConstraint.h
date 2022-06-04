@@ -12,7 +12,7 @@ class RigidBody;
 class ContactConstraint
 {
 public:
-	ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1 = 0, RigidBody* rb2 = 0);
+	ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1, RigidBody* rb2);
 
 	virtual void correctVel() = 0;
 	virtual void correctPos() = 0;
