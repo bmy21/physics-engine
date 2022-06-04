@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Circle.cpp" />
+    <ClCompile Include="CircleCircleContact.cpp" />
     <ClCompile Include="Constraint.cpp" />
     <ClCompile Include="ContactConstraint.cpp" />
     <ClCompile Include="ContactPoint.cpp" />
@@ -167,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Circle.h" />
+    <ClInclude Include="CircleCircleContact.h" />
     <ClInclude Include="Constraint.h" />
     <ClInclude Include="ContactConstraint.h" />
     <ClInclude Include="ContactPoint.h" />

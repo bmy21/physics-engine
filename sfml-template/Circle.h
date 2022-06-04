@@ -18,6 +18,8 @@ public:
 	void onMove() override { }
 	void onRotate() override { }
 
+	real radius() const { return rad; }
+
 
 private:
 	void initShape();

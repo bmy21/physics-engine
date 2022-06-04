@@ -5,6 +5,7 @@
 #include "PhysicsSettings.h"
 
 class PolyPolyContact;
+class CircleCircleContact;
 
 class ContactConstraint
 {
@@ -20,6 +21,7 @@ public:
 
 	virtual bool matches(const ContactConstraint* other) const = 0;
 	virtual bool matches(const PolyPolyContact* other) const = 0;
+	virtual bool matches(const CircleCircleContact* other) const = 0;
 
 	virtual void rebuild() = 0;
 	virtual void rebuildFrom(ContactConstraint* other) = 0;

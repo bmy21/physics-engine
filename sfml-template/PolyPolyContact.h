@@ -16,6 +16,7 @@ public:
 
 	bool matches(const ContactConstraint* other) const override { return other->matches(this); }
 	bool matches(const PolyPolyContact* other) const override;
+	bool matches(const CircleCircleContact* other) const override { return false; }
 
 	void rebuild() override;
 	void rebuildFrom(ContactConstraint* other) override;
