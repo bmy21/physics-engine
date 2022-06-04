@@ -14,6 +14,16 @@ public:
 	real lambda = 0;
 	real fLambda = 0;
 
+	real vRelTarget = 0;
+
+	// z . (r x n)
+	real nCrossFactor1 = 0, nCrossFactor2 = 0;
+	real tCrossFactor1 = 0, tCrossFactor2 = 0;
+
+	// gradC . (mInv gradC)
+	real nMassFactor = 0;
+	real tMassFactor = 0;
+
 	// Complete set of information that specifies how this 
 	// contact point was generated. Can be used to recompute
 	// the contact point or to match agatinst other contact points.

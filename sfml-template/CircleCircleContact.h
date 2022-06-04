@@ -26,13 +26,6 @@ private:
 	Circle* c1 = nullptr;
 	Circle* c2 = nullptr;
 
-	real vRelTarget = 0;
 	ContactPoint cp;
-
-	// Geometric data - cached to avoid recomputation
-	vec2 n, t;
-	real nCrossFactor1 = 0, nCrossFactor2 = 0;
-	real tCrossFactor1 = 0, tCrossFactor2 = 0;
-	real nMassFactor = 0, tMassFactor = 0;
 };
 

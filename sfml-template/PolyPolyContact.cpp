@@ -37,15 +37,6 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const E
 
 	ncp = contactPoints.size();
 
-	inCrossFactors.resize(ncp);
-	itCrossFactors.resize(ncp);
-	rnCrossFactors.resize(ncp);
-	rtCrossFactors.resize(ncp);
-
-	nMassFactors.resize(ncp);
-	tMassFactors.resize(ncp);
-
-
 	// Sort by index off incident point to ensure a consistent ordering
 	// Note - clipping process above should give consistent order anyway?
 	// std::sort(contactPoints.begin(), contactPoints.end(),

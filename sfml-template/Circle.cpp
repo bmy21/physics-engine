@@ -26,8 +26,13 @@ void Circle::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool
 	shape.setOrigin(rad * pixPerUnit, rad * pixPerUnit);
 	shape.setRadius(rad * pixPerUnit);
 
-	std::cout << angle() << "\n";
-	drawThickLine(window, position() * pixPerUnit, position() * pixPerUnit + vec2(rad* std::cos(angle())* pixPerUnit, rad* std::sin(angle())* pixPerUnit), 1, sf::Color::Black);
+	vec2 radiusVector = { rad * std::cos(itheta), rad * std::sin(itheta) };
+
+	drawThickLine(window, 
+		ipos * pixPerUnit, 
+		(ipos + radiusVector) * pixPerUnit, 
+		1, 
+		sf::Color::Black);
 
 	if (debug && text)
 	{
@@ -59,5 +64,5 @@ void Circle::initShape()
 	shape.setFillColor(sf::Color::Transparent);
 	shape.setOutlineColor(sf::Color::Black);
 	shape.setOutlineThickness(-1);
-	shape.setPointCount(50);
+	shape.setPointCount(60);
 }

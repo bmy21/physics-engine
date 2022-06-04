@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cassert>
 #include <sstream>
+#include <array>
 
 class ContactPoint;
 
