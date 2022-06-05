@@ -26,114 +26,11 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const E
 	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdge->v1index(), cp1, cp2);
 	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, refEdge->v2index(), cp1, cp2);
 
-	// If clipping returns no valid points, then both contact points were outside the plane
-	// This would suggest something went wrong with collision detection
-	// assert(OK1 && OK2); 
-
-	n = refEdge->normal();
-
 	checkAndAddPoint(cp1, refPoint1, ps.clipPlaneEpsilon);
 	checkAndAddPoint(cp2, refPoint1, ps.clipPlaneEpsilon);
-
 	ncp = contactPoints.size();
 
-	// Sort by index off incident point to ensure a consistent ordering
-	// Note - clipping process above should give consistent order anyway?
-	// std::sort(contactPoints.begin(), contactPoints.end(),
-	//	[](const ContactPoint& cp1, const ContactPoint& cp2) 
-	//	{ return cp1.incPointIndex < cp2.incPointIndex; }); 
-
-
-	// Store target relative velocities
-	for (auto& cp : contactPoints)
-	{
-		real vRel = dot(inc->pointVel(cp.point) - ref->pointVel(cp.point), n);
-		cp.vRelTarget = vRel < -ps.vRelThreshold ? -e * vRel : 0;
-	}
-}
-
-void PolyPolyContact::warmStart()
-{
-	for (auto& cp : contactPoints)
-	{
-		warmStartPoint(cp);
-	}
-}
-
-void PolyPolyContact::correctVel()
-{
-	for (auto& cp : contactPoints)
-	{
-		solvePointFriction(cp);
-	}
-
-	// Try simultaneous solution of normal velocities first
-	if (ncp == 2 && ps.simulSolveVel && wellConditionedVel)
-	{
-		ContactPoint& cp1 = contactPoints[0];
-		ContactPoint& cp2 = contactPoints[1];
-
-		real alpha1 = cp1.vRelTarget - (dot(inc->velocity() - ref->velocity(), n) + cp1.nCrossFactor2 * inc->angVel() - cp1.nCrossFactor1 * ref->angVel());
-		real alpha2 = cp2.vRelTarget - (dot(inc->velocity() - ref->velocity(), n) + cp2.nCrossFactor2 * inc->angVel() - cp2.nCrossFactor1 * ref->angVel());
-
-		real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
-		real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
-
-
-		if (cp1.lambda + lam1 >= 0 && cp2.lambda + lam2 >= 0)
-		{
-			inc->applyDeltaVel(n * inc->mInv * (lam1 + lam2), inc->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
-			ref->applyDeltaVel(-n * ref->mInv * (lam1 + lam2), ref->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
-
-			cp1.lambda += lam1;
-			cp2.lambda += lam2;
-
-			return;
-		}
-	}
-		
-	// At this point, simultaneous solution failed, either because the condition number was too high or 
-	// because one of the accumulated impulses would become negative. So, resort to the iterative solution.
-	for (auto& cp : contactPoints)
-	{
-		solvePointVel(cp);
-	}
-}
-
-void PolyPolyContact::correctPos()
-{
-	// Try simultaneous solution first
-	if (ps.simulSolvePos && ncp == 2)
-	{
-		rebuild();
-		updateCache();
-
-		if (wellConditionedPos)
-		{
-			ContactPoint& cp1 = contactPoints[0];
-			ContactPoint& cp2 = contactPoints[1];
-
-			real C1 = std::min(cp1.penetration + ps.slop, static_cast<real>(0));
-			real C2 = std::min(cp2.penetration + ps.slop, static_cast<real>(0));
-
-			real alpha1 = -ps.beta * C1;
-			real alpha2 = -ps.beta * C2;
-
-			real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
-			real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
-
-			inc->applyDeltaPos(n * inc->mInv * (lam1 + lam2), inc->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
-			ref->applyDeltaPos(-n * ref->mInv * (lam1 + lam2), ref->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
-
-			return;
-		}
-	}
-
-	// At this point, the condition number was too high, so resort to the iterative solution.
-	for (auto& cp : contactPoints)
-	{
-		solvePointPos(cp);
-	}
+	storeRelativeVelocities();
 }
 
 void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
@@ -196,9 +93,14 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 	}
 }
 
-void PolyPolyContact::rebuild()
+void PolyPolyContact::updateNormal()
 {
-	vec2 normal = refEdge->normal();
+	n = refEdge->normal();
+}
+
+void PolyPolyContact::rebuildPoints()
+{
+	updateNormal();
 	vec2 refPoint = refEdge->point1();
 
 	for (auto& cp : contactPoints)
@@ -212,7 +114,7 @@ void PolyPolyContact::rebuild()
 		{
 			// Find the point where the incident edge crosses the clip plane
 			vec2 p = incEdge->global();
-			vec2 q = normal;
+			vec2 q = n;
 
 			vec2 a = inc->vertex(cp.incPointIndex);
 			vec2 b = ref->vertex(cp.clippedAgainstPoint);
@@ -223,10 +125,10 @@ void PolyPolyContact::rebuild()
 			cp.point = intersect;
 		}
 
-		cp.penetration = dot(cp.point - refPoint, normal);
+		cp.penetration = dot(cp.point - refPoint, n);
 
 		// Project onto reference edge
-		cp.point -= cp.penetration * normal;
+		cp.point -= cp.penetration * n;
 	}
 }
 
@@ -262,31 +164,5 @@ void PolyPolyContact::checkAndAddPoint(ContactPoint& cp, const vec2& ref, real e
 		cp.penetration = p;
 		cp.point -= cp.penetration * n;
 		contactPoints.push_back(cp);
-	}
-}
-
-void PolyPolyContact::updateCache()
-{
-	n = refEdge->normal();
-	t = perp(n);
-
-	for (auto& cp : contactPoints)
-	{
-		updatePointCache(cp);
-	}
-
-	if ((ps.simulSolveVel || ps.simulSolvePos) && ncp == 2)
-	{
-		ContactPoint& cp1 = contactPoints[0];
-		ContactPoint& cp2 = contactPoints[1];
-
-		A12 = inc->mInv + ref->mInv + inc->IInv * cp1.nCrossFactor2 * cp2.nCrossFactor2 + ref->IInv * cp1.nCrossFactor1 * cp2.nCrossFactor1;
-		det = cp1.nMassFactor * cp2.nMassFactor - A12 * A12;
-		norm = std::max(cp1.nMassFactor, cp2.nMassFactor) + std::abs(A12);
-		real normSquared = norm * norm;
-
-		// Is the condition number less than the threshold?
-		wellConditionedVel = normSquared < ps.maxCondVel * det;
-		wellConditionedPos = normSquared < ps.maxCondPos * det;
 	}
 }

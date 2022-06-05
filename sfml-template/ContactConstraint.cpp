@@ -5,6 +5,123 @@ ContactConstraint::ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1, 
 {
 	e = ps.eDefault;
 	mu = ps.muDefault;
+
+	// Sort by index of incident point to ensure a consistent ordering
+	// Note - clipping process above should give consistent order anyway?
+	// std::sort(contactPoints.begin(), contactPoints.end(),
+	//	[](const ContactPoint& cp1, const ContactPoint& cp2) 
+	//	{ return cp1.incPointIndex < cp2.incPointIndex; }); 
+}
+
+void ContactConstraint::correctVel()
+{
+	for (auto& cp : contactPoints)
+	{
+		solvePointFriction(cp);
+	}
+
+	// Try simultaneous solution of normal velocities first
+	if (ncp == 2 && ps.simulSolveVel && wellConditionedVel)
+	{
+		ContactPoint& cp1 = contactPoints[0];
+		ContactPoint& cp2 = contactPoints[1];
+
+		real alpha1 = cp1.vRelTarget - (dot(rb2->velocity() - rb1->velocity(), n) + cp1.nCrossFactor2 * rb2->angVel() - cp1.nCrossFactor1 * rb1->angVel());
+		real alpha2 = cp2.vRelTarget - (dot(rb2->velocity() - rb1->velocity(), n) + cp2.nCrossFactor2 * rb2->angVel() - cp2.nCrossFactor1 * rb1->angVel());
+
+		real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
+		real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
+
+
+		if (cp1.lambda + lam1 >= 0 && cp2.lambda + lam2 >= 0)
+		{
+			rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+			rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+
+			cp1.lambda += lam1;
+			cp2.lambda += lam2;
+
+			return;
+		}
+	}
+
+	// At this point, simultaneous solution failed, either because the condition number was too high or 
+	// because one of the accumulated impulses would become negative. So, resort to the iterative solution.
+	for (auto& cp : contactPoints)
+	{
+		solvePointVel(cp);
+	}
+}
+
+void ContactConstraint::correctPos()
+{
+	// Try simultaneous solution first
+	if (ncp == 2 && ps.simulSolvePos)
+	{
+		rebuildPoints();
+		updateCache();
+
+		if (wellConditionedPos)
+		{
+			ContactPoint& cp1 = contactPoints[0];
+			ContactPoint& cp2 = contactPoints[1];
+
+			real C1 = std::min(cp1.penetration + ps.slop, static_cast<real>(0));
+			real C2 = std::min(cp2.penetration + ps.slop, static_cast<real>(0));
+
+			real alpha1 = -ps.beta * C1;
+			real alpha2 = -ps.beta * C2;
+
+			real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
+			real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
+
+			rb1->applyDeltaPos(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+			rb2->applyDeltaPos(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+
+			return;
+		}
+	}
+
+	// At this point, the condition number was too high, so resort to the iterative solution.
+	for (auto& cp : contactPoints)
+	{
+		solvePointPos(cp);
+	}
+}
+
+void ContactConstraint::warmStart()
+{
+	for (auto& cp : contactPoints)
+	{
+		warmStartPoint(cp);
+	}
+}
+
+void ContactConstraint::updateCache()
+{
+	updateNormal();
+
+	t = perp(n);
+
+	for (auto& cp : contactPoints)
+	{
+		updatePointCache(cp);
+	}
+
+	if (ncp == 2 && (ps.simulSolveVel || ps.simulSolvePos))
+	{
+		ContactPoint& cp1 = contactPoints[0];
+		ContactPoint& cp2 = contactPoints[1];
+
+		A12 = rb2->mInv + rb1->mInv + rb2->IInv * cp1.nCrossFactor2 * cp2.nCrossFactor2 + rb1->IInv * cp1.nCrossFactor1 * cp2.nCrossFactor1;
+		det = cp1.nMassFactor * cp2.nMassFactor - A12 * A12;
+		norm = std::max(cp1.nMassFactor, cp2.nMassFactor) + std::abs(A12);
+		real normSquared = norm * norm;
+
+		// Is the condition number less than the threshold?
+		wellConditionedVel = normSquared < ps.maxCondVel * det;
+		wellConditionedPos = normSquared < ps.maxCondPos * det;
+	}
 }
 
 void ContactConstraint::solvePointFriction(ContactPoint& cp)
@@ -43,7 +160,7 @@ void ContactConstraint::solvePointVel(ContactPoint& cp)
 
 void ContactConstraint::solvePointPos(ContactPoint& cp)
 {
-	rebuild();
+	rebuildPoints();
 	updateCache(); // TODO: only need to update some (normal) parts of the cache here...
 
 	real C = std::min(cp.penetration + ps.slop, static_cast<real>(0));
@@ -86,4 +203,14 @@ void ContactConstraint::updatePointCache(ContactPoint& cp)
 
 	cp.nMassFactor = rb1->mInv + rb2->mInv + rb1->IInv * std::pow(cp.nCrossFactor1, 2) + rb2->IInv * std::pow(cp.nCrossFactor2, 2);
 	cp.tMassFactor = rb1->mInv + rb2->mInv + rb1->IInv * std::pow(cp.tCrossFactor1, 2) + rb2->IInv * std::pow(cp.tCrossFactor2, 2);
+}
+
+void ContactConstraint::storeRelativeVelocities()
+{
+	updateNormal();
+	for (auto& cp : contactPoints)
+	{
+		real vRel = dot(rb2->pointVel(cp.point) - rb1->pointVel(cp.point), n);
+		cp.vRelTarget = vRel < -ps.vRelThreshold ? -e * vRel : 0;
+	}
 }

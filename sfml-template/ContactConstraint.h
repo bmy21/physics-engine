@@ -14,40 +14,51 @@ class ContactConstraint
 public:
 	ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1, RigidBody* rb2);
 
-	virtual void correctVel() = 0;
-	virtual void correctPos() = 0;
-	virtual void warmStart() = 0;
-	virtual void updateCache() = 0;
+	void correctVel();
+	void correctPos();
+	void warmStart();
+	void updateCache();
 
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) = 0;
 
 	virtual bool matches(const ContactConstraint* other) const = 0;
 	virtual bool matches(const PolyPolyContact* other) const = 0;
 	virtual bool matches(const CircleCircleContact* other) const = 0;
-
-	virtual void rebuild() = 0;
+	
 	virtual void rebuildFrom(ContactConstraint* other) = 0;
 
 	int numPersist = 0;
 
+
 protected:
-	void solvePointFriction(ContactPoint& cp);
-	void solvePointVel(ContactPoint& cp);
-	void solvePointPos(ContactPoint& cp);
-	void warmStartPoint(ContactPoint& cp); 
-	void updatePointCache(ContactPoint& cp);
+	void storeRelativeVelocities();
+	virtual void rebuildPoints() = 0;
+	virtual void updateNormal() = 0;
 
 	real mu = 0;
 	real e = 0;
 
-	vec2 n, t;
-
 	RigidBody* rb1 = nullptr;
 	RigidBody* rb2 = nullptr;
+
+	std::vector<ContactPoint> contactPoints;
+	int ncp = -1;
+
+	// Collision normal & tangent (shared by all contact points)
+	vec2 n, t;
+
+	// Cached data for simultaneous solution
+	bool wellConditionedVel = false;
+	bool wellConditionedPos = false;
+	real A12 = 0, det = 0, norm = 0;
 
 	const PhysicsSettings& ps;
 
 private:
-
+	void solvePointFriction(ContactPoint& cp);
+	void solvePointVel(ContactPoint& cp);
+	void solvePointPos(ContactPoint& cp);
+	void warmStartPoint(ContactPoint& cp);
+	void updatePointCache(ContactPoint& cp);
 };
 
