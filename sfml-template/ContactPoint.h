@@ -28,6 +28,8 @@ public:
 	// contact point was generated. Can be used to recompute
 	// the contact point or to match agatinst other contact points.
 
+	// TODO: IndexedContactPoint subclass?
+
 	// Index of point on incident body
 	int incPointIndex = -1;
 

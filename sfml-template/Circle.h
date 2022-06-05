@@ -15,11 +15,11 @@ public:
 	std::unique_ptr<ContactConstraint> checkCollision(Circle* other) override;
 
 	bool pointInside(const vec2& p) const override;
-
 	void onMove() override { }
 	void onRotate() override { }
 
 	real radius() const { return rad; }
+	vec2 furthestPoint(const vec2& d);
 
 
 private:

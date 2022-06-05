@@ -59,6 +59,11 @@ bool Circle::pointInside(const vec2& p) const
 	return magnitude(p - position()) < rad;
 }
 
+vec2 Circle::furthestPoint(const vec2& d)
+{
+	return position() + d * rad;
+}
+
 void Circle::initShape()
 {
 	shape.setFillColor(sf::Color::Transparent);

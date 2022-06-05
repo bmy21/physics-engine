@@ -17,6 +17,7 @@ public:
 	void rebuildFrom(ContactConstraint* other) override;
 
 private:
+	void initPoints() override;
 	void rebuildPoints() override;
 	void updateNormal() override;
 

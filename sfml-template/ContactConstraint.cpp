@@ -13,6 +13,15 @@ ContactConstraint::ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1, 
 	//	{ return cp1.incPointIndex < cp2.incPointIndex; }); 
 }
 
+void ContactConstraint::init()
+{
+	initPoints();
+
+	ncp = contactPoints.size();
+
+	storeRelativeVelocities();
+}
+
 void ContactConstraint::correctVel()
 {
 	for (auto& cp : contactPoints)
@@ -209,6 +218,8 @@ void ContactConstraint::updatePointCache(ContactPoint& cp)
 
 void ContactConstraint::storeRelativeVelocities()
 {
+	updateNormal();
+
 	for (auto& cp : contactPoints)
 	{
 		real vRel = dot(rb2->pointVel(cp.point) - rb1->pointVel(cp.point), n);

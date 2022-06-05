@@ -1,40 +1,11 @@
 #include "PolyPolyContact.h"
 
 PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const Edge* refEdge, const Edge* incEdge, const PhysicsSettings& ps):
-	ref(ref),
-	inc(inc),
-	refEdge(refEdge),
-	incEdge(incEdge),
+	ref(ref), inc(inc),
+	refEdge(refEdge),incEdge(incEdge),
 	ContactConstraint(ps, ref, inc)
 {
-	vec2 refPoint1 = refEdge->point1();
-	vec2 refPoint2 = refEdge->point2();
-
-	vec2 incPoint1 = incEdge->point1();
-	vec2 incPoint2 = incEdge->point2();
-
-	ContactPoint cp1, cp2;
-	cp1.incPointIndex = incEdge->v1index();
-	cp1.refEdgeIndex = refEdge->index();
-	cp1.point = incPoint1;
-
-	cp2.incPointIndex = incEdge->v2index();
-	cp2.refEdgeIndex = refEdge->index();
-	cp2.point = incPoint2;
-
-	vec2 clipNormal = normalise(refEdge->global());
-	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdge->v1index(), cp1, cp2);
-	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, refEdge->v2index(), cp1, cp2);
-
-	updateNormal();
-
-	checkAndAddPoint(cp1, refPoint1, ps.clipPlaneEpsilon);
-	checkAndAddPoint(cp2, refPoint1, ps.clipPlaneEpsilon);
 	
-	ncp = contactPoints.size();
-	std::cout << ncp << "\n";
-
-	storeRelativeVelocities();
 }
 
 void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
@@ -102,6 +73,32 @@ void PolyPolyContact::updateNormal()
 	n = refEdge->normal();
 }
 
+void PolyPolyContact::initPoints()
+{
+	vec2 refPoint1 = refEdge->point1();
+	vec2 refPoint2 = refEdge->point2();
+
+	vec2 incPoint1 = incEdge->point1();
+	vec2 incPoint2 = incEdge->point2();
+
+	ContactPoint cp1, cp2;
+	cp1.incPointIndex = incEdge->v1index();
+	cp1.refEdgeIndex = refEdge->index();
+	cp1.point = incPoint1;
+
+	cp2.incPointIndex = incEdge->v2index();
+	cp2.refEdgeIndex = refEdge->index();
+	cp2.point = incPoint2;
+
+	vec2 clipNormal = normalise(refEdge->global());
+	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdge->v1index(), cp1, cp2);
+	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, refEdge->v2index(), cp1, cp2);
+
+	updateNormal();
+	checkAndAddPoint(cp1, refPoint1, ps.clipPlaneEpsilon);
+	checkAndAddPoint(cp2, refPoint1, ps.clipPlaneEpsilon);
+}
+
 void PolyPolyContact::rebuildPoints()
 {
 	updateNormal();
@@ -152,6 +149,7 @@ void PolyPolyContact::rebuildFrom(ContactConstraint* other)
 
 	contactPoints = std::move(ppOther->contactPoints);
 
+	// TODO: "onRebuildFrom" function
 	refEdge = ppOther->refEdge;
 	incEdge = ppOther->incEdge;
 }

@@ -14,6 +14,8 @@ class ContactConstraint
 public:
 	ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1, RigidBody* rb2);
 
+	void init();
+
 	void correctVel();
 	void correctPos();
 	void warmStart();
@@ -30,6 +32,8 @@ public:
 
 protected:
 	void storeRelativeVelocities();
+
+	virtual void initPoints() = 0;
 	virtual void rebuildPoints() = 0;
 	virtual void updateNormal() = 0;
 
@@ -40,6 +44,8 @@ protected:
 	RigidBody* rb2 = nullptr;
 
 	std::vector<ContactPoint> contactPoints;
+
+	// TODO: make private
 	int ncp = -1;
 
 	// Collision normal & tangent (shared by all contact points)

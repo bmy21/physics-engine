@@ -1,16 +1,10 @@
 #include "CircleCircleContact.h"
 
 CircleCircleContact::CircleCircleContact(Circle* c1, Circle* c2, const PhysicsSettings& ps):
-	c1(c1), 
-	c2(c2),
+	c1(c1), c2(c2),
 	ContactConstraint(ps, c1, c2)
 {
-	contactPoints.resize(1);
-	ncp = 1;
 
-	updateNormal();
-	rebuildPoints();
-	storeRelativeVelocities();
 }
 
 
@@ -25,13 +19,19 @@ bool CircleCircleContact::matches(const CircleCircleContact* other) const
 	return c1 == other->c1 && c2 == other->c2;
 }
 
+void CircleCircleContact::initPoints()
+{
+	contactPoints.resize(1);
+	rebuildPoints();
+}
+
 void CircleCircleContact::rebuildPoints()
 {
 	updateNormal();
 
 	// Place the contact point in the middle of the colliding region
-	vec2 furthestPoint1 = c1->position() + n * c1->radius();
-	vec2 furthestPoint2 = c2->position() - n * c2->radius();
+	vec2 furthestPoint1 = c1->furthestPoint(n);
+	vec2 furthestPoint2 = c2->furthestPoint(-n);
 
 	contactPoints[0].point = static_cast<real>(0.5) * (furthestPoint1 + furthestPoint2);
 	contactPoints[0].penetration = dot(furthestPoint2 - furthestPoint1, n);
