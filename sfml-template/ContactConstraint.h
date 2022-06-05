@@ -24,11 +24,9 @@ public:
 	virtual bool matches(const ContactConstraint* other) const = 0;
 	virtual bool matches(const PolyPolyContact* other) const = 0;
 	virtual bool matches(const CircleCircleContact* other) const = 0;
-	
 	virtual void rebuildFrom(ContactConstraint* other) = 0;
 
 	int numPersist = 0;
-
 
 protected:
 	void storeRelativeVelocities();

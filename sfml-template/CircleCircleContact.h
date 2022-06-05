@@ -13,16 +13,13 @@ public:
 	bool matches(const ContactConstraint* other) const override { return other->matches(this); }
 	bool matches(const PolyPolyContact* other) const override { return false; }
 	bool matches(const CircleCircleContact* other) const override;
-
 	void rebuildFrom(ContactConstraint* other) override;
 
-protected:
+private:
 	void rebuildPoints() override;
 	void updateNormal() override;
 
-private:
 	Circle* c1 = nullptr;
 	Circle* c2 = nullptr;
-
 };
 

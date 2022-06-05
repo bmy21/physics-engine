@@ -8,8 +8,8 @@ CircleCircleContact::CircleCircleContact(Circle* c1, Circle* c2, const PhysicsSe
 	contactPoints.resize(1);
 	ncp = 1;
 
+	updateNormal();
 	rebuildPoints();
-
 	storeRelativeVelocities();
 }
 
@@ -42,6 +42,7 @@ void CircleCircleContact::rebuildFrom(ContactConstraint* other)
 	// This function should only be called if *other is known to match *this
 	// *other may be left in an invalid state
 
+	// TODO: Put most of this functionality into ContactConstraint
 	CircleCircleContact* ccOther = static_cast<CircleCircleContact*>(other);
 
 	for (int i = 0; i < ncp; ++i)

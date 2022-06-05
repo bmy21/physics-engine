@@ -153,6 +153,8 @@ void ContactConstraint::solvePointVel(ContactPoint& cp)
 	}
 
 	cp.lambda += dLambda;
+
+	//std::cout << cp.nCrossFactor1 << " -- " << cp.nCrossFactor2 << "\n";
 	
 	rb1->applyDeltaVel(-n * rb1->mInv * dLambda, -cp.nCrossFactor1 * rb1->IInv * dLambda);
 	rb2->applyDeltaVel(n * rb2->mInv * dLambda, cp.nCrossFactor2 * rb2->IInv * dLambda);
@@ -207,7 +209,6 @@ void ContactConstraint::updatePointCache(ContactPoint& cp)
 
 void ContactConstraint::storeRelativeVelocities()
 {
-	updateNormal();
 	for (auto& cp : contactPoints)
 	{
 		real vRel = dot(rb2->pointVel(cp.point) - rb1->pointVel(cp.point), n);

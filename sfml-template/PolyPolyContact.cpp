@@ -26,9 +26,13 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const E
 	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdge->v1index(), cp1, cp2);
 	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, refEdge->v2index(), cp1, cp2);
 
+	updateNormal();
+
 	checkAndAddPoint(cp1, refPoint1, ps.clipPlaneEpsilon);
 	checkAndAddPoint(cp2, refPoint1, ps.clipPlaneEpsilon);
+	
 	ncp = contactPoints.size();
+	std::cout << ncp << "\n";
 
 	storeRelativeVelocities();
 }
