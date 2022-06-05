@@ -12,11 +12,6 @@ ConvexPolygon::ConvexPolygon(const PhysicsSettings& ps, int npoints, real sideLe
 	initShape();
 }
 
-void ConvexPolygon::update(real dt)
-{
-
-}
-
 void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
 {
 	vec2 ipos = interpolatePos(fraction);

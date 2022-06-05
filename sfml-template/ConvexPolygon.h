@@ -10,7 +10,6 @@ class ConvexPolygon : public RigidBody
 public:
 	ConvexPolygon(const PhysicsSettings& ps, int npoints, real sideLength, real mInv = 0);
 
-	void update(real dt) override;
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text) override;
 
 	std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) override { return other->checkCollision(this); }

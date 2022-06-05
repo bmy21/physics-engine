@@ -15,8 +15,6 @@ class RigidBody
 public:
 	RigidBody(const PhysicsSettings& ps, real mInv = 0, real IInv = 0);
 
-	// TODO: is update really necessary?
-	virtual void update(real dt) = 0;
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, 
 		bool debug = false, sf::Text* text = nullptr) = 0;
 

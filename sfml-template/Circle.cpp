@@ -9,11 +9,6 @@ Circle::Circle(const PhysicsSettings& ps, real rad, real mInv):
 	initShape();
 }
 
-void Circle::update(real dt)
-{
-
-}
-
 void Circle::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
 {
 	vec2 ipos = interpolatePos(fraction);

@@ -7,7 +7,6 @@ class Circle : public RigidBody
 public:
 	Circle(const PhysicsSettings& ps, real rad, real mInv = 0);
 
-	void update(real dt) override;
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text) override;
 
 	std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) override { return other->checkCollision(this); }
@@ -20,7 +19,6 @@ public:
 
 	real radius() const { return rad; }
 	vec2 furthestPoint(const vec2& d);
-
 
 private:
 	void initShape();
