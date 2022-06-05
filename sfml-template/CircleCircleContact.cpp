@@ -37,22 +37,9 @@ void CircleCircleContact::rebuildPoints()
 	contactPoints[0].penetration = dot(furthestPoint2 - furthestPoint1, n);
 }
 
-void CircleCircleContact::rebuildFrom(ContactConstraint* other)
+void CircleCircleContact::onRebuildFrom(ContactConstraint* other)
 {
-	// This function should only be called if *other is known to match *this
-	// *other may be left in an invalid state
-
-	// TODO: Put most of this functionality into ContactConstraint
-	CircleCircleContact* ccOther = static_cast<CircleCircleContact*>(other);
-
-	for (int i = 0; i < ncp; ++i)
-	{
-		// Updated vRelTarget is already stored in ppOther->contactPoints
-		ccOther->contactPoints[i].lambda = contactPoints[i].lambda;
-		ccOther->contactPoints[i].fLambda = contactPoints[i].fLambda;
-	}
-
-	contactPoints = std::move(ccOther->contactPoints);
+	
 }
 
 void CircleCircleContact::updateNormal()

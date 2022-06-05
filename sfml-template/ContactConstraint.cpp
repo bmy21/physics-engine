@@ -133,6 +133,23 @@ void ContactConstraint::updateCache()
 	}
 }
 
+void ContactConstraint::rebuildFrom(ContactConstraint* other)
+{
+	// This function should only be called if *other is known to match *this
+	// *other will be left in an invalid state
+
+	for (int i = 0; i < ncp; ++i)
+	{
+		// Updated vRelTarget is already stored in ppOther->contactPoints
+		other->contactPoints[i].lambda = contactPoints[i].lambda;
+		other->contactPoints[i].fLambda = contactPoints[i].fLambda;
+	}
+
+	contactPoints = std::move(other->contactPoints);
+
+	onRebuildFrom(other);
+}
+
 void ContactConstraint::solvePointFriction(ContactPoint& cp)
 {
 	real vDotGradCf = dot(rb2->velocity() - rb1->velocity(), t) + cp.tCrossFactor2 * rb2->angVel() - cp.tCrossFactor1 * rb1->angVel();

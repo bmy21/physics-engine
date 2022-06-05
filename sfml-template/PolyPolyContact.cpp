@@ -134,23 +134,11 @@ void PolyPolyContact::rebuildPoints()
 	}
 }
 
-void PolyPolyContact::rebuildFrom(ContactConstraint* other)
+void PolyPolyContact::onRebuildFrom(ContactConstraint* other)
 {
-	// This function should only be called if *other is known to match *this
-	// *other may be left in an invalid state
-
 	PolyPolyContact* ppOther = static_cast<PolyPolyContact*>(other);
 
-	for (int i = 0; i < ncp; ++i)
-	{
-		// Updated vRelTarget is already stored in ppOther->contactPoints
-		ppOther->contactPoints[i].lambda = contactPoints[i].lambda;
-		ppOther->contactPoints[i].fLambda = contactPoints[i].fLambda;
-	}
-
-	contactPoints = std::move(ppOther->contactPoints);
-
-	// TODO: "onRebuildFrom" function
+	// Make sure the reference and incident edges are up to date
 	refEdge = ppOther->refEdge;
 	incEdge = ppOther->incEdge;
 }
