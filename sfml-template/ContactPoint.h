@@ -1,7 +1,6 @@
 #pragma once
 #include "Utils.h"
 
-
 class ContactPoint
 {
 public:

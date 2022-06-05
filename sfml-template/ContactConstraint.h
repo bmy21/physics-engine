@@ -9,13 +9,6 @@ class PolyPolyContact;
 class CircleCircleContact;
 class RigidBody;
 
-/*
-
-What functionality does a contact constraint need?
-
-
-*/
-
 class ContactConstraint
 {
 public:
@@ -37,7 +30,6 @@ public:
 	int numPersist = 0;
 
 protected:
-	
 	// The details of the below functions depend on the specific types of rigid body involved,
 	// so they need to be virtual
 	virtual void initPoints() = 0;

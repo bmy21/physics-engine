@@ -29,6 +29,8 @@ void ContactConstraint::correctVel()
 		solvePointFriction(cp);
 	}
 
+	// TODO: SimultaneousSolver class, or at least a separate function?
+
 	// Try simultaneous solution of normal velocities first
 	if (ncp == 2 && ps.simulSolveVel && wellConditionedVel)
 	{

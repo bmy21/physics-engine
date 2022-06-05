@@ -28,6 +28,5 @@ private:
 	const Edge* incEdge = nullptr;
 
 	void checkAndAddPoint(ContactPoint& cp, const vec2& ref, real eps);
-
 };
 
