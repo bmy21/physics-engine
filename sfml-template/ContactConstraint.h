@@ -31,7 +31,7 @@ public:
 	int numPersist = 0;
 
 protected:
-	void storeRelativeVelocities();
+	
 
 	virtual void initPoints() = 0;
 	virtual void rebuildPoints() = 0;
@@ -51,18 +51,19 @@ protected:
 	// Collision normal & tangent (shared by all contact points)
 	vec2 n, t;
 
-	// Cached data for simultaneous solution
-	bool wellConditionedVel = false;
-	bool wellConditionedPos = false;
-	real A12 = 0, det = 0, norm = 0;
-
 	const PhysicsSettings& ps;
 
 private:
+	void storeRelativeVelocities();
 	void solvePointFriction(ContactPoint& cp);
 	void solvePointVel(ContactPoint& cp);
 	void solvePointPos(ContactPoint& cp);
 	void warmStartPoint(ContactPoint& cp);
 	void updatePointCache(ContactPoint& cp);
+
+	// Cached data for simultaneous solution
+	bool wellConditionedVel = false;
+	bool wellConditionedPos = false;
+	real A12 = 0, det = 0, norm = 0;
 };
 

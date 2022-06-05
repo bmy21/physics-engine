@@ -58,14 +58,15 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 	
 	// Assumes that the contact points are ordered consistently in both constraints,
 	// i.e. cannot have 0 matching with 1 and 1 matching with 0
-	if (ncp == 1)
+	for (int i = 0; i < ncp; ++i)
 	{
-		return cp[0].matches(cpOther[0]);
+		if (!cp[i].matches(cpOther[i]))
+		{
+			return false;
+		}
 	}
-	else if (ncp == 2)
-	{
-		return cp[0].matches(cpOther[0]) && cp[1].matches(cpOther[1]);
-	}
+
+	return true;
 }
 
 void PolyPolyContact::updateNormal()
