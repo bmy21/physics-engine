@@ -36,6 +36,11 @@ vec2 invTransform(const vec2& v, const vec2& offset, real angle)
 	return rotate(v - offset, -angle);
 }
 
+real magSquared(const vec2& v)
+{
+	return v.x * v.x + v.y * v.y;
+}
+
 real magnitude(const vec2& v)
 {
 	return std::sqrt(v.x * v.x + v.y * v.y);
@@ -50,6 +55,32 @@ real zcross(const vec2& v, const vec2& w)
 {
 	// z component of v x w
 	return v.x * w.y - v.y * w.x;
+}
+
+std::pair<real, real> bary(const vec2& q, const vec2& v1, const vec2& v2)
+{
+	vec2 v12 = v2 - v1;
+	real msq = magSquared(v12);
+
+	real v = dot(q - v1, v12) / msq;
+	real u = dot(v2 - q, v12) / msq;
+
+	return { u, v };
+}
+
+std::tuple<real, real, real> bary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3)
+{
+	// TODO: check winding order & sign?
+	real a123 = zcross(v2 - v1, v3 - v1);
+	real aq23 = zcross(v2 - q, v3 - q);
+	real a1q3 = zcross(q - v1, v3 - v1);
+	real a12q = zcross(v2 - v1, q - v1);
+
+	real u = aq23 / a123;
+	real v = a1q3 / a123;
+	real w = a12q / a123;
+
+	return { u, v, w };
 }
 
 real decayConstant(real halfLife)

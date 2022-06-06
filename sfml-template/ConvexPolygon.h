@@ -4,6 +4,7 @@
 #include "PolyPolyContact.h"
 #include "Edge.h"
 #include "Vertex.h"
+#include "Simplex.h"
 
 class ConvexPolygon : public RigidBody
 {
@@ -29,6 +30,8 @@ public:
 
 	int nextIndex(int i) const;
 	int prevIndex(int i) const;
+
+	vec2 closestPoint(const vec2& point);
 
 
 private:

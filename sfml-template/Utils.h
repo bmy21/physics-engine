@@ -11,6 +11,8 @@
 #include <cassert>
 #include <sstream>
 #include <array>
+#include <utility>
+#include <tuple>
 
 class ContactPoint;
 
@@ -29,9 +31,13 @@ vec2 rotate(const vec2& v, real theta);
 vec2 transform(const vec2& v, const vec2& offset, real angle);
 vec2 invTransform(const vec2& v, const vec2& offset, real angle);
 
+real magSquared(const vec2& v);
 real magnitude(const vec2& v);
 vec2 normalise(const vec2& v); 
 real zcross(const vec2& v, const vec2& w);
+
+std::pair<real, real> bary(const vec2& q, const vec2& v1, const vec2& v2);
+std::tuple<real, real, real> bary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3);
 
 real decayConstant(real halfLife);
 

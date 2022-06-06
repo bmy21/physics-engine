@@ -1,0 +1,163 @@
+#include "Simplex.h"
+
+// Returns <closest point, new search direction, contained>
+std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
+{
+    // TODO: reduce code duplication (search direction calculation) 
+
+    int npoints = vertices.size();
+
+    vec2 pA = vertices[0].coords();
+
+    if (npoints == 1)
+    {
+        // Simplex is a point
+        return { pA, point - pA, false };
+    }
+
+    vec2 pB = vertices[1].coords();
+    auto [uAB, vAB] = bary(point, pA, pB);
+
+    if (npoints == 2)
+    {
+        // Simplex is a line segment
+        if (uAB <= 0)
+        {
+            // removeA = true;
+            vertices[0].markForRemoval();
+            return { pB, point - pB, false };
+        }
+        else if (vAB <= 0)
+        {
+            //removeB = true;
+            vertices[1].markForRemoval();
+            return { pA, point - pA, false };
+        }
+        else
+        {
+            vec2 d = perp(pA - pB);
+
+            if (dot(d, point - pA) < 0)
+            {
+                d = -d;
+            }
+
+            return { uAB * pA + vAB * pB, d, false };
+        }
+    }
+
+    vec2 pC = vertices[2].coords();
+    auto [uBC, vBC] = bary(point, pB, pC);
+    auto [uCA, vCA] = bary(point, pC, pA);
+    auto [uABC, vABC, wABC] = bary(point, pA, pB, pC);
+
+    if (npoints == 3)
+    {
+        // Simplex is a triangle
+        if (vAB <= 0 && uCA <= 0)
+        {
+            //removeB = true;
+            //removeC = true;
+            vertices[1].markForRemoval();
+            vertices[2].markForRemoval();
+            return { pA, point - pA, false };
+        }
+        else if (uAB <= 0 && vBC <= 0)
+        {
+            //removeA = true;
+            //removeC = true;
+            vertices[0].markForRemoval();
+            vertices[2].markForRemoval();
+            return { pB, point - pB, false };
+        }
+        else if (uBC <= 0 && vCA <= 0)
+        {
+            //removeA = true;
+            //removeB = true;
+            vertices[0].markForRemoval();
+            vertices[1].markForRemoval();
+            return { pC, point - pC, false };
+        }
+        else if (uAB > 0 && vAB > 0 && wABC <= 0)
+        {
+            //removeC = true;
+            vertices[2].markForRemoval();
+
+            vec2 d = perp(pA - pB);
+
+            if (dot(d, point - pA) < 0)
+            {
+                d = -d;
+            }
+
+            return { uAB * pA + vAB * pB, d, false };
+        }
+        else if (uBC > 0 && vBC > 0 && uABC <= 0)
+        {
+            //removeA = true;
+            vertices[0].markForRemoval();
+
+            vec2 d = perp(pB - pC);
+
+            if (dot(d, point - pB) < 0)
+            {
+                d = -d;
+            }
+
+            return { uBC * pB + vBC * pC, d, false };
+        }
+        else if (uCA > 0 && vCA > 0 && vABC <= 0)
+        {
+            //removeB = true;
+            vertices[1].markForRemoval();
+
+            vec2 d = perp(pC - pA);
+
+            if (dot(d, point - pC) < 0)
+            {
+                d = -d;
+            }
+
+            return { uCA * pC + vCA * pA, d, false };
+        }
+        else
+        {
+            // Point is inside triangle
+            return { point, {}, true };
+        }
+    }
+}
+
+void Simplex::addVertex(const Vertex* vertex)
+{
+    vertices.push_back(vertex);
+}
+
+void Simplex::cleanupVertices()
+{
+    for (auto it = vertices.begin(); it != vertices.end(); )
+    {
+        if (it->removeFlagSet())
+        {
+            it->unsetRemoveFlag();
+            it = vertices.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+bool Simplex::contains(const Vertex* vertex) const
+{
+    for (const SimplexVertex& v : vertices)
+    {
+        if (v.matches(vertex))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}

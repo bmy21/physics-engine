@@ -24,6 +24,8 @@ public:
 	// Recalculate the global coords
 	void recompute(const vec2& pos, real theta);
 
+	
+
 private:
 	const int i;
 

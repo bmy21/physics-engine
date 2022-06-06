@@ -66,6 +66,9 @@
     <ClCompile Include="CircleCircleContact.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Simplex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -117,6 +120,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CircleCircleContact.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Simplex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

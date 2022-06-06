@@ -162,6 +162,7 @@
     <ClCompile Include="MouseHandler.cpp" />
     <ClCompile Include="PolyPolyContact.cpp" />
     <ClCompile Include="RigidBody.cpp" />
+    <ClCompile Include="Simplex.cpp" />
     <ClCompile Include="SoftDistanceConstraint.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vertex.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="PhysicsSettings.h" />
     <ClInclude Include="PolyPolyContact.h" />
     <ClInclude Include="RigidBody.h" />
+    <ClInclude Include="Simplex.h" />
     <ClInclude Include="SoftDistanceConstraint.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vertex.h" />

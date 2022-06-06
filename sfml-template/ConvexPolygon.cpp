@@ -35,6 +35,15 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 	}
 
 	window.draw(shape);
+
+	real rad = 5;
+	sf::CircleShape circle(rad);
+	circle.setOrigin(rad, rad);
+	circle.setFillColor(sf::Color::Magenta);
+
+	vec2 closest = closestPoint({ 0, 0 });
+	circle.setPosition(closest.x * pixPerUnit, closest.y * pixPerUnit);
+	window.draw(circle);
 }
 
 std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* other)
@@ -190,11 +199,39 @@ int ConvexPolygon::prevIndex(int i) const
 	return (i == 0) ? npoints - 1 : i - 1;
 }
 
+vec2 ConvexPolygon::closestPoint(const vec2& point)
+{
+	Simplex s;
+	s.addVertex(vertices[0].get());
+	
+	while (true)
+	{
+		auto [closest, d, contained] = s.closestPoint(point);
+		
+		// Remove non-contributing vertices
+		s.cleanupVertices();
+
+		if (contained)
+		{
+			return point;
+		}
+
+		const Vertex* newSupport = support(d);
+
+		if (s.contains(newSupport) || (d.x == 0 && d.y == 0))
+		{
+			return closest;
+		}
+
+		s.addVertex(newSupport); 
+	}
+}
+
 const Vertex* ConvexPolygon::support(const vec2& d) const
 {
 	real largestDot = std::numeric_limits<real>::lowest();
 
-	const Vertex* vertex = nullptr;
+	Vertex* vertex = nullptr;
 	for (auto& v : vertices)
 	{
 		real dotProduct = dot(v->global(), d);
