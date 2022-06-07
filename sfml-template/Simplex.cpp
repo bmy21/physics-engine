@@ -4,6 +4,10 @@
 std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
 {
     // TODO: reduce code duplication (search direction calculation) 
+    // TODO: maximum iterations & caching of previous result?
+
+    // Note: the sign of a 2-point barycentric coordinate doesn't depend on whether the division
+    // has taken place, but for a 3-point coordinate it does.
 
     int npoints = vertices.size();
 
@@ -16,7 +20,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
     }
 
     vec2 pB = vertices[1].coords();
-    auto [uAB, vAB] = bary(point, pA, pB);
+    auto [uAB, vAB, divAB] = nonNormalisedBary(point, pA, pB);
 
     if (npoints == 2)
     {
@@ -42,14 +46,14 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
                 d = -d;
             }
 
-            return { uAB * pA + vAB * pB, d, false };
+            return { (uAB * pA + vAB * pB) / divAB, d, false };
         }
     }
 
     vec2 pC = vertices[2].coords();
-    auto [uBC, vBC] = bary(point, pB, pC);
-    auto [uCA, vCA] = bary(point, pC, pA);
-    auto [uABC, vABC, wABC] = bary(point, pA, pB, pC);
+    auto [uBC, vBC, divBC] = nonNormalisedBary(point, pB, pC);
+    auto [uCA, vCA, divCA] = nonNormalisedBary(point, pC, pA);
+    auto [uABC, vABC, wABC, divABC] = nonNormalisedBary(point, pA, pB, pC);
 
     if (npoints == 3)
     {
@@ -78,7 +82,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
             vertices[1].markForRemoval();
             return { pC, point - pC, false };
         }
-        else if (uAB > 0 && vAB > 0 && wABC <= 0)
+        else if (uAB > 0 && vAB > 0 && wABC * divABC <= 0)
         {
             //removeC = true;
             vertices[2].markForRemoval();
@@ -90,9 +94,9 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
                 d = -d;
             }
 
-            return { uAB * pA + vAB * pB, d, false };
+            return { (uAB * pA + vAB * pB) / divAB, d, false };
         }
-        else if (uBC > 0 && vBC > 0 && uABC <= 0)
+        else if (uBC > 0 && vBC > 0 && uABC * divABC <= 0)
         {
             //removeA = true;
             vertices[0].markForRemoval();
@@ -104,9 +108,9 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
                 d = -d;
             }
 
-            return { uBC * pB + vBC * pC, d, false };
+            return { (uBC * pB + vBC * pC) / divBC, d, false };
         }
-        else if (uCA > 0 && vCA > 0 && vABC <= 0)
+        else if (uCA > 0 && vCA > 0 && vABC * divABC <= 0)
         {
             //removeB = true;
             vertices[1].markForRemoval();
@@ -118,7 +122,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
                 d = -d;
             }
 
-            return { uCA * pC + vCA * pA, d, false };
+            return { (uCA * pC + vCA * pA) / divCA, d, false };
         }
         else
         {

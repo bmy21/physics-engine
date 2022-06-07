@@ -16,7 +16,6 @@
 
 class ContactPoint;
 
-
 using real = float;
 using vec2 = sf::Vector2<real>;
 
@@ -38,6 +37,9 @@ real zcross(const vec2& v, const vec2& w);
 
 std::pair<real, real> bary(const vec2& q, const vec2& v1, const vec2& v2);
 std::tuple<real, real, real> bary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3);
+std::tuple<real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2);
+std::tuple<real, real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3);
+
 
 real decayConstant(real halfLife);
 
