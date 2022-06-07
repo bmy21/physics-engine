@@ -109,6 +109,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 bool ConvexPolygon::pointInside(const vec2& p) const
 {
+	// TODO: quicker to use GJK?
 	for (auto& e : edges)
 	{
 		if (dot(p - e->point1(), e->normal()) > 0)
@@ -201,6 +202,8 @@ int ConvexPolygon::prevIndex(int i) const
 
 vec2 ConvexPolygon::closestPoint(const vec2& point)
 {
+	// TODO: maximum iterations & caching of previous result?
+	
 	Simplex s;
 	s.addVertex(vertices[0].get());
 	

@@ -3,8 +3,7 @@
 // Returns <closest point, new search direction, contained>
 std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
 {
-    // TODO: reduce code duplication (search direction calculation) 
-    // TODO: maximum iterations & caching of previous result?
+    // TODO: reduce code duplication (search direction calculation)
 
     // Note: the sign of a 2-point barycentric coordinate doesn't depend on whether the division
     // has taken place, but for a 3-point coordinate it does.

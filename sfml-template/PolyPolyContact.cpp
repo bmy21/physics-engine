@@ -121,10 +121,18 @@ void PolyPolyContact::rebuildPoints()
 			vec2 a = inc->vertex(cp.incPointIndex);
 			vec2 b = ref->vertex(cp.clippedAgainstPoint);
 
-			// TODO: Quicker to do this with dot products?
-			assert(zcross(q, p) != 0);
-			vec2 intersect = a + p * zcross(q, b - a) / zcross(q, p);
-			cp.point = intersect;
+			// Can find the intersection of two lines using cross products
+			real denom = zcross(q, p);
+			
+			if (denom != 0)
+			{
+				cp.point = a + p * zcross(q, b - a) / denom;
+			} 
+			else
+			{
+				// Ideally this is never reached, but if it is, just keep the 
+				// current point
+			}
 		}
 
 		cp.penetration = dot(cp.point - refPoint, n);
