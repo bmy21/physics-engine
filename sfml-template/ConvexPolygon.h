@@ -15,7 +15,7 @@ public:
 
 	std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) override { return other->checkCollision(this); }
 	std::unique_ptr<ContactConstraint> checkCollision(ConvexPolygon* other) override;
-	std::unique_ptr<ContactConstraint> checkCollision(Circle* other) override { return nullptr; };
+	std::unique_ptr<ContactConstraint> checkCollision(Circle* other) override;
 
 	bool pointInside(const vec2& p) const override;
 
@@ -31,7 +31,7 @@ public:
 	int nextIndex(int i) const;
 	int prevIndex(int i) const;
 
-	vec2 closestPoint(const vec2& point);
+	std::pair<vec2, bool> closestPoint(const vec2& point);
 
 
 private:

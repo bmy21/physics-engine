@@ -1,4 +1,5 @@
 #include "Circle.h"
+#include "ConvexPolygon.h"
 
 Circle::Circle(const PhysicsSettings& ps, real rad, real mInv):
 	rad(rad),
@@ -35,6 +36,11 @@ void Circle::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool
 	}
 
 	window.draw(shape);
+}
+
+std::unique_ptr<ContactConstraint> Circle::checkCollision(ConvexPolygon* other)
+{
+	return other->checkCollision(this);
 }
 
 std::unique_ptr<ContactConstraint> Circle::checkCollision(Circle* other)

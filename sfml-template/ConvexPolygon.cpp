@@ -1,5 +1,5 @@
 #include "ConvexPolygon.h"
-
+#include "Circle.h"
 
 ConvexPolygon::ConvexPolygon(const PhysicsSettings& ps, int npoints, real sideLength, real mInv):
 	npoints(npoints),
@@ -41,7 +41,7 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 	circle.setOrigin(rad, rad);
 	circle.setFillColor(sf::Color::Magenta);
 
-	vec2 closest = closestPoint({ 0, 0 });
+	vec2 closest = closestPoint({ 0, 0 }).first;
 	circle.setPosition(closest.x * pixPerUnit, closest.y * pixPerUnit);
 	window.draw(circle);
 }
@@ -105,6 +105,13 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	}
 	
 	return std::make_unique<PolyPolyContact>(ref, inc, refEdge, incEdge, ps);
+}
+
+std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
+{
+	closestPoint(other->position());
+
+	return nullptr;
 }
 
 bool ConvexPolygon::pointInside(const vec2& p) const
@@ -200,7 +207,8 @@ int ConvexPolygon::prevIndex(int i) const
 	return (i == 0) ? npoints - 1 : i - 1;
 }
 
-vec2 ConvexPolygon::closestPoint(const vec2& point)
+// Returns <closest point, contained>
+std::pair<vec2, bool> ConvexPolygon::closestPoint(const vec2& point)
 {
 	// TODO: maximum iterations & caching of previous result?
 	
@@ -216,14 +224,14 @@ vec2 ConvexPolygon::closestPoint(const vec2& point)
 
 		if (contained)
 		{
-			return point;
+			return { point, true };
 		}
 
 		const Vertex* newSupport = support(d);
 
 		if (s.contains(newSupport) || (d.x == 0 && d.y == 0))
 		{
-			return closest;
+			return { closest, false };
 		}
 
 		s.addVertex(newSupport); 

@@ -160,6 +160,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MouseConstraint.cpp" />
     <ClCompile Include="MouseHandler.cpp" />
+    <ClCompile Include="PolyCircleContact.cpp" />
     <ClCompile Include="PolyPolyContact.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="Simplex.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="MouseConstraint.h" />
     <ClInclude Include="MouseHandler.h" />
     <ClInclude Include="PhysicsSettings.h" />
+    <ClInclude Include="PolyCircleContact.h" />
     <ClInclude Include="PolyPolyContact.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="Simplex.h" />
