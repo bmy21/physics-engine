@@ -12,7 +12,7 @@ struct PhysicsSettings
 	real vRelThreshold = 0;
 	
 	bool simulSolveVel = true;
-	bool simulSolvePos = false;
+	bool simulSolvePos = true;
 	bool warmStart = true;
 
 	real maxCondVel = 1000;

@@ -19,7 +19,7 @@ public:
 	void correctVel();
 	void correctPos();
 	void warmStart();
-	void updateCache();
+	void prepareVelSolver();
 	void rebuildFrom(ContactConstraint* other);
 
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) = 0;
@@ -48,18 +48,16 @@ protected:
 	const PhysicsSettings& ps;
 
 private:
-	void rebuildPoints();
 	void storeTargetVelocities();
-
 	void updateTangent();
+	void prepareSimulSolver();
+
 	void updateNormalFactors(ContactPoint& cp);
 	void updateTangentFactors(ContactPoint& cp);
 	void solvePointFriction(ContactPoint& cp);
 	void solvePointVel(ContactPoint& cp);
 	void solvePointPos(ContactPoint& cp);
 	void warmStartPoint(ContactPoint& cp);
-
-	// TODO: more private functions to control caching
 
 	RigidBody* rb1 = nullptr;
 	RigidBody* rb2 = nullptr;

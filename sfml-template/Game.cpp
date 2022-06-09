@@ -176,7 +176,7 @@ void Game::updateConstraints()
 	}
 	for (auto& cc : contactConstraints)
 	{
-		cc->updateCache();
+		cc->prepareVelSolver();
 	}
 }
 

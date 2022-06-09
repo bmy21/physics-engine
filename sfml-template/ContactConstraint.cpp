@@ -16,9 +16,7 @@ ContactConstraint::ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1, 
 void ContactConstraint::init()
 {
 	initPoints();
-
 	ncp = contactPoints.size();
-
 	storeTargetVelocities();
 }
 
@@ -28,8 +26,6 @@ void ContactConstraint::correctVel()
 	{
 		solvePointFriction(cp);
 	}
-
-	// TODO: SimultaneousSolver class, or at least a separate function?
 
 	// Try simultaneous solution of normal velocities first
 	if (ncp == 2 && ps.simulSolveVel && wellConditionedVel)
@@ -70,8 +66,14 @@ void ContactConstraint::correctPos()
 	if (ncp == 2 && ps.simulSolvePos)
 	{
 		updateNormal();
-		rebuildPoints();
-		updateCache();
+
+		for (auto& cp : contactPoints)
+		{
+			rebuildPoint(cp);
+			updateNormalFactors(cp);
+		}
+
+		prepareSimulSolver();
 
 		if (wellConditionedPos)
 		{
@@ -112,7 +114,7 @@ void ContactConstraint::warmStart()
 	}
 }
 
-void ContactConstraint::updateCache()
+void ContactConstraint::prepareVelSolver()
 {
 	updateNormal();
 	updateTangent();
@@ -123,19 +125,9 @@ void ContactConstraint::updateCache()
 		updateTangentFactors(cp);
 	}
 
-	if (ncp == 2 && (ps.simulSolveVel || ps.simulSolvePos))
+	if (ncp == 2 && ps.simulSolveVel)
 	{
-		ContactPoint& cp1 = contactPoints[0];
-		ContactPoint& cp2 = contactPoints[1];
-
-		A12 = rb2->mInv + rb1->mInv + rb2->IInv * cp1.nCrossFactor2 * cp2.nCrossFactor2 + rb1->IInv * cp1.nCrossFactor1 * cp2.nCrossFactor1;
-		det = cp1.nMassFactor * cp2.nMassFactor - A12 * A12;
-		norm = std::max(cp1.nMassFactor, cp2.nMassFactor) + std::abs(A12);
-		real normSquared = norm * norm;
-
-		// Is the condition number less than the threshold?
-		wellConditionedVel = normSquared < ps.maxCondVel * det;
-		wellConditionedPos = normSquared < ps.maxCondPos * det;
+		prepareSimulSolver();
 	}
 }
 
@@ -146,7 +138,7 @@ void ContactConstraint::rebuildFrom(ContactConstraint* other)
 
 	for (int i = 0; i < ncp; ++i)
 	{
-		// Updated vRelTarget is already stored in ppOther->contactPoints
+		// Transfer accumulated impulses to new constraint
 		other->contactPoints[i].lambda = contactPoints[i].lambda;
 		other->contactPoints[i].fLambda = contactPoints[i].fLambda;
 	}
@@ -236,6 +228,21 @@ void ContactConstraint::updateTangent()
 	t = perp(n);
 }
 
+void ContactConstraint::prepareSimulSolver()
+{
+	ContactPoint& cp1 = contactPoints[0];
+	ContactPoint& cp2 = contactPoints[1];
+
+	A12 = rb2->mInv + rb1->mInv + rb2->IInv * cp1.nCrossFactor2 * cp2.nCrossFactor2 + rb1->IInv * cp1.nCrossFactor1 * cp2.nCrossFactor1;
+	det = cp1.nMassFactor * cp2.nMassFactor - A12 * A12;
+	norm = std::max(cp1.nMassFactor, cp2.nMassFactor) + std::abs(A12);
+	real normSquared = norm * norm;
+
+	// Is the condition number less than the threshold?
+	wellConditionedVel = normSquared < ps.maxCondVel * det;
+	wellConditionedPos = normSquared < ps.maxCondPos * det;
+}
+
 void ContactConstraint::updateNormalFactors(ContactPoint& cp)
 {
 	vec2 relPos1 = cp.point - rb1->position();
@@ -254,12 +261,4 @@ void ContactConstraint::updateTangentFactors(ContactPoint& cp)
 	cp.tCrossFactor1 = zcross(relPos1, t);
 	cp.tCrossFactor2 = zcross(relPos2, t);
 	cp.tMassFactor = rb1->mInv + rb2->mInv + rb1->IInv * std::pow(cp.tCrossFactor1, 2) + rb2->IInv * std::pow(cp.tCrossFactor2, 2);
-}
-
-void ContactConstraint::rebuildPoints()
-{
-	for (auto& cp : contactPoints)
-	{
-		rebuildPoint(cp);
-	}
 }
