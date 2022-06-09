@@ -19,7 +19,7 @@ void ContactConstraint::init()
 
 	ncp = contactPoints.size();
 
-	storeRelativeVelocities();
+	storeTargetVelocities();
 }
 
 void ContactConstraint::correctVel()
@@ -220,7 +220,7 @@ void ContactConstraint::warmStartPoint(ContactPoint& cp)
 	}
 }
 
-void ContactConstraint::storeRelativeVelocities()
+void ContactConstraint::storeTargetVelocities()
 {
 	updateNormal();
 

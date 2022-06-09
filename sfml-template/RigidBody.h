@@ -24,6 +24,11 @@ public:
 
 	virtual bool pointInside(const vec2& p) const = 0;
 
+	vec2 pointToLocal(const vec2& p) const;
+	vec2 pointToGlobal(const vec2& p) const;
+	vec2 vecToLocal(const vec2& v) const;
+	vec2 vecToGlobal(const vec2& v) const;
+
 	void moveTo(const vec2& p);
 	void rotateTo(real t);
 

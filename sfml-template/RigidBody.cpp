@@ -7,6 +7,26 @@ RigidBody::RigidBody(const PhysicsSettings& ps, real mInv, real IInv):
 
 }
 
+vec2 RigidBody::pointToLocal(const vec2& p) const
+{
+	return invTransform(p, pos, theta);
+}
+
+vec2 RigidBody::pointToGlobal(const vec2& p) const
+{
+	return transform(p, pos, theta);
+}
+
+vec2 RigidBody::vecToLocal(const vec2& v) const
+{
+	return rotate(v, -theta);
+}
+
+vec2 RigidBody::vecToGlobal(const vec2& v) const
+{
+	return rotate(v, theta);
+}
+
 void RigidBody::moveTo(const vec2& p)
 {
 	pos = posPrev = p; 

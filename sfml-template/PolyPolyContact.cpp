@@ -5,8 +5,8 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const E
 	refEdge(refEdge),incEdge(incEdge),
 	ContactConstraint(ps, ref, inc)
 {
-	localNormal = rotate(refEdge->normal(), -ref->angle());
-	localRefPoint = invTransform(refEdge->point1(), ref->position(), ref->angle());
+	localNormal = ref->vecToLocal(refEdge->normal()); 
+	localRefPoint = ref->pointToLocal(refEdge->point1());
 }
 
 void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
@@ -72,8 +72,7 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 
 void PolyPolyContact::updateNormal()
 {
-	n = rotate(localNormal, ref->angle());
-	//n = refEdge->normal();
+	n = ref->vecToGlobal(localNormal);
 }
 
 void PolyPolyContact::initPoints()
@@ -104,10 +103,8 @@ void PolyPolyContact::initPoints()
 
 void PolyPolyContact::rebuildPoint(ContactPoint& cp)
 {
-	// TODO: transform function that accepts a RigidBody*
-	vec2 refPoint = transform(localRefPoint, ref->position(), ref->angle());
-
-	cp.point = transform(cp.localIncPoint, inc->position(), inc->angle());
+	vec2 refPoint = ref->pointToGlobal(localRefPoint);
+	cp.point = inc->pointToGlobal(cp.localIncPoint);
 	cp.penetration = dot(cp.point - refPoint, n);
 
 	// Project onto reference edge
@@ -133,12 +130,10 @@ void PolyPolyContact::checkAndAddPoint(ContactPoint& cp, const vec2& ref, real e
 	// If cp lies inside the reference edge, store its penetration, project it into the edge, 
 	// and add it to the contactPoints vector.
 
-	real p = dot(cp.point - ref, n);
-
-	if (p <= eps)
+	cp.penetration = dot(cp.point - ref, n);
+	if (cp.penetration <= eps)
 	{
-		cp.localIncPoint = invTransform(cp.point, inc->position(), inc->angle());
-		cp.penetration = p;
+		cp.localIncPoint = inc->pointToLocal(cp.point);
 		cp.point -= cp.penetration * n;
 		contactPoints.push_back(cp);
 	}

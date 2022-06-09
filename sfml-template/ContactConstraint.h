@@ -49,7 +49,7 @@ protected:
 
 private:
 	void rebuildPoints();
-	void storeRelativeVelocities();
+	void storeTargetVelocities();
 
 	void updateTangent();
 	void updateNormalFactors(ContactPoint& cp);
