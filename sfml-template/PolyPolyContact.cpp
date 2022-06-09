@@ -5,7 +5,8 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const E
 	refEdge(refEdge),incEdge(incEdge),
 	ContactConstraint(ps, ref, inc)
 {
-	
+	localNormal = rotate(refEdge->normal(), -ref->angle());
+	localRefPoint = invTransform(refEdge->point1(), ref->position(), ref->angle());
 }
 
 void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
@@ -71,7 +72,8 @@ bool PolyPolyContact::matches(const PolyPolyContact* other) const
 
 void PolyPolyContact::updateNormal()
 {
-	n = refEdge->normal();
+	n = rotate(localNormal, ref->angle());
+	//n = refEdge->normal();
 }
 
 void PolyPolyContact::initPoints()
@@ -100,55 +102,30 @@ void PolyPolyContact::initPoints()
 	checkAndAddPoint(cp2, refPoint1, ps.clipPlaneEpsilon);
 }
 
-void PolyPolyContact::rebuildPoints()
+void PolyPolyContact::rebuildPoint(ContactPoint& cp)
 {
-	updateNormal();
-	vec2 refPoint = refEdge->point1();
+	// TODO: transform function that accepts a RigidBody*
+	vec2 refPoint = transform(localRefPoint, ref->position(), ref->angle());
 
-	for (auto& cp : contactPoints)
-	{	
-		if (cp.clippedAgainstPoint == -1)
-		{
-			// Wasn't clipped
-			cp.point = inc->vertex(cp.incPointIndex);
-		}
-		else
-		{
-			// Find the point where the incident edge crosses the clip plane
-			vec2 p = incEdge->global();
-			vec2 q = n;
+	cp.point = transform(cp.localIncPoint, inc->position(), inc->angle());
+	cp.penetration = dot(cp.point - refPoint, n);
 
-			vec2 a = inc->vertex(cp.incPointIndex);
-			vec2 b = ref->vertex(cp.clippedAgainstPoint);
-
-			// Can find the intersection of two lines using cross products
-			real denom = zcross(q, p);
-			
-			if (denom != 0)
-			{
-				cp.point = a + p * zcross(q, b - a) / denom;
-			} 
-			else
-			{
-				// Ideally this is never reached, but if it is, just keep the 
-				// current point
-			}
-		}
-
-		cp.penetration = dot(cp.point - refPoint, n);
-
-		// Project onto reference edge
-		cp.point -= cp.penetration * n;
-	}
+	// Project onto reference edge
+	cp.point -= cp.penetration * n;
 }
 
 void PolyPolyContact::onRebuildFrom(ContactConstraint* other)
 {
+	// TODO: just copy accumulated impulses from new to old contacts?
+
 	PolyPolyContact* ppOther = static_cast<PolyPolyContact*>(other);
 
 	// Make sure the reference and incident edges are up to date
 	refEdge = ppOther->refEdge;
 	incEdge = ppOther->incEdge;
+
+	localNormal = ppOther->localNormal;
+	localRefPoint = ppOther->localRefPoint;
 }
 
 void PolyPolyContact::checkAndAddPoint(ContactPoint& cp, const vec2& ref, real eps)
@@ -160,6 +137,7 @@ void PolyPolyContact::checkAndAddPoint(ContactPoint& cp, const vec2& ref, real e
 
 	if (p <= eps)
 	{
+		cp.localIncPoint = invTransform(cp.point, inc->position(), inc->angle());
 		cp.penetration = p;
 		cp.point -= cp.penetration * n;
 		contactPoints.push_back(cp);

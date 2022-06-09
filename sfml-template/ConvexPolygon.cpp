@@ -109,9 +109,32 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 {
-	closestPoint(other->position());
-
-	return nullptr;
+	vec2 centre = other->position();
+	real rad = other->radius();
+	auto [closest, contained] = closestPoint(centre);
+	
+	if (contained)
+	{
+		// Deep contact
+		return nullptr;
+	}
+	else
+	{
+		real dist = magnitude(centre - closest);
+		if (dist < rad)
+		{
+			// Shallow contact
+			// Normal points from polygon to circle
+			//vec2 n = normalise(centre - closest);
+			//real penetration = dist - rad;
+			vec2 localClosest = invTransform(closest, position(), angle());
+		}
+		else
+		{
+			// No contact
+			return nullptr;
+		}
+	}
 }
 
 bool ConvexPolygon::pointInside(const vec2& p) const

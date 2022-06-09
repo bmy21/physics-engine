@@ -69,6 +69,7 @@ void ContactConstraint::correctPos()
 	// Try simultaneous solution first
 	if (ncp == 2 && ps.simulSolvePos)
 	{
+		updateNormal();
 		rebuildPoints();
 		updateCache();
 
@@ -96,6 +97,9 @@ void ContactConstraint::correctPos()
 	// At this point, the condition number was too high, so resort to the iterative solution.
 	for (auto& cp : contactPoints)
 	{
+		updateNormal();
+		rebuildPoint(cp);
+		updateNormalFactors(cp);
 		solvePointPos(cp);
 	}
 }
@@ -111,12 +115,12 @@ void ContactConstraint::warmStart()
 void ContactConstraint::updateCache()
 {
 	updateNormal();
-
-	t = perp(n);
+	updateTangent();
 
 	for (auto& cp : contactPoints)
 	{
-		updatePointCache(cp);
+		updateNormalFactors(cp);
+		updateTangentFactors(cp);
 	}
 
 	if (ncp == 2 && (ps.simulSolveVel || ps.simulSolvePos))
@@ -181,8 +185,6 @@ void ContactConstraint::solvePointVel(ContactPoint& cp)
 	}
 
 	cp.lambda += dLambda;
-
-	//std::cout << cp.nCrossFactor1 << " -- " << cp.nCrossFactor2 << "\n";
 	
 	rb1->applyDeltaVel(-n * rb1->mInv * dLambda, -cp.nCrossFactor1 * rb1->IInv * dLambda);
 	rb2->applyDeltaVel(n * rb2->mInv * dLambda, cp.nCrossFactor2 * rb2->IInv * dLambda);
@@ -190,9 +192,6 @@ void ContactConstraint::solvePointVel(ContactPoint& cp)
 
 void ContactConstraint::solvePointPos(ContactPoint& cp)
 {
-	rebuildPoints();
-	updateCache(); // TODO: only need to update some (normal) parts of the cache here...
-
 	real C = std::min(cp.penetration + ps.slop, static_cast<real>(0));
 
 	real dLambda = 0;
@@ -221,20 +220,6 @@ void ContactConstraint::warmStartPoint(ContactPoint& cp)
 	}
 }
 
-void ContactConstraint::updatePointCache(ContactPoint& cp)
-{
-	vec2 relPos1 = cp.point - rb1->position();
-	vec2 relPos2 = cp.point - rb2->position();
-
-	cp.nCrossFactor1 = zcross(relPos1, n);
-	cp.tCrossFactor1 = zcross(relPos1, t);
-	cp.nCrossFactor2 = zcross(relPos2, n);
-	cp.tCrossFactor2 = zcross(relPos2, t);
-
-	cp.nMassFactor = rb1->mInv + rb2->mInv + rb1->IInv * std::pow(cp.nCrossFactor1, 2) + rb2->IInv * std::pow(cp.nCrossFactor2, 2);
-	cp.tMassFactor = rb1->mInv + rb2->mInv + rb1->IInv * std::pow(cp.tCrossFactor1, 2) + rb2->IInv * std::pow(cp.tCrossFactor2, 2);
-}
-
 void ContactConstraint::storeRelativeVelocities()
 {
 	updateNormal();
@@ -243,5 +228,38 @@ void ContactConstraint::storeRelativeVelocities()
 	{
 		real vRel = dot(rb2->pointVel(cp.point) - rb1->pointVel(cp.point), n);
 		cp.vRelTarget = vRel < -ps.vRelThreshold ? -e * vRel : 0;
+	}
+}
+
+void ContactConstraint::updateTangent()
+{
+	t = perp(n);
+}
+
+void ContactConstraint::updateNormalFactors(ContactPoint& cp)
+{
+	vec2 relPos1 = cp.point - rb1->position();
+	vec2 relPos2 = cp.point - rb2->position();
+
+	cp.nCrossFactor1 = zcross(relPos1, n);
+	cp.nCrossFactor2 = zcross(relPos2, n);
+	cp.nMassFactor = rb1->mInv + rb2->mInv + rb1->IInv * std::pow(cp.nCrossFactor1, 2) + rb2->IInv * std::pow(cp.nCrossFactor2, 2);
+}
+
+void ContactConstraint::updateTangentFactors(ContactPoint& cp)
+{
+	vec2 relPos1 = cp.point - rb1->position();
+	vec2 relPos2 = cp.point - rb2->position();
+
+	cp.tCrossFactor1 = zcross(relPos1, t);
+	cp.tCrossFactor2 = zcross(relPos2, t);
+	cp.tMassFactor = rb1->mInv + rb2->mInv + rb1->IInv * std::pow(cp.tCrossFactor1, 2) + rb2->IInv * std::pow(cp.tCrossFactor2, 2);
+}
+
+void ContactConstraint::rebuildPoints()
+{
+	for (auto& cp : contactPoints)
+	{
+		rebuildPoint(cp);
 	}
 }

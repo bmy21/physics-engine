@@ -14,11 +14,12 @@ public:
 	bool matches(const ContactConstraint* other) const override { return other->matches(this); }
 	bool matches(const PolyPolyContact* other) const override;
 	bool matches(const CircleCircleContact* other) const override { return false; }
+	bool matches(const PolyCircleContact* other) const override { return false; }
 	void onRebuildFrom(ContactConstraint* other) override;
 
 private:
 	void initPoints() override;
-	void rebuildPoints() override;
+	void rebuildPoint(ContactPoint& cp) override;
 	void updateNormal() override;
 
 	ConvexPolygon* ref = nullptr;
@@ -26,6 +27,9 @@ private:
 
 	const Edge* refEdge = nullptr;
 	const Edge* incEdge = nullptr;
+
+	vec2 localNormal;
+	vec2 localRefPoint;
 
 	void checkAndAddPoint(ContactPoint& cp, const vec2& ref, real eps);
 };

@@ -22,10 +22,10 @@ bool CircleCircleContact::matches(const CircleCircleContact* other) const
 void CircleCircleContact::initPoints()
 {
 	contactPoints.resize(1);
-	rebuildPoints();
+	rebuildPoint(contactPoints.front());
 }
 
-void CircleCircleContact::rebuildPoints()
+void CircleCircleContact::rebuildPoint(ContactPoint& cp)
 {
 	updateNormal();
 
@@ -33,8 +33,8 @@ void CircleCircleContact::rebuildPoints()
 	vec2 furthestPoint1 = c1->furthestPoint(n);
 	vec2 furthestPoint2 = c2->furthestPoint(-n);
 
-	contactPoints[0].point = static_cast<real>(0.5) * (furthestPoint1 + furthestPoint2);
-	contactPoints[0].penetration = dot(furthestPoint2 - furthestPoint1, n);
+	cp.point = static_cast<real>(0.5) * (furthestPoint1 + furthestPoint2);
+	cp.penetration = dot(furthestPoint2 - furthestPoint1, n);
 }
 
 void CircleCircleContact::onRebuildFrom(ContactConstraint* other)

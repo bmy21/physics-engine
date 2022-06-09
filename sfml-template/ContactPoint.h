@@ -15,11 +15,14 @@ public:
 
 	real vRelTarget = 0;
 
-	// z . (r x n)
+	// A point on the incident body used to generate the contact point
+	vec2 localIncPoint;
+
+	// z.(r x n) and z.(r x t) for bodies 1 & 2
 	real nCrossFactor1 = 0, nCrossFactor2 = 0;
 	real tCrossFactor1 = 0, tCrossFactor2 = 0;
 
-	// gradC . (mInv gradC)
+	// gradC . (mInv gradC) in normal and tangent directions
 	real nMassFactor = 0;
 	real tMassFactor = 0;
 
@@ -37,6 +40,8 @@ public:
 
 	// Index of reference point defining side-plane against which 
 	// the incident point was clipped. -1 for no clip.
+
+	// TODO: possibly redundant?
 	int clippedAgainstPoint = -1;
 
 private:

@@ -7,6 +7,7 @@
 
 class PolyPolyContact;
 class CircleCircleContact;
+class PolyCircleContact;
 class RigidBody;
 
 class ContactConstraint
@@ -26,6 +27,7 @@ public:
 	virtual bool matches(const ContactConstraint* other) const = 0;
 	virtual bool matches(const PolyPolyContact* other) const = 0;
 	virtual bool matches(const CircleCircleContact* other) const = 0;
+	virtual bool matches(const PolyCircleContact* other) const = 0;
 	
 	int numPersist = 0;
 
@@ -33,8 +35,8 @@ protected:
 	// The details of the below functions depend on the specific types of rigid body involved,
 	// so they need to be virtual
 	virtual void initPoints() = 0;
-	virtual void rebuildPoints() = 0;
 	virtual void updateNormal() = 0;
+	virtual void rebuildPoint(ContactPoint& cp) = 0;
 	virtual void onRebuildFrom(ContactConstraint* other) = 0;
 
 	std::vector<ContactPoint> contactPoints;
@@ -46,12 +48,18 @@ protected:
 	const PhysicsSettings& ps;
 
 private:
+	void rebuildPoints();
 	void storeRelativeVelocities();
+
+	void updateTangent();
+	void updateNormalFactors(ContactPoint& cp);
+	void updateTangentFactors(ContactPoint& cp);
 	void solvePointFriction(ContactPoint& cp);
 	void solvePointVel(ContactPoint& cp);
 	void solvePointPos(ContactPoint& cp);
 	void warmStartPoint(ContactPoint& cp);
-	void updatePointCache(ContactPoint& cp);
+
+	// TODO: more private functions to control caching
 
 	RigidBody* rb1 = nullptr;
 	RigidBody* rb2 = nullptr;
