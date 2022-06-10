@@ -32,7 +32,7 @@ public:
 	int nextIndex(int i) const;
 	int prevIndex(int i) const;
 
-	std::pair<vec2, bool> closestPoint(const vec2& point);
+	std::pair<vec2, Voronoi> closestPoint(const vec2& point);
 
 
 private:
@@ -43,7 +43,7 @@ private:
 	void initShape();
 
 	// Find penetration of other polygon into this polygon along normal of edge e
-	std::pair<real, const Vertex*> normalPenetration(const Edge* e, const ConvexPolygon& other) const;
+	std::pair<real, const Vertex*> normalPenetration(const Edge* e, const ConvexPolygon& other) const; // TODO: why mix pointer and reference?
 
 	// Find maximum signed penetration of other polygon into this polygon along any edge normal
 	std::tuple<bool, real, const Edge*, const Vertex*> maxSignedPenetration(const ConvexPolygon& other) const;

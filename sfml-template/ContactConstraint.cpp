@@ -72,6 +72,8 @@ void ContactConstraint::correctPos()
 		updateNormalFactors(cp);
 		solvePointPos(cp);
 	}
+
+	// TODO: avoid calling onMove() / onRotate() each iteration?
 }
 
 void ContactConstraint::warmStart()

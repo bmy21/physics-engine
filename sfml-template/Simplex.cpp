@@ -1,9 +1,10 @@
 #include "Simplex.h"
 
-// Returns <closest point, new search direction, contained>
-std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
+// Returns <closest point, new search direction, region type>
+std::tuple<vec2, vec2, Voronoi> Simplex::closestPoint(const vec2& point)
 {
     // TODO: reduce code duplication (search direction calculation)
+    // TODO: change third return value to [contained/vertex/edge]
 
     // Note: the sign of a 2-point barycentric coordinate doesn't depend on whether the division
     // has taken place, but for a 3-point coordinate it does.
@@ -15,7 +16,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
     if (npoints == 1)
     {
         // Simplex is a point
-        return { pA, point - pA, false };
+        return { pA, point - pA, Voronoi::Vertex };
     }
 
     vec2 pB = vertices[1].coords();
@@ -28,13 +29,13 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
         {
             // removeA = true;
             vertices[0].markForRemoval();
-            return { pB, point - pB, false };
+            return { pB, point - pB, Voronoi::Vertex };
         }
         else if (vAB <= 0)
         {
             //removeB = true;
             vertices[1].markForRemoval();
-            return { pA, point - pA, false };
+            return { pA, point - pA, Voronoi::Vertex };
         }
         else
         {
@@ -45,7 +46,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
                 d = -d;
             }
 
-            return { (uAB * pA + vAB * pB) / divAB, d, false };
+            return { (uAB * pA + vAB * pB) / divAB, d, Voronoi::Edge };
         }
     }
 
@@ -63,7 +64,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
             //removeC = true;
             vertices[1].markForRemoval();
             vertices[2].markForRemoval();
-            return { pA, point - pA, false };
+            return { pA, point - pA, Voronoi::Vertex };
         }
         else if (uAB <= 0 && vBC <= 0)
         {
@@ -71,7 +72,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
             //removeC = true;
             vertices[0].markForRemoval();
             vertices[2].markForRemoval();
-            return { pB, point - pB, false };
+            return { pB, point - pB, Voronoi::Vertex };
         }
         else if (uBC <= 0 && vCA <= 0)
         {
@@ -79,7 +80,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
             //removeB = true;
             vertices[0].markForRemoval();
             vertices[1].markForRemoval();
-            return { pC, point - pC, false };
+            return { pC, point - pC, Voronoi::Vertex };
         }
         else if (uAB > 0 && vAB > 0 && wABC * divABC <= 0)
         {
@@ -93,7 +94,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
                 d = -d;
             }
 
-            return { (uAB * pA + vAB * pB) / divAB, d, false };
+            return { (uAB * pA + vAB * pB) / divAB, d, Voronoi::Edge };
         }
         else if (uBC > 0 && vBC > 0 && uABC * divABC <= 0)
         {
@@ -107,7 +108,7 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
                 d = -d;
             }
 
-            return { (uBC * pB + vBC * pC) / divBC, d, false };
+            return { (uBC * pB + vBC * pC) / divBC, d, Voronoi::Edge };
         }
         else if (uCA > 0 && vCA > 0 && vABC * divABC <= 0)
         {
@@ -121,12 +122,12 @@ std::tuple<vec2, vec2, bool> Simplex::closestPoint(const vec2& point)
                 d = -d;
             }
 
-            return { (uCA * pC + vCA * pA) / divCA, d, false };
+            return { (uCA * pC + vCA * pA) / divCA, d, Voronoi::Edge };
         }
         else
         {
             // Point is inside triangle
-            return { point, {}, true };
+            return { point, {}, Voronoi::Inside };
         }
     }
 }

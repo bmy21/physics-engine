@@ -114,9 +114,9 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 
 	// TODO: need to know whether the closest feature was a vertex or an edge,
 	// so the normal can be reconstructed correctly later
-	auto [closest, contained] = closestPoint(centre);
+	auto [closest, region] = closestPoint(centre);
 	
-	if (contained)
+	if (region == Voronoi::Inside)
 	{
 		// Deep contact
 		return nullptr;
@@ -242,31 +242,32 @@ int ConvexPolygon::prevIndex(int i) const
 	return (i == 0) ? npoints - 1 : i - 1;
 }
 
-// Returns <closest point, contained>
-std::pair<vec2, bool> ConvexPolygon::closestPoint(const vec2& point)
+// Returns <closest point, region type>
+std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 {
 	// TODO: maximum iterations & caching of previous result?
+	// TODO: change second return value to [contained/vertex/edge]
 	
 	Simplex s;
 	s.addVertex(vertices[0].get());
 	
 	while (true)
 	{
-		auto [closest, d, contained] = s.closestPoint(point);
+		auto [closest, d, region] = s.closestPoint(point);
 		
 		// Remove non-contributing vertices
 		s.cleanupVertices();
 
-		if (contained)
+		if (region == Voronoi::Inside)
 		{
-			return { point, true };
+			return { point, region };
 		}
 
 		const Vertex* newSupport = support(d);
 
 		if (s.contains(newSupport) || (d.x == 0 && d.y == 0))
 		{
-			return { closest, false };
+			return { closest, region };
 		}
 
 		s.addVertex(newSupport); 

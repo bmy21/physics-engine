@@ -5,7 +5,7 @@
 class Simplex
 {
 public:
-	std::tuple<vec2, vec2, bool> closestPoint(const vec2& point);
+	std::tuple<vec2, vec2, Voronoi> closestPoint(const vec2& point);
 	
 	bool contains(const Vertex* vertex) const;
 	void addVertex(const Vertex* vertex);

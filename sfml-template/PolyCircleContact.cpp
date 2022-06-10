@@ -58,6 +58,8 @@ void PolyCircleContact::initPoints()
 
 void PolyCircleContact::rebuildPoint(ContactPoint& cp)
 {
+	// TODO: does this calculation work for vertex contact?
+
 	vec2 globalRefPoint = p->pointToGlobal(localRefPoint);
 	vec2 circlePoint = c->furthestPoint(-n);
 
