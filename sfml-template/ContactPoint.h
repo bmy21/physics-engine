@@ -14,9 +14,6 @@ struct ContactPoint
 
 	real vRelTarget = 0;
 
-	// A point on the incident body used to generate the contact point
-	vec2 localIncPoint;
-
 	// z.(r x n) and z.(r x t) for bodies 1 & 2
 	real nCrossFactor1 = 0, nCrossFactor2 = 0;
 	real tCrossFactor1 = 0, tCrossFactor2 = 0;
@@ -24,6 +21,9 @@ struct ContactPoint
 	// gradC . (mInv gradC) in normal and tangent directions
 	real nMassFactor = 0;
 	real tMassFactor = 0;
+
+	// A point on the incident body used to generate the contact point
+	vec2 localIncPoint;
 
 	// Complete set of information that specifies how this 
 	// contact point was generated. Can be used to recompute
