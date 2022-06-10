@@ -25,9 +25,11 @@ private:
 	ConvexPolygon* ref = nullptr;
 	ConvexPolygon* inc = nullptr;
 
+	// TODO: probably don't need to store these
 	const Edge* refEdge = nullptr;
 	const Edge* incEdge = nullptr;
 
+	// TODO: these could be in the base class?
 	vec2 localNormal;
 	vec2 localRefPoint;
 

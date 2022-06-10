@@ -14,7 +14,7 @@
 #include <utility>
 #include <tuple>
 
-class ContactPoint;
+struct ContactPoint;
 
 using real = float;
 using vec2 = sf::Vector2<real>;

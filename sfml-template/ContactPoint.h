@@ -1,9 +1,8 @@
 #pragma once
 #include "Utils.h"
 
-class ContactPoint
+struct ContactPoint
 {
-public:
 	bool matches(const ContactPoint& other) const;
 	std::string idAsString() const;
 
@@ -43,8 +42,5 @@ public:
 
 	// TODO: possibly redundant?
 	int clippedAgainstPoint = -1;
-
-private:
-
 };
 
