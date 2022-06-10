@@ -27,7 +27,7 @@ void CircleCircleContact::initPoints()
 
 void CircleCircleContact::rebuildPoint(ContactPoint& cp)
 {
-	updateNormal();
+	updateNormal(); // unnecessary?
 
 	// Place the contact point in the middle of the colliding region
 	vec2 furthestPoint1 = c1->furthestPoint(n);

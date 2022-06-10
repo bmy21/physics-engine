@@ -1,11 +1,9 @@
 #include "ContactConstraint.h"
 
 ContactConstraint::ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1, RigidBody* rb2):
-	ps(ps), rb1(rb1), rb2(rb2)
+	ps(ps), rb1(rb1), rb2(rb2),
+	e(ps.eDefault), mu(ps.muDefault)
 {
-	e = ps.eDefault;
-	mu = ps.muDefault;
-
 	// Sort by index of incident point to ensure a consistent ordering
 	// Note - clipping process above should give consistent order anyway?
 	// std::sort(contactPoints.begin(), contactPoints.end(),
@@ -62,6 +60,7 @@ void ContactConstraint::correctPos()
 		if (wellConditionedPos)
 		{
 			simulSolvePos();
+			return;
 		}
 	}
 
