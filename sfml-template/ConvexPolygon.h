@@ -2,6 +2,7 @@
 
 #include "RigidBody.h"
 #include "PolyPolyContact.h"
+#include "PolyCircleContact.h"
 #include "Edge.h"
 #include "Vertex.h"
 #include "Simplex.h"

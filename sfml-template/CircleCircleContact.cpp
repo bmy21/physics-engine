@@ -21,6 +21,7 @@ bool CircleCircleContact::matches(const CircleCircleContact* other) const
 
 void CircleCircleContact::initPoints()
 {
+	updateNormal();
 	contactPoints.resize(1);
 	rebuildPoint(contactPoints.front());
 }
@@ -44,7 +45,8 @@ void CircleCircleContact::updateNormal()
 {
 	n = c2->position() - c1->position();
 
-	if (magnitude(n) != 0)
+	// TODO: isZero() function?
+	if (magSquared(n) != 0)
 	{
 		n = normalise(n);
 	}

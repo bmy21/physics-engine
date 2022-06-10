@@ -41,9 +41,9 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 	circle.setOrigin(rad, rad);
 	circle.setFillColor(sf::Color::Magenta);
 
-	vec2 closest = closestPoint({ 0, 0 }).first;
-	circle.setPosition(closest.x * pixPerUnit, closest.y * pixPerUnit);
-	window.draw(circle);
+	//vec2 closest = closestPoint({ 0, 0 }).first;
+	//circle.setPosition(closest.x * pixPerUnit, closest.y * pixPerUnit);
+	//window.draw(circle);
 }
 
 std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* other)
@@ -111,6 +111,9 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 {
 	vec2 centre = other->position();
 	real rad = other->radius();
+
+	// TODO: need to know whether the closest feature was a vertex or an edge,
+	// so the normal can be reconstructed correctly later
 	auto [closest, contained] = closestPoint(centre);
 	
 	if (contained)
@@ -121,13 +124,23 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 	else
 	{
 		real dist = magnitude(centre - closest);
+
 		if (dist < rad)
 		{
 			// Shallow contact
 			// Normal points from polygon to circle
 			//vec2 n = normalise(centre - closest);
 			//real penetration = dist - rad;
-			vec2 localClosest = invTransform(closest, position(), angle());
+
+			vec2 n = centre - closest;
+			if (magSquared(n) != 0)
+			{
+				n = normalise(n);
+			}
+
+			vec2 localClosest = pointToLocal(closest);
+			vec2 localNormal = vecToLocal(n);
+			return std::make_unique<PolyCircleContact>(this, other, localNormal, localClosest, ps);
 		}
 		else
 		{
@@ -139,7 +152,6 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 
 bool ConvexPolygon::pointInside(const vec2& p) const
 {
-	// TODO: quicker to use GJK?
 	for (auto& e : edges)
 	{
 		if (dot(p - e->point1(), e->normal()) > 0)
