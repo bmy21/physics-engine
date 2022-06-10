@@ -18,11 +18,11 @@ struct PhysicsSettings
 	real maxCondVel = 1000;
 	real maxCondPos = 500;
 
-	int velIter = 10;
-	int posIter = 3;
+	int velIter = 12;
+	int posIter = 4;
 
 	real muDefault = 0.5;
-	real eDefault = 0.;
+	real eDefault = 0.2;
 
 	real grav = 10;
 

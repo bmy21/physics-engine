@@ -119,28 +119,33 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 	if (region == Voronoi::Inside)
 	{
 		// Deep contact
+		//std::cout << "deep contact" << "\n";
 		return nullptr;
 	}
 	else
 	{
-		real dist = magnitude(centre - closest);
-
-		if (dist < rad)
+		if (magnitude(centre - closest) < rad)
 		{
 			// Shallow contact
 			// Normal points from polygon to circle
-			//vec2 n = normalise(centre - closest);
-			//real penetration = dist - rad;
-
-			vec2 n = centre - closest;
-			if (magSquared(n) != 0)
-			{
-				n = normalise(n);
-			}
 
 			vec2 localClosest = pointToLocal(closest);
-			vec2 localNormal = vecToLocal(n);
-			return std::make_unique<PolyCircleContact>(this, other, localNormal, localClosest, ps);
+			
+			vec2 localNormal = {0, 0};
+
+			if (region == Voronoi::Edge)
+			{
+				vec2 n = centre - closest;
+
+				if (magSquared(n) != 0)
+				{
+					n = normalise(n);
+				}
+
+				localNormal = vecToLocal(n);
+			}
+
+			return std::make_unique<PolyCircleContact>(this, other, localNormal, localClosest, region, ps);
 		}
 		else
 		{

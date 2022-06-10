@@ -189,6 +189,7 @@ void ContactConstraint::storeTargetVelocities()
 	for (auto& cp : contactPoints)
 	{
 		real vRel = dot(rb2->pointVel(cp.point) - rb1->pointVel(cp.point), n);
+		std::cout << vRel << "\n";
 		cp.vRelTarget = vRel < -ps.vRelThreshold ? -e * vRel : 0;
 	}
 }

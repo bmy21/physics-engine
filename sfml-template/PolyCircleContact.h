@@ -6,7 +6,8 @@
 class PolyCircleContact : public ContactConstraint
 {
 public:
-	PolyCircleContact(ConvexPolygon* p, Circle* c, const vec2& localNormal, const vec2& localRefPoint, const PhysicsSettings& ps);
+	PolyCircleContact(ConvexPolygon* p, Circle* c, const vec2& localNormal, const vec2& localRefPoint, 
+		Voronoi region, const PhysicsSettings& ps);
 
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) override;
 
@@ -27,6 +28,5 @@ private:
 
 	vec2 localNormal;
 	vec2 localRefPoint;
-
-	//void checkAndAddPoint(ContactPoint& cp, const vec2& ref, real eps);
+	Voronoi region;
 };

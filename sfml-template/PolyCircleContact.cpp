@@ -1,8 +1,8 @@
 #include "PolyCircleContact.h"
 
 PolyCircleContact::PolyCircleContact(ConvexPolygon* p, Circle* c, 
-	const vec2& localNormal, const vec2& localRefPoint, const PhysicsSettings& ps):
-	p(p), c(c), localNormal(localNormal), localRefPoint(localRefPoint),
+	const vec2& localNormal, const vec2& localRefPoint, Voronoi region, const PhysicsSettings& ps):
+	p(p), c(c), localNormal(localNormal), localRefPoint(localRefPoint), region(region),
 	ContactConstraint(ps, p, c)
 {
 
@@ -46,11 +46,11 @@ void PolyCircleContact::onRebuildFrom(ContactConstraint* other)
 
 	localNormal = pcOther->localNormal;
 	localRefPoint = pcOther->localRefPoint;
+	region = pcOther->region;
 }
 
 void PolyCircleContact::initPoints()
 {
-	// TODO: should depend on edge or vertex contact
 	updateNormal();
 	contactPoints.resize(1);
 	rebuildPoint(contactPoints.front());
@@ -58,8 +58,6 @@ void PolyCircleContact::initPoints()
 
 void PolyCircleContact::rebuildPoint(ContactPoint& cp)
 {
-	// TODO: does this calculation work for vertex contact?
-
 	vec2 globalRefPoint = p->pointToGlobal(localRefPoint);
 	vec2 circlePoint = c->furthestPoint(-n);
 
@@ -69,10 +67,17 @@ void PolyCircleContact::rebuildPoint(ContactPoint& cp)
 
 void PolyCircleContact::updateNormal()
 {
-	// TODO: should depend on edge or vertex contact
-	n = p->vecToGlobal(localNormal);
-
-	//vec2 closest = transform(localPoint, p->position(), p->angle());
-	//vec2 disp = c->position() - closest;
-	//n = normalise(disp);
+	if (region == Voronoi::Edge)
+	{
+		n = p->vecToGlobal(localNormal);
+	}
+	else
+	{
+		// Vertex
+		n = c->position() - p->pointToGlobal(localRefPoint);
+		if (magSquared(n) != 0)
+		{
+			n = normalise(n);
+		}
+	}
 }
