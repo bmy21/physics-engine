@@ -52,8 +52,12 @@ private:
 	void updateTangent();
 	void prepareSimulSolver();
 
+	bool simulSolveVel();
+	void simulSolvePos();
+
 	void updateNormalFactors(ContactPoint& cp);
 	void updateTangentFactors(ContactPoint& cp);
+
 	void solvePointFriction(ContactPoint& cp);
 	void solvePointVel(ContactPoint& cp);
 	void solvePointPos(ContactPoint& cp);

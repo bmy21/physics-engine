@@ -26,28 +26,12 @@ void ContactConstraint::correctVel()
 	{
 		solvePointFriction(cp);
 	}
-
+	
 	// Try simultaneous solution of normal velocities first
 	if (ncp == 2 && ps.simulSolveVel && wellConditionedVel)
 	{
-		ContactPoint& cp1 = contactPoints[0];
-		ContactPoint& cp2 = contactPoints[1];
-
-		real alpha1 = cp1.vRelTarget - (dot(rb2->velocity() - rb1->velocity(), n) + cp1.nCrossFactor2 * rb2->angVel() - cp1.nCrossFactor1 * rb1->angVel());
-		real alpha2 = cp2.vRelTarget - (dot(rb2->velocity() - rb1->velocity(), n) + cp2.nCrossFactor2 * rb2->angVel() - cp2.nCrossFactor1 * rb1->angVel());
-
-		real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
-		real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
-
-
-		if (cp1.lambda + lam1 >= 0 && cp2.lambda + lam2 >= 0)
+		if (simulSolveVel())
 		{
-			rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
-			rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
-
-			cp1.lambda += lam1;
-			cp2.lambda += lam2;
-
 			return;
 		}
 	}
@@ -77,22 +61,7 @@ void ContactConstraint::correctPos()
 
 		if (wellConditionedPos)
 		{
-			ContactPoint& cp1 = contactPoints[0];
-			ContactPoint& cp2 = contactPoints[1];
-
-			real C1 = std::min(cp1.penetration + ps.slop, static_cast<real>(0));
-			real C2 = std::min(cp2.penetration + ps.slop, static_cast<real>(0));
-
-			real alpha1 = -ps.beta * C1;
-			real alpha2 = -ps.beta * C2;
-
-			real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
-			real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
-
-			rb1->applyDeltaPos(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
-			rb2->applyDeltaPos(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
-
-			return;
+			simulSolvePos();
 		}
 	}
 
@@ -241,6 +210,50 @@ void ContactConstraint::prepareSimulSolver()
 	// Is the condition number less than the threshold?
 	wellConditionedVel = normSquared < ps.maxCondVel * det;
 	wellConditionedPos = normSquared < ps.maxCondPos * det;
+}
+
+bool ContactConstraint::simulSolveVel()
+{
+	ContactPoint& cp1 = contactPoints[0];
+	ContactPoint& cp2 = contactPoints[1];
+
+	real alpha1 = cp1.vRelTarget - (dot(rb2->velocity() - rb1->velocity(), n) + cp1.nCrossFactor2 * rb2->angVel() - cp1.nCrossFactor1 * rb1->angVel());
+	real alpha2 = cp2.vRelTarget - (dot(rb2->velocity() - rb1->velocity(), n) + cp2.nCrossFactor2 * rb2->angVel() - cp2.nCrossFactor1 * rb1->angVel());
+
+	real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
+	real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
+
+
+	if (cp1.lambda + lam1 >= 0 && cp2.lambda + lam2 >= 0)
+	{
+		rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+		rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+
+		cp1.lambda += lam1;
+		cp2.lambda += lam2;
+
+		return true;
+	}
+
+	return false;
+}
+
+void ContactConstraint::simulSolvePos()
+{
+	ContactPoint& cp1 = contactPoints[0];
+	ContactPoint& cp2 = contactPoints[1];
+
+	real C1 = std::min(cp1.penetration + ps.slop, static_cast<real>(0));
+	real C2 = std::min(cp2.penetration + ps.slop, static_cast<real>(0));
+
+	real alpha1 = -ps.beta * C1;
+	real alpha2 = -ps.beta * C2;
+
+	real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
+	real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
+
+	rb1->applyDeltaPos(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+	rb2->applyDeltaPos(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
 }
 
 void ContactConstraint::updateNormalFactors(ContactPoint& cp)
