@@ -51,4 +51,4 @@ void drawThickLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, rea
 
 enum class ClipRegion { In, On, Out };
 std::pair<real, ClipRegion> getClipRegion(const vec2& n, const vec2& ref, real eps, const vec2& p);
-bool clip(const vec2& n, const vec2& ref, real eps, int clipPointIndex, ContactPoint& cp1, ContactPoint& cp2);
+bool clip(const vec2& n, const vec2& ref, real eps, ContactPoint& cp1, ContactPoint& cp2);

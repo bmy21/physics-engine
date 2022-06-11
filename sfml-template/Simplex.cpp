@@ -4,8 +4,7 @@
 std::tuple<vec2, vec2, Voronoi> Simplex::closestPoint(const vec2& point)
 {
     // TODO: reduce code duplication (search direction calculation)
-    // TODO: change third return value to [contained/vertex/edge]
-
+    
     // Note: the sign of a 2-point barycentric coordinate doesn't depend on whether the division
     // has taken place, but for a 3-point coordinate it does.
 

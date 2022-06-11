@@ -70,7 +70,6 @@ std::pair<real, real> bary(const vec2& q, const vec2& v1, const vec2& v2)
 
 std::tuple<real, real, real> bary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3)
 {
-	// TODO: check winding order & sign?
 	real a123 = zcross(v2 - v1, v3 - v1);
 	real aq23 = zcross(v2 - q, v3 - q);
 	real a1q3 = zcross(q - v1, v3 - v1);
@@ -96,7 +95,6 @@ std::tuple<real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, co
 
 std::tuple<real, real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3)
 {
-	// TODO: check winding order & sign?
 	real a123 = zcross(v2 - v1, v3 - v1);
 
 	real u = zcross(v2 - q, v3 - q); // aq23
@@ -157,9 +155,8 @@ std::pair<real, ClipRegion> getClipRegion(const vec2& n, const vec2& ref, real e
 
 // Clips the line segment from cp1 to cp2 against the plane defined by point ref and normal n
 // Adjusts the point coords and clip indices accordingly
-// clipIndex is the index of point ref
-// Returns false if both points are outside the plane; true otherwise
-bool clip(const vec2& n, const vec2& ref, real eps, int clipPointIndex, ContactPoint& cp1, ContactPoint& cp2)
+// Returns "success" - false if both points are outside the plane; true otherwise
+bool clip(const vec2& n, const vec2& ref, real eps, ContactPoint& cp1, ContactPoint& cp2)
 {
 	using enum ClipRegion;
 
@@ -174,14 +171,12 @@ bool clip(const vec2& n, const vec2& ref, real eps, int clipPointIndex, ContactP
 	else if (R1 != Out && R2 == Out)
 	{
 		// Only point 2 is outside the plane
-		cp2.clippedAgainstPoint = clipPointIndex;
 		cp2.point = (d2 * cp1.point - d1 * cp2.point) / (d2 - d1);
 		return true;
 	}
 	else if (R1 == Out && R2 != Out)
 	{
 		// Only point 1 is outside the plane
-		cp1.clippedAgainstPoint = clipPointIndex;
 		cp1.point = (d1 * cp2.point - d2 * cp1.point) / (d1 - d2);
 		return true;
 	}

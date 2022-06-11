@@ -93,8 +93,8 @@ void PolyPolyContact::initPoints()
 	cp2.point = incPoint2;
 
 	vec2 clipNormal = normalise(refEdge->global());
-	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, refEdge->v1index(), cp1, cp2);
-	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, refEdge->v2index(), cp1, cp2);
+	bool OK1 = clip(-clipNormal, refPoint1, ps.clipPlaneEpsilon, cp1, cp2);
+	bool OK2 = clip(clipNormal, refPoint2, ps.clipPlaneEpsilon, cp1, cp2);
 
 	updateNormal();
 	checkAndAddPoint(cp1, refPoint1, ps.clipPlaneEpsilon);

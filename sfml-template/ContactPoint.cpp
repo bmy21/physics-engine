@@ -2,7 +2,6 @@
 
 bool ContactPoint::matches(const ContactPoint& other) const
 {
-	// Note: not requiring clippedAgainstPoint to be matched
 	return (incPointIndex == other.incPointIndex
 		&& refEdgeIndex == other.refEdgeIndex);
 }
@@ -10,6 +9,6 @@ bool ContactPoint::matches(const ContactPoint& other) const
 std::string ContactPoint::idAsString() const
 {
 	std::stringstream ss;
-	ss << incPointIndex << ' ' << refEdgeIndex << ' ' << clippedAgainstPoint;
+	ss << incPointIndex << ' ' << refEdgeIndex;
 	return ss.str();
 }

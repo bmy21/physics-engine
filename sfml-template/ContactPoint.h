@@ -36,11 +36,5 @@ struct ContactPoint
 
 	// Index of reference edge
 	int refEdgeIndex = -1;
-
-	// Index of reference point defining side-plane against which 
-	// the incident point was clipped. -1 for no clip.
-
-	// TODO: possibly redundant?
-	int clippedAgainstPoint = -1;
 };
 
