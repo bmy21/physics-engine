@@ -113,8 +113,6 @@ void PolyPolyContact::rebuildPoint(ContactPoint& cp)
 
 void PolyPolyContact::onRebuildFrom(ContactConstraint* other)
 {
-	// TODO: just copy accumulated impulses from new to old contacts?
-
 	PolyPolyContact* ppOther = static_cast<PolyPolyContact*>(other);
 
 	// Make sure the reference and incident edges are up to date

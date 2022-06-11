@@ -130,7 +130,7 @@ void Game::run()
 
 		for (auto& cc : contactConstraints)
 		{
-			cc->draw(window, pixPerUnit, fraction, true, &text);
+			// cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		window.display();
