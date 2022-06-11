@@ -50,7 +50,7 @@ public:
 	real KE() const { return 0.5 * dot(vel, vel) / mInv; }
 
 	void applyDeltaVel(const vec2& dv, real dw);
-	void applyDeltaPos(const vec2& dr, real dth);
+	void applyDeltaPos(const vec2& dr, real dth, bool update = true);
 
 	void applyDamping(real dt);
 

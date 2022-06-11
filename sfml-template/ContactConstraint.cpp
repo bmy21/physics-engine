@@ -164,8 +164,9 @@ void ContactConstraint::solvePointPos(ContactPoint& cp)
 		dLambda = -ps.beta * C / cp.nMassFactor;
 	}
 
-	rb1->applyDeltaPos(-n * rb1->mInv * dLambda, -cp.nCrossFactor1 * rb1->IInv * dLambda);
-	rb2->applyDeltaPos(n * rb2->mInv * dLambda, cp.nCrossFactor2 * rb2->IInv * dLambda);
+	// Don't need to call the RigidBody update functions until after the iterations are complete
+	rb1->applyDeltaPos(-n * rb1->mInv * dLambda, -cp.nCrossFactor1 * rb1->IInv * dLambda, false);
+	rb2->applyDeltaPos(n * rb2->mInv * dLambda, cp.nCrossFactor2 * rb2->IInv * dLambda, false);
 }
 
 void ContactConstraint::warmStartPoint(ContactPoint& cp)
@@ -255,8 +256,9 @@ void ContactConstraint::simulSolvePos()
 	real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
 	real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
 
-	rb1->applyDeltaPos(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
-	rb2->applyDeltaPos(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+	// Don't need to call the RigidBody update functions until after the iterations are complete
+	rb1->applyDeltaPos(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2), false);
+	rb2->applyDeltaPos(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2), false);
 }
 
 void ContactConstraint::updateNormalFactors(ContactPoint& cp)

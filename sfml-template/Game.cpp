@@ -116,6 +116,8 @@ void Game::run()
 			//std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
 			//std::cout << contactConstraints.size() << '\n';
 
+			std::cout << rigidBodies.back()->velocity().x << " --- " << rigidBodies.back()->velocity().y << " --- "
+				<< rigidBodies.back()->angVel() << "\n";
 
 			accTime -= ps.dt;
 		}
@@ -222,6 +224,13 @@ void Game::correctPositions()
 		{
 			cc->correctPos();
 		}
+	}
+
+	// The onMove() and onRotate() functions are not called every iteration
+	for (auto& rb : rigidBodies)
+	{
+		rb->onMove();
+		rb->onRotate();
 	}
 }
 

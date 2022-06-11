@@ -90,8 +90,9 @@ void RigidBody::applyDeltaVel(const vec2& dv, real dw)
 	assert(!isnan(dw));
 }
 
-void RigidBody::applyDeltaPos(const vec2& dr, real dth)
+void RigidBody::applyDeltaPos(const vec2& dr, real dth, bool update)
 {
+	// onMove() and onRotate() will only be called if update is true
 	// Note: previous position and angle are NOT updated here
 
 	pos += dr;
@@ -101,8 +102,11 @@ void RigidBody::applyDeltaPos(const vec2& dr, real dth)
 	assert(!isnan(dr.y));
 	assert(!isnan(dth));
 
-	onMove();
-	onRotate();
+	if (update)
+	{
+		onMove();
+		onRotate();
+	}
 }
 
 
