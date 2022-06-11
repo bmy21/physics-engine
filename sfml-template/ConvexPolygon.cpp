@@ -112,15 +112,31 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 	vec2 centre = other->position();
 	real rad = other->radius();
 
-	// TODO: need to know whether the closest feature was a vertex or an edge,
-	// so the normal can be reconstructed correctly later
 	auto [closest, region] = closestPoint(centre);
 	
 	if (region == Voronoi::Inside)
 	{
 		// Deep contact
-		//std::cout << "deep contact" << "\n";
-		return nullptr;
+		// Normal points from polygon to circle
+		real maxSignedDistance = std::numeric_limits<real>::lowest();
+		vec2 projection, n;
+
+		for (auto& e : edges)
+		{
+			real signedDistance = dot(closest - e->point1(), e->normal());
+
+			if (signedDistance > maxSignedDistance)
+			{
+				maxSignedDistance = signedDistance;
+				n = e->normal();
+				projection = closest - signedDistance * n;
+			}
+		}
+
+		vec2 localNormal = vecToLocal(n);
+		vec2 localClosest = pointToLocal(projection);
+
+		return std::make_unique<PolyCircleContact>(this, other, localNormal, localClosest, region, ps);
 	}
 	else
 	{
@@ -251,7 +267,6 @@ int ConvexPolygon::prevIndex(int i) const
 std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 {
 	// TODO: maximum iterations & caching of previous result?
-	// TODO: change second return value to [contained/vertex/edge]
 	
 	Simplex s;
 	s.addVertex(vertices[0].get());

@@ -67,7 +67,7 @@ void PolyCircleContact::rebuildPoint(ContactPoint& cp)
 
 void PolyCircleContact::updateNormal()
 {
-	if (region == Voronoi::Edge)
+	if (region == Voronoi::Edge || region == Voronoi::Inside)
 	{
 		n = p->vecToGlobal(localNormal);
 	}

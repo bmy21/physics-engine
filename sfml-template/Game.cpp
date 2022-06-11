@@ -35,7 +35,7 @@ Game::Game():
 	//addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
 	//addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	//addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
-	addCircle(1.2, { 3,3 }, 2);
+	addCircle(1, { 3,3 }, 2);
 
 }
 
@@ -130,7 +130,7 @@ void Game::run()
 
 		for (auto& cc : contactConstraints)
 		{
-			//cc->draw(window, pixPerUnit, fraction, true, &text);
+			cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		window.display();

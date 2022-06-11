@@ -22,7 +22,7 @@ struct PhysicsSettings
 	int posIter = 4;
 
 	real muDefault = 0.5;
-	real eDefault = 0.2;
+	real eDefault = 0.3;
 
 	real grav = 10;
 
