@@ -20,7 +20,7 @@ struct PhysicsSettings
 
 	int maxIterGJK = 30;
 
-	int velIter = 12;
+	int velIter = 10;
 	int posIter = 4;
 
 	real grav = 10;
@@ -30,7 +30,9 @@ struct PhysicsSettings
 
 	// Perpendicular distance of normal reaction from point of contact 
 	// used to compute rolling friction torque
-	real rfLengthDefault = 0.01;
+
+	// TODO: don't apply rolling friction to circle-circle contacts?
+	real rfLengthDefault = 0.005;
 
 	// Decay constants for all rigid bodies
 	real linearDamp = 0;

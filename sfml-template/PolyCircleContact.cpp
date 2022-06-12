@@ -37,7 +37,7 @@ void PolyCircleContact::draw(sf::RenderWindow& window, real pixPerUnit, real fra
 
 bool PolyCircleContact::matches(const PolyCircleContact* other) const
 {
-	return (p == other->p && c == other->c);
+	return (p->id == other->p->id && c->id == other->c->id);
 }
 
 void PolyCircleContact::onRebuildFrom(ContactConstraint* other)
