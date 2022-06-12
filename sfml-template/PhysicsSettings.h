@@ -18,6 +18,8 @@ struct PhysicsSettings
 	real maxCondVel = 1000;
 	real maxCondPos = 500;
 
+	int maxIterGJK = 30;
+
 	int velIter = 12;
 	int posIter = 4;
 

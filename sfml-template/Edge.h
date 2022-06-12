@@ -34,6 +34,7 @@ public:
 	void recompute(real angle);
 
 private:
+	// TODO: is it necessary to store these?
 	vec2 localEdge;
 	vec2 globalEdge;
 

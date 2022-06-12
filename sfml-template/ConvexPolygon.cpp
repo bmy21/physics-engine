@@ -95,6 +95,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	vec2 normal = refEdge->normal();
 	
 	// TODO: add tolerance?
+	// TODO: use normal dot products?
 	if (inc->absEdgeDot(incVertex->e1(), normal) < inc->absEdgeDot(incVertex->e2(), normal))
 	{
 		incEdge = incVertex->e1();
@@ -266,7 +267,8 @@ int ConvexPolygon::prevIndex(int i) const
 // Returns <closest point, region type>
 std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 {
-	// TODO: maximum iterations & caching of previous result?
+	// TODO: caching of previous result?
+	int nIter = 0;
 	
 	Simplex s;
 	s.addVertex(vertices[0].get());
@@ -280,7 +282,8 @@ std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 
 		if (region == Voronoi::Inside)
 		{
-			return { point, region };
+			// NOTE: previously first return value was "point" 
+			return { closest, region };
 		}
 
 		const Vertex* newSupport = support(d);
@@ -291,6 +294,12 @@ std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 		}
 
 		s.addVertex(newSupport); 
+
+		// Terminate after a set number of iterations
+		if (++nIter >= ps.maxIterGJK)
+		{
+			return { closest, region };
+		}
 	}
 }
 
