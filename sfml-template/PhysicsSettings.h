@@ -21,13 +21,18 @@ struct PhysicsSettings
 	int velIter = 12;
 	int posIter = 4;
 
-	real muDefault = 0.5;
-	real eDefault = 0.2;
-
 	real grav = 10;
 
+	real muDefault = 0.3;
+	real eDefault = 0.2;
+
+	// Perpendicular distance of normal reaction from point of contact 
+	// used to compute rolling friction torque
+	real rfLengthDefault = 0.01;
+
+	// Decay constants for all rigid bodies
 	real linearDamp = 0;
-	real angularDamp = decayConstant(5);
+	real angularDamp = 0;
 
 	// Plane half-thickness for clipping
 	real clipPlaneEpsilon = 1e-5;

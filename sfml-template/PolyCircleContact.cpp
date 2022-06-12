@@ -63,6 +63,7 @@ void PolyCircleContact::rebuildPoint(ContactPoint& cp)
 
 	cp.penetration = dot(circlePoint - globalRefPoint, n);
 	cp.point = circlePoint - cp.penetration * n;
+	//cp.point.x += 0.05;
 }
 
 void PolyCircleContact::updateNormal()

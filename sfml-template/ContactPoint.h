@@ -11,6 +11,7 @@ struct ContactPoint
 
 	real lambda = 0;
 	real fLambda = 0;
+	real fRollLambda = 0;
 
 	real vRelTarget = 0;
 

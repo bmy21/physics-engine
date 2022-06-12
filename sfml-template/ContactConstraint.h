@@ -58,6 +58,7 @@ private:
 	void updateNormalFactors(ContactPoint& cp);
 	void updateTangentFactors(ContactPoint& cp);
 
+	void solvePointRollFriction(ContactPoint& cp);
 	void solvePointFriction(ContactPoint& cp);
 	void solvePointVel(ContactPoint& cp);
 	void solvePointPos(ContactPoint& cp);
@@ -68,6 +69,7 @@ private:
 
 	real mu = 0;
 	real e = 0;
+	real rfLength = 0;
 
 	// Cached data for simultaneous solution
 	bool wellConditionedVel = false;

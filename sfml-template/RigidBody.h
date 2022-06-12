@@ -43,7 +43,9 @@ public:
 	real interpolateAngle(real fraction) const;
 
 	real angle() const { return theta; }
+	real prevAngle() const { return thetaPrev; }
 	vec2 position() const { return pos; }
+	vec2 prevPosition() const { return posPrev; }
 	real angVel() const { return omega; }
 	vec2 velocity() const { return vel; }
 	vec2 pointVel(const vec2& p) const { return vel + omega * -perp(p - pos); }

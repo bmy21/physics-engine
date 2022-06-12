@@ -35,7 +35,7 @@ Game::Game():
 	//addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
 	//addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	//addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
-	addCircle(1, { 3,3 }, 2);
+	addCircle(0.5, { 3,3 }, 2);
 
 }
 
@@ -116,8 +116,12 @@ void Game::run()
 			//std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
 			//std::cout << contactConstraints.size() << '\n';
 
-			std::cout << rigidBodies.back()->velocity().x << " --- " << rigidBodies.back()->velocity().y << " --- "
-				<< rigidBodies.back()->angVel() << "\n";
+			//std::cout << rigidBodies.back()->velocity().x << "\t" << rigidBodies.back()->velocity().y << "\t"
+			//	<< rigidBodies.back()->angVel() << "\n";
+
+			//std::cout << (rigidBodies.back()->position() - rigidBodies.back()->prevPosition()).x << "\t" 
+			//	<< (rigidBodies.back()->position() - rigidBodies.back()->prevPosition()).y << "\t"
+			//	<< (rigidBodies.back()->angle() - rigidBodies.back()->prevAngle()) << "\n";
 
 			accTime -= ps.dt;
 		}
@@ -132,7 +136,7 @@ void Game::run()
 
 		for (auto& cc : contactConstraints)
 		{
-			// cc->draw(window, pixPerUnit, fraction, true, &text);
+			//cc->draw(window, pixPerUnit, fraction, true, &text);
 		}
 
 		window.display();

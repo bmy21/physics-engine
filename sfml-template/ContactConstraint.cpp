@@ -2,7 +2,7 @@
 
 ContactConstraint::ContactConstraint(const PhysicsSettings& ps, RigidBody* rb1, RigidBody* rb2):
 	ps(ps), rb1(rb1), rb2(rb2),
-	e(ps.eDefault), mu(ps.muDefault)
+	e(ps.eDefault), mu(ps.muDefault), rfLength(ps.rfLengthDefault)
 {
 	// Sort by index of incident point to ensure a consistent ordering
 	// Note - clipping process above should give consistent order anyway?
@@ -22,6 +22,7 @@ void ContactConstraint::correctVel()
 {
 	for (auto& cp : contactPoints)
 	{
+		solvePointRollFriction(cp);
 		solvePointFriction(cp);
 	}
 	
@@ -72,8 +73,6 @@ void ContactConstraint::correctPos()
 		updateNormalFactors(cp);
 		solvePointPos(cp);
 	}
-
-	// TODO: avoid calling onMove() / onRotate() each iteration?
 }
 
 void ContactConstraint::warmStart()
@@ -111,6 +110,7 @@ void ContactConstraint::rebuildFrom(ContactConstraint* other)
 		// Transfer accumulated impulses to new constraint
 		other->contactPoints[i].lambda = contactPoints[i].lambda;
 		other->contactPoints[i].fLambda = contactPoints[i].fLambda;
+		other->contactPoints[i].fRollLambda = contactPoints[i].fRollLambda;
 	}
 
 	// Get the up-to-date contact points from the new constraint
@@ -118,6 +118,25 @@ void ContactConstraint::rebuildFrom(ContactConstraint* other)
 
 	// Get any extra up-to-date variables from the derived class
 	onRebuildFrom(other);
+}
+
+void ContactConstraint::solvePointRollFriction(ContactPoint& cp)
+{
+	real vDotGradCfRoll = rb2->angVel() - rb1->angVel();
+
+	real dfRollLambda = 0;
+	real denom = rb1->IInv + rb2->IInv;
+
+	if (denom != 0)
+	{
+		dfRollLambda = -vDotGradCfRoll / denom;
+		dfRollLambda = std::clamp(cp.fRollLambda + dfRollLambda, -rfLength * cp.lambda, rfLength * cp.lambda) - cp.fRollLambda;
+	}
+
+	cp.fRollLambda += dfRollLambda;
+
+	rb1->applyDeltaVel({}, -rb1->IInv * dfRollLambda);
+	rb2->applyDeltaVel({}, rb2->IInv * dfRollLambda);
 }
 
 void ContactConstraint::solvePointFriction(ContactPoint& cp)
@@ -174,14 +193,16 @@ void ContactConstraint::warmStartPoint(ContactPoint& cp)
 	if (ps.warmStart)
 	{
 		rb1->applyDeltaVel(-n * rb1->mInv * cp.lambda - t * rb1->mInv * cp.fLambda,
-			-cp.nCrossFactor1 * rb1->IInv * cp.lambda - cp.tCrossFactor1 * rb1->IInv * cp.fLambda);
+			-cp.nCrossFactor1 * rb1->IInv * cp.lambda - cp.tCrossFactor1 * rb1->IInv * cp.fLambda - rb1->IInv * cp.fRollLambda);
 
 		rb2->applyDeltaVel(n * rb2->mInv * cp.lambda + t * rb2->mInv * cp.fLambda,
-			cp.nCrossFactor2 * rb2->IInv * cp.lambda + cp.tCrossFactor2 * rb2->IInv * cp.fLambda);
+			cp.nCrossFactor2 * rb2->IInv * cp.lambda + cp.tCrossFactor2 * rb2->IInv * cp.fLambda + rb2->IInv * cp.fRollLambda);
+
+		//cp.fRollLambda = 0;
 	}
 	else
 	{
-		cp.lambda = cp.fLambda = 0;
+		cp.lambda = cp.fLambda = cp.fRollLambda = 0;
 	}
 }
 
