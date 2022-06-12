@@ -4,7 +4,7 @@ CircleCircleContact::CircleCircleContact(Circle* c1, Circle* c2, const PhysicsSe
 	c1(c1), c2(c2),
 	ContactConstraint(ps, c1, c2)
 {
-
+	
 }
 
 

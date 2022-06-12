@@ -5,7 +5,7 @@ PolyCircleContact::PolyCircleContact(ConvexPolygon* p, Circle* c,
 	p(p), c(c), localNormal(localNormal), localRefPoint(localRefPoint), region(region),
 	ContactConstraint(ps, p, c)
 {
-
+	enableRollingFriction();
 }
 
 void PolyCircleContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)

@@ -39,6 +39,9 @@ protected:
 	virtual void rebuildPoint(ContactPoint& cp) = 0;
 	virtual void onRebuildFrom(ContactConstraint* other) = 0;
 
+	void enableRollingFriction() { rollingFriction = true; }
+	void disableRollingFriction() { rollingFriction = false; }
+
 	std::vector<ContactPoint> contactPoints;
 	int ncp = 0;
 
@@ -69,6 +72,8 @@ private:
 
 	real mu = 0;
 	real e = 0;
+
+	bool rollingFriction = false;
 	real rfLength = 0;
 
 	// Cached data for simultaneous solution

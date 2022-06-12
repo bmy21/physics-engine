@@ -22,7 +22,11 @@ void ContactConstraint::correctVel()
 {
 	for (auto& cp : contactPoints)
 	{
-		solvePointRollFriction(cp);
+		if (rollingFriction)
+		{
+			solvePointRollFriction(cp);
+		}
+
 		solvePointFriction(cp);
 	}
 	

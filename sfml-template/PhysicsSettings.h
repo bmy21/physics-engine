@@ -30,8 +30,6 @@ struct PhysicsSettings
 
 	// Perpendicular distance of normal reaction from point of contact 
 	// used to compute rolling friction torque
-
-	// TODO: don't apply rolling friction to circle-circle contacts?
 	real rfLengthDefault = 0.005;
 
 	// Decay constants for all rigid bodies
