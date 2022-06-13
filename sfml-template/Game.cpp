@@ -108,7 +108,7 @@ void Game::run()
 			}
 		}
 		
-
+		//detectCollisions();
 		while (accTime >= ps.dt)
 		{
 			// Step simulation forward by dtPhysics seconds 

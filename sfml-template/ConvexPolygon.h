@@ -6,6 +6,8 @@
 #include "Edge.h"
 #include "Vertex.h"
 #include "Simplex.h"
+#include <unordered_map>
+#include <map>
 
 class ConvexPolygon : public RigidBody
 {
@@ -55,4 +57,8 @@ private:
 	std::vector<std::unique_ptr<Vertex>> vertices;
 
 	sf::ConvexShape shape;
+
+	std::unordered_map<idType, vec2> separatingAxes;
+	
+	std::pair<real, real> shadow(const vec2& n);
 };

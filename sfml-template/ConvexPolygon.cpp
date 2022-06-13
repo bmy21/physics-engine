@@ -48,11 +48,21 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fractio
 
 std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* other)
 {
+	//TODO: allow processing time at the start for all separating vectors to be cached?
+
+	vec2 sepAxis = separatingAxes[other->id];
+
+	if (!isZero(sepAxis) && !overlaps(shadow(sepAxis), other->shadow(sepAxis)))
+	{
+		return nullptr;
+	}
+
 	// Check normal directions of *this
 	auto [earlyOutA, penetrationBtoA, edgeA, vertexB] = this->maxSignedPenetration(*other);
 
 	if (earlyOutA)
 	{
+		separatingAxes[other->id] = edgeA->normal();
 		return nullptr;
 	}
 
@@ -61,6 +71,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 	if (earlyOutB)
 	{
+		separatingAxes[other->id] = edgeB->normal();
 		return nullptr;
 	}
 	
@@ -145,7 +156,6 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 		{
 			// Shallow contact
 			// Normal points from polygon to circle
-
 			vec2 localClosest = pointToLocal(closest);
 			
 			vec2 localNormal = {0, 0};
@@ -235,6 +245,7 @@ std::tuple<bool, real, const Edge*, const Vertex*> ConvexPolygon::maxSignedPenet
 		if (penetration > 0)
 		{
 			earlyOut = true;
+			edge = e.get();
 			break;
 		}
 
@@ -252,6 +263,30 @@ std::tuple<bool, real, const Edge*, const Vertex*> ConvexPolygon::maxSignedPenet
 real ConvexPolygon::absEdgeDot(const Edge* e, const vec2& d) const
 {
 	return std::abs(dot(e->global(), d));
+}
+
+std::pair<real, real> ConvexPolygon::shadow(const vec2& n)
+{
+	// Assumes n is normalised
+
+	real smallest = std::numeric_limits<real>::max();
+	real largest = std::numeric_limits<real>::lowest();
+	
+	for (const auto& v : vertices)
+	{
+		real p = dot(v->global(), n);
+
+		if (p > largest)
+		{
+			largest = p;
+		}
+		if (p < smallest)
+		{
+			smallest = p;
+		}
+	}
+
+	return { smallest, largest };
 }
 
 int ConvexPolygon::nextIndex(int i) const
