@@ -41,6 +41,7 @@ protected:
 
 	void enableRollingFriction() { rollingFriction = true; }
 	void disableRollingFriction() { rollingFriction = false; }
+	bool idsMatch(const ContactConstraint* other) const;
 
 	std::vector<ContactPoint> contactPoints;
 	int ncp = 0;

@@ -217,6 +217,11 @@ void ContactConstraint::warmStartPoint(ContactPoint& cp)
 	}
 }
 
+bool ContactConstraint::idsMatch(const ContactConstraint* other) const
+{
+	return rb1->id == other->rb1->id && rb2->id == other->rb2->id;
+}
+
 void ContactConstraint::storeTargetVelocities()
 {
 	updateNormal();

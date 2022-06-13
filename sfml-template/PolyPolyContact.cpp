@@ -49,7 +49,7 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 
 bool PolyPolyContact::matches(const PolyPolyContact* other) const
 {
-	if (ref->id != other->ref->id || inc->id != other->inc->id || ncp != other->ncp || ncp == 0)
+	if (!idsMatch(other) || ncp != other->ncp || ncp == 0)
 	{
 		return false;
 	}
