@@ -5,7 +5,7 @@ PolyCircleContact::PolyCircleContact(ConvexPolygon* p, Circle* c,
 	p(p), c(c), localNormal(localNormal), localRefPoint(localRefPoint), region(region),
 	ContactConstraint(ps, p, c)
 {
-	enableRollingFriction();
+	setRollingFriction();
 }
 
 void PolyCircleContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
@@ -47,6 +47,8 @@ void PolyCircleContact::onRebuildFrom(ContactConstraint* other)
 	localNormal = pcOther->localNormal;
 	localRefPoint = pcOther->localRefPoint;
 	region = pcOther->region;
+
+	setRollingFriction();
 }
 
 void PolyCircleContact::initPoints()
@@ -67,17 +69,30 @@ void PolyCircleContact::rebuildPoint(ContactPoint& cp)
 
 void PolyCircleContact::updateNormal()
 {
-	if (region == Voronoi::Edge || region == Voronoi::Inside)
+	if (region == Voronoi::Vertex)
 	{
-		n = p->vecToGlobal(localNormal);
-	}
-	else
-	{
-		// Vertex
 		n = c->position() - p->pointToGlobal(localRefPoint);
 		if (magSquared(n) != 0)
 		{
 			n = normalise(n);
 		}
+	}
+	else 
+	{
+		// Edge or Inside
+		n = p->vecToGlobal(localNormal);
+	}
+}
+
+void PolyCircleContact::setRollingFriction()
+{
+	// Only enable rolling friction if the circle is in contact with an edge
+	if (region == Voronoi::Vertex)
+	{
+		disableRollingFriction();
+	}
+	else
+	{
+		enableRollingFriction();
 	}
 }

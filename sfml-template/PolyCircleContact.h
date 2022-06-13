@@ -22,6 +22,8 @@ private:
 	void rebuildPoint(ContactPoint& cp) override;
 	void updateNormal() override;
 
+	void setRollingFriction();
+
 	// TODO: make these const pointers (in other CCs too)
 	ConvexPolygon* p = nullptr;
 	Circle* c = nullptr;
