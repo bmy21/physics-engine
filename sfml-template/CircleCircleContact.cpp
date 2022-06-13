@@ -44,9 +44,8 @@ void CircleCircleContact::onRebuildFrom(ContactConstraint* other)
 void CircleCircleContact::updateNormal()
 {
 	n = c2->position() - c1->position();
-
-	// TODO: isZero() function?
-	if (magSquared(n) != 0)
+	
+	if (!isZero(n))
 	{
 		n = normalise(n);
 	}

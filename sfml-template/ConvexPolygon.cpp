@@ -154,7 +154,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 			{
 				vec2 n = centre - closest;
 
-				if (magSquared(n) != 0)
+				if (!isZero(n))
 				{
 					n = normalise(n);
 				}
@@ -288,7 +288,7 @@ std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 
 		const Vertex* newSupport = supportVertex(d);
 
-		if (s.contains(newSupport) || (d.x == 0 && d.y == 0))
+		if (s.contains(newSupport) || isZero(d))
 		{
 			return { closest, region };
 		}

@@ -71,7 +71,7 @@ void PolyCircleContact::updateNormal()
 	if (region == Voronoi::Vertex)
 	{
 		n = c->position() - p->pointToGlobal(localRefPoint);
-		if (magSquared(n) != 0)
+		if (!isZero(n))
 		{
 			n = normalise(n);
 		}

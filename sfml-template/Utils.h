@@ -28,6 +28,7 @@ void centre(sf::Text& text);
 
 real dot(const vec2& v1, const vec2& v2);
 vec2 perp(const vec2& v);
+bool isZero(const vec2& v);
 
 vec2 rotate(const vec2& v, real theta);
 vec2 transform(const vec2& v, const vec2& offset, real angle);

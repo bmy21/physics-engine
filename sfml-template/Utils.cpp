@@ -26,6 +26,11 @@ vec2 perp(const vec2& v)
 	return { v.y, -v.x };
 }
 
+bool isZero(const vec2& v)
+{
+	return v.x == 0 && v.y == 0;
+}
+
 vec2 transform(const vec2& v, const vec2& offset, real angle)
 {
 	return offset + rotate(v, angle);
