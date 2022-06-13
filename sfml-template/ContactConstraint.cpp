@@ -20,13 +20,17 @@ void ContactConstraint::init()
 
 void ContactConstraint::correctVel()
 {
-	for (auto& cp : contactPoints)
+	if (rollingFriction)
 	{
-		if (rollingFriction)
+		for (auto& cp : contactPoints)
 		{
 			solvePointRollFriction(cp);
 		}
+	}
 
+
+	for (auto& cp : contactPoints)
+	{
 		solvePointFriction(cp);
 	}
 	
@@ -119,6 +123,9 @@ void ContactConstraint::rebuildFrom(ContactConstraint* other)
 
 	// Get the up-to-date contact points from the new constraint
 	contactPoints = std::move(other->contactPoints);
+
+	// Get the up-to-date rolling friction setting
+	rollingFriction = other->rollingFriction;
 
 	// Get any extra up-to-date variables from the derived class
 	onRebuildFrom(other);

@@ -47,8 +47,6 @@ void PolyCircleContact::onRebuildFrom(ContactConstraint* other)
 	localNormal = pcOther->localNormal;
 	localRefPoint = pcOther->localRefPoint;
 	region = pcOther->region;
-
-	setRollingFriction();
 }
 
 void PolyCircleContact::initPoints()
