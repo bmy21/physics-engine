@@ -23,8 +23,6 @@ public:
 	void onMove() override;
 	void onRotate() override;
 
-	const Vertex* support(const vec2& d) const; 
-
 	vec2 edge(int i) const { return edges[i]->global(); }
 	vec2 vertex(int i) const { return vertices[i]->global(); }
 	vec2 normal(int i) const { return edges[i]->normal(); }
@@ -41,6 +39,8 @@ private:
 
 	void initEdges();
 	void initShape();
+
+	const Vertex* supportVertex(const vec2& d) const;
 
 	// Find penetration of other polygon into this polygon along normal of edge e
 	std::pair<real, const Vertex*> normalPenetration(const Edge* e, const ConvexPolygon& other) const; // TODO: why mix pointer and reference?

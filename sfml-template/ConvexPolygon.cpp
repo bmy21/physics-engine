@@ -212,7 +212,7 @@ std::pair<real, const Vertex*> ConvexPolygon::normalPenetration(const Edge* e, c
 {
 	vec2 normal = e->normal();
 
-	const Vertex* supportPointOther = other.support(-normal);
+	const Vertex* supportPointOther = other.supportVertex(-normal);
 	real signedDistance = dot(supportPointOther->global() - e->point1(), normal);
 
 	return {signedDistance, supportPointOther};
@@ -286,7 +286,7 @@ std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 			return { closest, region };
 		}
 
-		const Vertex* newSupport = support(d);
+		const Vertex* newSupport = supportVertex(d);
 
 		if (s.contains(newSupport) || (d.x == 0 && d.y == 0))
 		{
@@ -303,7 +303,7 @@ std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 	}
 }
 
-const Vertex* ConvexPolygon::support(const vec2& d) const
+const Vertex* ConvexPolygon::supportVertex(const vec2& d) const
 {
 	real largestDot = std::numeric_limits<real>::lowest();
 

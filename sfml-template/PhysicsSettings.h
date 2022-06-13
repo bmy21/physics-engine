@@ -9,7 +9,7 @@ struct PhysicsSettings
 	real slop = 0.005;
 	real beta = 0.2;
 
-	real vRelThreshold = 0;
+	real vRelThreshold = 0.1;
 	
 	bool simulSolveVel = true;
 	bool simulSolvePos = true;
