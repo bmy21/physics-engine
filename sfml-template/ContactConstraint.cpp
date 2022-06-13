@@ -108,27 +108,15 @@ void ContactConstraint::prepareVelSolver()
 	}
 }
 
-void ContactConstraint::rebuildFrom(ContactConstraint* other)
+void ContactConstraint::getImpulsesFrom(ContactConstraint* other)
 {
 	// This function should only be called if *other is known to match *this
-	// *other will be left in an invalid state
-
 	for (int i = 0; i < ncp; ++i)
 	{
-		// Transfer accumulated impulses to new constraint
-		other->contactPoints[i].lambda = contactPoints[i].lambda;
-		other->contactPoints[i].fLambda = contactPoints[i].fLambda;
-		other->contactPoints[i].fRollLambda = contactPoints[i].fRollLambda;
+		contactPoints[i].lambda = other->contactPoints[i].lambda;
+		contactPoints[i].fLambda = other->contactPoints[i].fLambda;
+		contactPoints[i].fRollLambda = other->contactPoints[i].fRollLambda;
 	}
-
-	// Get the up-to-date contact points from the new constraint
-	contactPoints = std::move(other->contactPoints);
-
-	// Get the up-to-date rolling friction setting
-	rollingFriction = other->rollingFriction;
-
-	// Get any extra up-to-date variables from the derived class
-	onRebuildFrom(other);
 }
 
 void ContactConstraint::solvePointRollFriction(ContactPoint& cp)

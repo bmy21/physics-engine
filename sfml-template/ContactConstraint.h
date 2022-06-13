@@ -20,7 +20,7 @@ public:
 	void correctPos();
 	void warmStart();
 	void prepareVelSolver();
-	void rebuildFrom(ContactConstraint* other);
+	void getImpulsesFrom(ContactConstraint* other);
 
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) = 0;
 
@@ -37,7 +37,6 @@ protected:
 	virtual void initPoints() = 0;
 	virtual void updateNormal() = 0;
 	virtual void rebuildPoint(ContactPoint& cp) = 0;
-	virtual void onRebuildFrom(ContactConstraint* other) = 0;
 
 	void enableRollingFriction() { rollingFriction = true; }
 	void disableRollingFriction() { rollingFriction = false; }

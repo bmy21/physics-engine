@@ -20,7 +20,7 @@ struct PhysicsSettings
 
 	int maxIterGJK = 30;
 
-	int velIter = 10;
+	int velIter = 12;
 	int posIter = 4;
 
 	real grav = 10;

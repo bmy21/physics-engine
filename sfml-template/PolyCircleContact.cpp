@@ -41,15 +41,6 @@ bool PolyCircleContact::matches(const PolyCircleContact* other) const
 	return idsMatch(other);
 }
 
-void PolyCircleContact::onRebuildFrom(ContactConstraint* other)
-{
-	PolyCircleContact* pcOther = static_cast<PolyCircleContact*>(other);
-
-	localNormal = pcOther->localNormal;
-	localRefPoint = pcOther->localRefPoint;
-	region = pcOther->region;
-}
-
 void PolyCircleContact::initPoints()
 {
 	updateNormal();

@@ -36,11 +36,6 @@ void CircleCircleContact::rebuildPoint(ContactPoint& cp)
 	cp.penetration = dot(furthestPoint2 - furthestPoint1, n);
 }
 
-void CircleCircleContact::onRebuildFrom(ContactConstraint* other)
-{
-	
-}
-
 void CircleCircleContact::updateNormal()
 {
 	n = c2->position() - c1->position();

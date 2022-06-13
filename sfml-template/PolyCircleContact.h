@@ -15,7 +15,6 @@ public:
 	bool matches(const PolyPolyContact* other) const override { return false;  }
 	bool matches(const CircleCircleContact* other) const override { return false; }
 	bool matches(const PolyCircleContact* other) const override;
-	void onRebuildFrom(ContactConstraint* other) override;
 
 private:
 	void initPoints() override;

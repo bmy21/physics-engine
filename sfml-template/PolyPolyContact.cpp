@@ -111,18 +111,6 @@ void PolyPolyContact::rebuildPoint(ContactPoint& cp)
 	cp.point -= cp.penetration * n;
 }
 
-void PolyPolyContact::onRebuildFrom(ContactConstraint* other)
-{
-	PolyPolyContact* ppOther = static_cast<PolyPolyContact*>(other);
-
-	// Make sure the reference and incident edges are up to date
-	refEdge = ppOther->refEdge;
-	incEdge = ppOther->incEdge;
-
-	localNormal = ppOther->localNormal;
-	localRefPoint = ppOther->localRefPoint;
-}
-
 void PolyPolyContact::checkAndAddPoint(ContactPoint& cp, const vec2& ref, real eps)
 {
 	// If cp lies inside the reference edge, store its penetration, project it into the edge, 

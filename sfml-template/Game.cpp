@@ -27,7 +27,7 @@ Game::Game():
 	real len = 0.5;
 	int nsides = 12;
 
-	addConvexPolygon(nsides, len, pixToCoords(pixWidth * 0.5, 200), 1.f);
+	//addConvexPolygon(nsides, len, pixToCoords(pixWidth * 0.5, 200), 1.f);
 	//addConvexPolygon(6, 2.5, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
@@ -39,7 +39,7 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 
-	/*int n = 20;
+	int n = 20;
 	int m = 20;
 	for (int i = 0; i < n; ++i)
 	{
@@ -47,15 +47,15 @@ Game::Game():
 		{
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
-			addCircle(0.2, { x, y }, 1);
-			//addConvexPolygon(6, 0.25, { x, y }, 1);
+			//addCircle(0.2, { x, y }, 1);
+			addConvexPolygon(6, 0.25, { x, y }, 1);
 		}
-	}*/
+	}
 
 	//addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
 	//addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	//addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
-	addCircle(0.5, { 3,3 }, 2);
+	//addCircle(0.5, { 3,3 }, 2);
 
 }
 
@@ -286,48 +286,19 @@ void Game::detectCollisions()
 	}
 
 	// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
-	for (auto it = contactConstraints.begin(); it != contactConstraints.end(); )
+	for (auto newIt = newContactConstraints.begin(); newIt != newContactConstraints.end(); ++newIt)
 	{
-		bool matched = false;
-
-		for (auto newIt = newContactConstraints.begin(); newIt != newContactConstraints.end(); ++newIt)
+		for (auto it = contactConstraints.begin(); it != contactConstraints.end(); ++it)
 		{
-			if ((*newIt)->matches(it->get()))
+			if ((*it)->matches(newIt->get()))
 			{
-				// *it represents the same contact constraint as *newIt
-				// *newIt is not required; just keep and rebuild *it
-
-				++(*it)->numPersist;
-				//std::cout << (*it)->numPersist << '\n';
-
-				(*it)->rebuildFrom(newIt->get());
-				newContactConstraints.erase(newIt);
-
-				matched = true;
-
+				(*newIt)->getImpulsesFrom(it->get());
 				break;
 			}
 		}
-
-		if (matched)
-		{
-			++it;
-		}
-		else
-		{
-			// The contact handled by *it no longer exists
-			it = contactConstraints.erase(it);
-		}
 	}
 
-	// Move any new contact constraints into the main vector
-	contactConstraints.insert(contactConstraints.end(),
-		std::make_move_iterator(newContactConstraints.begin()),
-		std::make_move_iterator(newContactConstraints.end()));
-
-	// TODO: given this insertion, is a vector the best container?
-
-	newContactConstraints.clear();
+	contactConstraints = std::move(newContactConstraints);
 }
 
 void Game::setupMouseConstraint()
