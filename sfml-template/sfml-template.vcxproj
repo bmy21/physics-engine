@@ -169,6 +169,7 @@
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AABB.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="CircleCircleContact.h" />
     <ClInclude Include="Constraint.h" />

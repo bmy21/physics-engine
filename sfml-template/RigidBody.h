@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "ContactConstraint.h"
 #include "PhysicsSettings.h"
+#include "AABB.h"
 
 class ConvexPolygon;
 class Circle;
@@ -23,6 +24,7 @@ public:
 	virtual std::unique_ptr<ContactConstraint> checkCollision(Circle* other) = 0;
 
 	virtual bool pointInside(const vec2& p) const = 0;
+	virtual void updateAABB() = 0;
 
 	vec2 pointToLocal(const vec2& p) const;
 	vec2 pointToGlobal(const vec2& p) const;
@@ -46,15 +48,23 @@ public:
 	real prevAngle() const { return thetaPrev; }
 	vec2 position() const { return pos; }
 	vec2 prevPosition() const { return posPrev; }
+
 	real angVel() const { return omega; }
 	vec2 velocity() const { return vel; }
 	vec2 pointVel(const vec2& p) const { return vel + omega * -perp(p - pos); }
+
+	real left() const { return aabb.left; }
+	real bottom() const { return aabb.bottom; }
+	real right() const { return aabb.right; }
+	real top() const { return aabb.top; }
+
 	real KE() const { return 0.5 * dot(vel, vel) / mInv; }
 
 	void applyDeltaVel(const vec2& dv, real dw);
 	void applyDeltaPos(const vec2& dr, real dth, bool update = true);
 
 	void applyDamping(real dt);
+
 
 	const idType id;
 
@@ -63,6 +73,7 @@ public:
 
 protected:
 	const PhysicsSettings& ps;
+	AABB aabb;
 
 private:
 	vec2 pos, vel, acc;

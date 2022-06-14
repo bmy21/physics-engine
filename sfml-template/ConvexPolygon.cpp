@@ -50,9 +50,15 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 {
 	//TODO: allow processing time at the start for all separating vectors to be cached?
 
-	vec2 sepAxis = separatingAxes[other->id];
+	//vec2 sepAxis = separatingAxes[other->id];
 
-	if (!isZero(sepAxis) && !overlaps(shadow(sepAxis), other->shadow(sepAxis)))
+	//if (!isZero(sepAxis) && !overlaps(shadow(sepAxis), other->shadow(sepAxis)))
+	//{
+	//	return nullptr;
+	//}
+
+	// Quickly rule out collisions using an AABB test
+	if (!aabb.overlaps(other->aabb))
 	{
 		return nullptr;
 	}
@@ -62,7 +68,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 	if (earlyOutA)
 	{
-		separatingAxes[other->id] = edgeA->normal();
+		//separatingAxes[other->id] = edgeA->normal();
 		return nullptr;
 	}
 
@@ -71,7 +77,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 	if (earlyOutB)
 	{
-		separatingAxes[other->id] = edgeB->normal();
+		//separatingAxes[other->id] = edgeB->normal();
 		return nullptr;
 	}
 	
@@ -180,6 +186,12 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 			return nullptr;
 		}
 	}
+}
+
+void ConvexPolygon::updateAABB()
+{
+	std::tie(aabb.left, aabb.right) = shadow({ 1, 0 });
+	std::tie(aabb.top, aabb.bottom) = shadow({ 0, 1 });
 }
 
 bool ConvexPolygon::pointInside(const vec2& p) const

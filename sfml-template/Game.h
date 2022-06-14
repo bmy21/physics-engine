@@ -41,7 +41,9 @@ private:
 
 	void correctVelocities();
 	void correctPositions();
-	void detectCollisions();
+
+	void updateCollidingPairs();
+	void checkCollision(RigidBody* rb1, RigidBody* rb2);
 
 	void setupMouseConstraint();
 	void removeMouseConstraint();

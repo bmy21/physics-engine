@@ -12,8 +12,8 @@ Game::Game():
 		sf::Style::Close,
 		settings);
 
-	window.setVerticalSyncEnabled(vsync);
-	window.setFramerateLimit(fpsLimit);
+	//window.setVerticalSyncEnabled(vsync);
+	//window.setFramerateLimit(fpsLimit);
 	window.setMouseCursorVisible(true);
 
 	if (!font.loadFromFile("Fonts/saxmono/saxmono.ttf"))
@@ -71,6 +71,8 @@ void Game::run()
 	{
 		dt = frameTimer.restart().asSeconds() / 1;
 
+		std::cout << 1 / dt << "\n";
+
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
 		{
@@ -123,7 +125,7 @@ void Game::run()
 			
 			integratePositions();
 
-			detectCollisions();
+			updateCollidingPairs();
 
 			correctPositions();
 
@@ -259,30 +261,41 @@ void Game::correctPositions()
 	}
 }
 
-void Game::detectCollisions()
+void Game::updateCollidingPairs()
 {
-	// Check for collisions
-	for (auto it1 = rigidBodies.begin(); it1 != rigidBodies.end(); ++it1)
+	for (auto& rb : rigidBodies)
 	{
-		for (auto it2 = rigidBodies.begin(); it2 != it1; ++it2)
+		rb->updateAABB();
+	}
+
+	auto compare = [](const std::unique_ptr<RigidBody>& a, const std::unique_ptr<RigidBody>& b)
+	{
+		return a->left() < b->left();
+	};
+
+	// TODO: more efficient sorting? Insertion sort?
+	std::sort(rigidBodies.begin(), rigidBodies.end(), compare);
+	std::vector<RigidBody*> active;
+
+	for (auto it = rigidBodies.begin(); it != rigidBodies.end(); ++it)
+	{
+		// Check this rigid body against all others that could possibly be colliding
+		for (auto activeIt = active.begin(); activeIt != active.end(); )
 		{
-			// Ensure the two rigid bodies are always checked in the same order
-			RigidBody* largerID = it1->get();
-			RigidBody* smallerID = it2->get();
+			// Remove any rigid bodies that have already been passed
+			if ((*activeIt)->right() < (*it)->left())
+			{
+				activeIt = active.erase(activeIt);
+				continue;
+			}
+
+			checkCollision(it->get(), *activeIt);
 			
-			if (smallerID->id > largerID->id)
-			{
-				std::swap(smallerID, largerID);
-			}
-
-			std::unique_ptr<ContactConstraint> result = smallerID->checkCollision(largerID);
-
-			if (result)
-			{
-				result->init();
-				newContactConstraints.push_back(std::move(result));
-			}
+			++activeIt;
 		}
+
+		// This rigid body is now a potential collider with the next
+		active.push_back(it->get());
 	}
 
 	// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
@@ -299,6 +312,26 @@ void Game::detectCollisions()
 	}
 
 	contactConstraints = std::move(newContactConstraints);
+}
+
+void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
+{
+	// Ensure a given pair of rigid bodies is alwaysc checked in a consistent order
+	RigidBody* largerID = rb1;
+	RigidBody* smallerID = rb2;
+
+	if (smallerID->id > largerID->id)
+	{
+		std::swap(smallerID, largerID);
+	}
+
+	std::unique_ptr<ContactConstraint> result = smallerID->checkCollision(largerID);
+
+	if (result)
+	{
+		result->init();
+		newContactConstraints.push_back(std::move(result));
+	}
 }
 
 void Game::setupMouseConstraint()

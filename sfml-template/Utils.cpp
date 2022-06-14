@@ -109,7 +109,7 @@ std::tuple<real, real, real, real> nonNormalisedBary(const vec2& q, const vec2& 
 	return { u, v, w, a123 };
 }
 
-bool overlaps(const std::pair<real, real>& R1, const std::pair<real, real>& R2)
+bool rangeOverlaps(const std::pair<real, real>& R1, const std::pair<real, real>& R2)
 {
 	return (R1.first <= R2.second) && (R1.second >= R2.first);
 }
