@@ -20,12 +20,12 @@ struct PhysicsSettings
 
 	int maxIterGJK = 30;
 
-	int velIter = 12;
+	int velIter = 10;
 	int posIter = 4;
 
 	real grav = 10;
 
-	real muDefault = 0.3;
+	real muDefault = 0.4;
 	real eDefault = 0.2;
 
 	// Perpendicular distance of normal reaction from point of contact 

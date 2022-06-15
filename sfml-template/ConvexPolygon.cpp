@@ -50,18 +50,20 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 {
 	//TODO: allow processing time at the start for all separating vectors to be cached?
 
-	//vec2 sepAxis = separatingAxes[other->id];
-
-	//if (!isZero(sepAxis) && !overlaps(shadow(sepAxis), other->shadow(sepAxis)))
-	//{
-	//	return nullptr;
-	//}
 
 	// Quickly rule out collisions using an AABB test
 	if (!aabb.overlaps(other->aabb))
 	{
 		return nullptr;
 	}
+
+
+	//vec2 sepAxis = separatingAxes[other->id];
+
+	//if (!isZero(sepAxis) && !rangeOverlaps(shadow(sepAxis), other->shadow(sepAxis)))
+	//{
+	//	return nullptr;
+	//}
 
 	// Check normal directions of *this
 	auto [earlyOutA, penetrationBtoA, edgeA, vertexB] = this->maxSignedPenetration(*other);
@@ -345,6 +347,7 @@ std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 		// Terminate after a set number of iterations
 		if (++nIter >= ps.maxIterGJK)
 		{
+			//std::cout << "max GJK iterations exceeded\n";
 			return { closest, region };
 		}
 	}

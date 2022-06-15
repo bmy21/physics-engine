@@ -48,7 +48,10 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
-			addConvexPolygon(6, 0.25, { x, y }, 1);
+			if (rand() % 2 == 0)
+				addConvexPolygon(7, 0.18, { x, y }, 1);
+			else
+				addCircle(0.2, { x, y }, 1);
 		}
 	}
 
@@ -273,10 +276,13 @@ void Game::updateCollidingPairs()
 		return a->left() < b->left();
 	};
 
-	// TODO: more efficient sorting? Insertion sort?
 	std::sort(rigidBodies.begin(), rigidBodies.end(), compare);
 	std::vector<RigidBody*> active;
 
+	//using RBPair = std::pair<RigidBody*, RigidBody*>;
+	//std::set<RBPair> possibleColliders;
+
+	int nCheck = 0;
 	for (auto it = rigidBodies.begin(); it != rigidBodies.end(); ++it)
 	{
 		// Check this rigid body against all others that could possibly be colliding
@@ -290,13 +296,16 @@ void Game::updateCollidingPairs()
 			}
 
 			checkCollision(it->get(), *activeIt);
-			
+			++nCheck;
+
 			++activeIt;
 		}
 
 		// This rigid body is now a potential collider with the next
 		active.push_back(it->get());
 	}
+
+	//std::cout << nCheck << "\n";
 
 	// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
 	for (auto newIt = newContactConstraints.begin(); newIt != newContactConstraints.end(); ++newIt)

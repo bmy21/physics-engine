@@ -13,6 +13,8 @@
 #include <array>
 #include <utility>
 #include <tuple>
+#include <set>
+#include <unordered_set>
 
 struct ContactPoint;
 
