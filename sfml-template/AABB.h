@@ -5,9 +5,19 @@ struct AABB
 {
 	bool overlaps(const AABB& other) 
 	{ 
-		return rangeOverlaps({ left, right }, { other.left, other.right }) 
-			&& rangeOverlaps({ top, bottom}, { other.top, other.bottom });
+		return rangeOverlaps({ lower.x, upper.x }, { other.lower.x, other.upper.x }) 
+			&& rangeOverlaps({ lower.y, upper.y }, { other.lower.y, other.upper.y });
 	}
 
-	real left, bottom, right, top;
+	AABB unionWith(const AABB& other)
+	{
+		//return
+		//{
+		//	std::min(left, other.left),
+		//	std::max(top, other.top),
+		//	std::
+		//};
+	}
+
+	vec2 lower, upper;
 };

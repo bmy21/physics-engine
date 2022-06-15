@@ -62,10 +62,8 @@ bool Circle::pointInside(const vec2& p) const
 
 void Circle::updateAABB()
 {
-	aabb.left = position().x - rad;
-	aabb.bottom = position().y + rad;
-	aabb.right = position().x + rad;
-	aabb.top = position().y - rad;
+	aabb.lower = { position().x - rad, position().y - rad };
+	aabb.upper = { position().x + rad, position().y + rad };
 }
 
 vec2 Circle::furthestPoint(const vec2& d)

@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AABBTree.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="CircleCircleContact.cpp" />
     <ClCompile Include="Constraint.cpp" />
@@ -170,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
+    <ClInclude Include="AABBTree.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="CircleCircleContact.h" />
     <ClInclude Include="Constraint.h" />

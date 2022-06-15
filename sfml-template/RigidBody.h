@@ -53,10 +53,10 @@ public:
 	vec2 velocity() const { return vel; }
 	vec2 pointVel(const vec2& p) const { return vel + omega * -perp(p - pos); }
 
-	real left() const { return aabb.left; }
-	real bottom() const { return aabb.bottom; }
-	real right() const { return aabb.right; }
-	real top() const { return aabb.top; }
+	real left() const { return aabb.lower.x; }
+	real bottom() const { return aabb.upper.y; }
+	real right() const { return aabb.upper.x; }
+	real top() const { return aabb.lower.y; }
 
 	real KE() const { return 0.5 * dot(vel, vel) / mInv; }
 

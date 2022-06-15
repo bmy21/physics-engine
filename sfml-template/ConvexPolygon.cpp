@@ -192,8 +192,8 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 
 void ConvexPolygon::updateAABB()
 {
-	std::tie(aabb.left, aabb.right) = shadow({ 1, 0 });
-	std::tie(aabb.top, aabb.bottom) = shadow({ 0, 1 });
+	std::tie(aabb.lower.x, aabb.upper.x) = shadow({ 1, 0 });
+	std::tie(aabb.lower.y, aabb.upper.y) = shadow({ 0, 1 });
 }
 
 bool ConvexPolygon::pointInside(const vec2& p) const
