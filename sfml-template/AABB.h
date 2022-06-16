@@ -11,12 +11,20 @@ struct AABB
 
 	AABB unionWith(const AABB& other)
 	{
-		//return
-		//{
-		//	std::min(left, other.left),
-		//	std::max(top, other.top),
-		//	std::
-		//};
+		AABB u;
+
+		u.lower.x = std::min(lower.x, other.lower.x);
+		u.lower.y = std::min(lower.y, other.lower.y);
+		u.upper.x = std::max(upper.x, other.upper.x);
+		u.upper.y = std::max(upper.y, other.upper.y);
+
+		return u;
+	}
+
+	// Perimeter - 2D analogue of SA
+	real peri()
+	{
+		return 2 * (upper.x - lower.x + upper.y - lower.y);
 	}
 
 	vec2 lower, upper;
