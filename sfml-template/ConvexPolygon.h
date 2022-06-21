@@ -21,6 +21,7 @@ public:
 	std::unique_ptr<ContactConstraint> checkCollision(Circle* other) override;
 
 	void updateAABB() override;
+	void updateFatAABB(real w) override;
 	bool pointInside(const vec2& p) const override;
 
 	void onMove() override;

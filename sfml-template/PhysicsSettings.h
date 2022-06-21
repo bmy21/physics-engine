@@ -4,29 +4,31 @@
 
 struct PhysicsSettings
 {
-	real dt = 1.0 / 200;
+	real dt = 1.0 / 150;
 
 	real slop = 0.005;
-	real beta = 0.2;
+	real beta = 0.1;
 
 	real vRelThreshold = 0.1;
 	
 	bool simulSolveVel = true;
 	bool simulSolvePos = true;
-	bool warmStart = true;
+	bool warmStart = true;  
 
 	real maxCondVel = 1000;
 	real maxCondPos = 500;
 
-	int maxIterGJK = 30;
+	int maxIterGJK = 50;
 
-	int velIter = 10;
+	int velIter = 12;
 	int posIter = 4;
 
 	real grav = 10;
 
 	real muDefault = 0.4;
 	real eDefault = 0.2;
+
+	// TODO: add AABB fattening width
 
 	// Perpendicular distance of normal reaction from point of contact 
 	// used to compute rolling friction torque

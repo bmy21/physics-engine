@@ -9,6 +9,12 @@ struct AABB
 			&& rangeOverlaps({ lower.y, upper.y }, { other.lower.y, other.upper.y });
 	}
 
+	bool contains(const AABB& other)
+	{
+		return rangeContains({ lower.x, upper.x }, { other.lower.x, other.upper.x })
+			&& rangeContains({ lower.y, upper.y }, { other.lower.y, other.upper.y });
+	}
+
 	AABB unionWith(const AABB& other)
 	{
 		AABB u;

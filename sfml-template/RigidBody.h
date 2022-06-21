@@ -8,6 +8,7 @@
 class ConvexPolygon;
 class Circle;
 class ContactConstraint;
+struct Node;
 
 using idType = unsigned long;
 
@@ -25,6 +26,7 @@ public:
 
 	virtual bool pointInside(const vec2& p) const = 0;
 	virtual void updateAABB() = 0;
+	virtual void updateFatAABB(real w) = 0;
 
 	vec2 pointToLocal(const vec2& p) const;
 	vec2 pointToGlobal(const vec2& p) const;
@@ -57,7 +59,7 @@ public:
 	real bottom() const { return aabb.upper.y; }
 	real right() const { return aabb.upper.x; }
 	real top() const { return aabb.lower.y; }
-
+	
 	real KE() const { return 0.5 * dot(vel, vel) / mInv; }
 
 	void applyDeltaVel(const vec2& dv, real dw);
@@ -65,7 +67,11 @@ public:
 
 	void applyDamping(real dt);
 
+	AABB getAABB() const { return aabb; }
+	AABB getFatAABB() const { return aabbFat; }
 
+
+	//Node* treeNode = nullptr;
 	const idType id;
 
 	// TODO: make these private
@@ -73,7 +79,7 @@ public:
 
 protected:
 	const PhysicsSettings& ps;
-	AABB aabb;
+	AABB aabb, aabbFat;
 
 private:
 	vec2 pos, vel, acc;

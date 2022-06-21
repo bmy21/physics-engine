@@ -8,6 +8,7 @@
 #include "MouseConstraint.h"
 #include "MouseHandler.h"
 #include "PhysicsSettings.h"
+#include "AABBTree.h"
 
 class Game
 {
@@ -59,6 +60,8 @@ private:
 	PhysicsSettings ps;
 	MouseHandler mh;
 	
+	AABBTree tree;
+
 	std::vector<std::unique_ptr<RigidBody>> rigidBodies;
 	std::vector<std::unique_ptr<Constraint>> constraints;
 

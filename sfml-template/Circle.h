@@ -18,6 +18,7 @@ public:
 
 	bool pointInside(const vec2& p) const override;
 	void updateAABB() override;
+	void updateFatAABB(real w) override;
 
 	void onMove() override { }
 	void onRotate() override { }

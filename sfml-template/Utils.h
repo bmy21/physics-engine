@@ -20,6 +20,8 @@ struct ContactPoint;
 
 using real = float;
 using vec2 = sf::Vector2<real>;
+//using RigidBodyPair = std::pair<RigidBody*, RigidBody*>;
+
 
 constexpr real pi = 3.14159265359;
 
@@ -47,6 +49,7 @@ std::tuple<real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, co
 std::tuple<real, real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3);
 
 bool rangeOverlaps(const std::pair<real, real>& R1, const std::pair<real, real>& R2);
+bool rangeContains(const std::pair<real, real>& R1, const std::pair<real, real>& R2);
 
 real decayConstant(real halfLife);
 

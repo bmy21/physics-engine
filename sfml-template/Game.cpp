@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 
-	int n = 20;
-	int m = 20;
+	int n = 22;
+	int m = 22;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -49,9 +49,9 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
 			if (rand() % 2 == 0)
-				addConvexPolygon(7, 0.18, { x, y }, 1);
+				addConvexPolygon(4, 0.3, { x, y }, 1);
 			else
-				addCircle(0.2, { x, y }, 1);
+				addCircle(0.15, { x, y }, 1);
 		}
 	}
 
@@ -60,6 +60,11 @@ Game::Game():
 	//addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 	//addCircle(0.5, { 3,3 }, 2);
 
+	for (auto& rb : rigidBodies)
+	{
+		rb->updateFatAABB(0.1);
+		tree.insert(rb.get());
+	}
 }
 
 
@@ -73,6 +78,9 @@ void Game::run()
 	while (window.isOpen())
 	{
 		dt = frameTimer.restart().asSeconds() / 1;
+
+		//std::cout << tree.root.get() << "\n";
+		//std::cout << tree.rbNodeMap.size() << "\n";
 
 		std::cout << 1 / dt << "\n";
 
@@ -114,9 +122,14 @@ void Game::run()
 		}
 		
 		//detectCollisions();
+		//std::cout << tree.getPossibleColliders(rigidBodies[100].get()).size() << "\n";
+
 		while (accTime >= ps.dt)
 		{
 			// Step simulation forward by dtPhysics seconds 
+
+			
+			
 			
 			updateConstraints();
 
@@ -128,10 +141,19 @@ void Game::run()
 			
 			integratePositions();
 
+			/*for (auto& rb : rigidBodies)
+			{
+				tree.remove(rb.get());
+			}
+			for (auto& rb : rigidBodies)
+			{
+				rb->updateAABB();
+				tree.insert(rb.get());
+			}*/
+
 			updateCollidingPairs();
 
 			correctPositions();
-
 
 			//std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
 			//std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
@@ -161,7 +183,7 @@ void Game::run()
 
 		for (auto& cc : contactConstraints)
 		{
-			//cc->draw(window, pixPerUnit, fraction, true, &text);
+			//cc->draw(window, pixPerUnit, fraction, false, &text);
 		}
 
 		window.display();
@@ -266,46 +288,70 @@ void Game::correctPositions()
 
 void Game::updateCollidingPairs()
 {
+	//for (auto& rb : rigidBodies)
+	//{
+	//	rb->updateAABB();
+	//}
+
+	//auto compare = [](const std::unique_ptr<RigidBody>& a, const std::unique_ptr<RigidBody>& b)
+	//{
+	//	return a->left() < b->left();
+	//};
+
+	//std::sort(rigidBodies.begin(), rigidBodies.end(), compare);
+	//std::vector<RigidBody*> active;
+
+	////using RBPair = std::pair<RigidBody*, RigidBody*>;
+	////std::set<RBPair> possibleColliders;
+
+	//int nCheck = 0;
+	//for (auto it = rigidBodies.begin(); it != rigidBodies.end(); ++it)
+	//{
+	//	// Check this rigid body against all others that could possibly be colliding
+	//	for (auto activeIt = active.begin(); activeIt != active.end(); )
+	//	{
+	//		// Remove any rigid bodies that have already been passed
+	//		if ((*activeIt)->right() < (*it)->left())
+	//		{
+	//			activeIt = active.erase(activeIt);
+	//			continue;
+	//		}
+
+	//		checkCollision(it->get(), *activeIt);
+	//		++nCheck;
+
+	//		++activeIt;
+	//	}
+
+	//	// This rigid body is now a potential collider with the next
+	//	active.push_back(it->get());
+	//}
+
 	for (auto& rb : rigidBodies)
 	{
 		rb->updateAABB();
+		tree.update(rb.get());
 	}
-
-	auto compare = [](const std::unique_ptr<RigidBody>& a, const std::unique_ptr<RigidBody>& b)
-	{
-		return a->left() < b->left();
-	};
-
-	std::sort(rigidBodies.begin(), rigidBodies.end(), compare);
-	std::vector<RigidBody*> active;
-
-	//using RBPair = std::pair<RigidBody*, RigidBody*>;
-	//std::set<RBPair> possibleColliders;
 
 	int nCheck = 0;
-	for (auto it = rigidBodies.begin(); it != rigidBodies.end(); ++it)
+	for (auto& rb : rigidBodies)
 	{
-		// Check this rigid body against all others that could possibly be colliding
-		for (auto activeIt = active.begin(); activeIt != active.end(); )
+		auto colliders = tree.getPossibleColliders(rb.get());
+		//std::cout << colliders.size() << "\n";
+		for (auto& c : colliders)
 		{
-			// Remove any rigid bodies that have already been passed
-			if ((*activeIt)->right() < (*it)->left())
-			{
-				activeIt = active.erase(activeIt);
-				continue;
-			}
-
-			checkCollision(it->get(), *activeIt);
 			++nCheck;
 
-			++activeIt;
+			if (c->id < rb->id)
+			{
+				checkCollision(c, rb.get());
+			}
 		}
-
-		// This rigid body is now a potential collider with the next
-		active.push_back(it->get());
 	}
 
-	//std::cout << nCheck << "\n";
+
+	std::cout << nCheck << "\n";
+
 
 	// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
 	for (auto newIt = newContactConstraints.begin(); newIt != newContactConstraints.end(); ++newIt)
@@ -325,7 +371,7 @@ void Game::updateCollidingPairs()
 
 void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 {
-	// Ensure a given pair of rigid bodies is alwaysc checked in a consistent order
+	// Ensure a given pair of rigid bodies is always checked in a consistent order
 	RigidBody* largerID = rb1;
 	RigidBody* smallerID = rb2;
 

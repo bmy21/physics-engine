@@ -114,6 +114,12 @@ bool rangeOverlaps(const std::pair<real, real>& R1, const std::pair<real, real>&
 	return (R1.first <= R2.second) && (R1.second >= R2.first);
 }
 
+bool rangeContains(const std::pair<real, real>& R1, const std::pair<real, real>& R2)
+{
+	// True if R1 contains R2
+	return (R1.first <= R2.first) && (R1.second >= R2.second);
+}
+
 real decayConstant(real halfLife)
 {
 	return std::log(2) / halfLife;

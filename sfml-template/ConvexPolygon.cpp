@@ -52,10 +52,10 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 
 	// Quickly rule out collisions using an AABB test
-	if (!aabb.overlaps(other->aabb))
+	/*if (!aabb.overlaps(other->aabb))
 	{
 		return nullptr;
-	}
+	}*/
 
 
 	//vec2 sepAxis = separatingAxes[other->id];
@@ -129,6 +129,13 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 {
+	// Quickly rule out collisions using an AABB test
+	/*if (!aabb.overlaps(other->getAABB()))
+	{
+		return nullptr;
+	}*/
+
+
 	vec2 centre = other->position();
 	real rad = other->radius();
 
@@ -194,6 +201,17 @@ void ConvexPolygon::updateAABB()
 {
 	std::tie(aabb.lower.x, aabb.upper.x) = shadow({ 1, 0 });
 	std::tie(aabb.lower.y, aabb.upper.y) = shadow({ 0, 1 });
+}
+
+void ConvexPolygon::updateFatAABB(real w)
+{
+	std::tie(aabbFat.lower.x, aabbFat.upper.x) = shadow({ 1, 0 });
+	std::tie(aabbFat.lower.y, aabbFat.upper.y) = shadow({ 0, 1 });
+
+	aabbFat.lower.x -= w;
+	aabbFat.lower.y -= w;
+	aabbFat.upper.x += w;
+	aabbFat.upper.y += w;
 }
 
 bool ConvexPolygon::pointInside(const vec2& p) const
