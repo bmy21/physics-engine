@@ -45,7 +45,8 @@ std::unique_ptr<ContactConstraint> Circle::checkCollision(ConvexPolygon* other)
 
 std::unique_ptr<ContactConstraint> Circle::checkCollision(Circle* other)
 {
-	if (magnitude(other->position() - position()) < rad + other->rad)
+	real radiusSum = rad + other->rad;
+	if (magSquared(other->position() - position()) < radiusSum * radiusSum)
 	{
 		return std::make_unique<CircleCircleContact>(this, other, ps);
 	}
@@ -57,7 +58,7 @@ std::unique_ptr<ContactConstraint> Circle::checkCollision(Circle* other)
 
 bool Circle::pointInside(const vec2& p) const
 {
-	return magnitude(p - position()) < rad;
+	return magSquared(p - position()) < rad * rad;
 }
 
 void Circle::updateAABB()

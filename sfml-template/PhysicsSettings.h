@@ -4,10 +4,10 @@
 
 struct PhysicsSettings
 {
-	real dt = 1.0 / 150;
+	real dt = 1.0 / 80;
 
 	real slop = 0.005;
-	real beta = 0.1;
+	real beta = 0.2;
 
 	real vRelThreshold = 0.1;
 	
@@ -20,8 +20,8 @@ struct PhysicsSettings
 
 	int maxIterGJK = 50;
 
-	int velIter = 12;
-	int posIter = 4;
+	int velIter = 10;
+	int posIter = 3;
 
 	real grav = 10;
 

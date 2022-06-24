@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 
-	int n = 22;
-	int m = 22;
+	int n = 15;
+	int m = 15;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -48,7 +48,7 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
-			if (rand() % 2 == 0)
+			if (0)//rand() % 2 == 0)
 				addConvexPolygon(4, 0.3, { x, y }, 1);
 			else
 				addCircle(0.15, { x, y }, 1);
@@ -342,7 +342,8 @@ void Game::updateCollidingPairs()
 		{
 			++nCheck;
 
-			if (c->id < rb->id)
+			// Avoid checking a pair twice
+			if (c->id < rb->id) 
 			{
 				checkCollision(c, rb.get());
 			}
@@ -350,14 +351,26 @@ void Game::updateCollidingPairs()
 	}
 
 
-	std::cout << nCheck << "\n";
+	/*int nCheck = 0;
+	for (auto it1 = rigidBodies.begin(); it1 != rigidBodies.end(); ++it1)
+	{
+		for (auto it2 = rigidBodies.begin(); it2 < it1; ++it2)
+		{
+			++nCheck;
+			checkCollision(it1->get(), it2->get());
+		}
+	}*/
+
+	//std::cout << nCheck << "\n";
 
 
 	// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
+	int nContactCheck = 0;
 	for (auto newIt = newContactConstraints.begin(); newIt != newContactConstraints.end(); ++newIt)
 	{
 		for (auto it = contactConstraints.begin(); it != contactConstraints.end(); ++it)
 		{
+			++nContactCheck;
 			if ((*it)->matches(newIt->get()))
 			{
 				(*newIt)->getImpulsesFrom(it->get());
@@ -365,6 +378,9 @@ void Game::updateCollidingPairs()
 			}
 		}
 	}
+
+	std::cout << nContactCheck << "\t";
+	std::cout << newContactConstraints.size() << "\n";
 
 	contactConstraints = std::move(newContactConstraints);
 }

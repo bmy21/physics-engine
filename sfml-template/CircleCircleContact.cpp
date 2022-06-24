@@ -16,6 +16,7 @@ void CircleCircleContact::draw(sf::RenderWindow& window, real pixPerUnit, real f
 bool CircleCircleContact::matches(const CircleCircleContact* other) const
 {
 	// Match based on which circles are colliding, as there can only be one contact point
+	//return c1->id == other->c1->id && c2->id == other->c2->id;
 	return idsMatch(other);
 }
 

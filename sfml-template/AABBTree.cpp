@@ -286,10 +286,120 @@ void AABBTree::refitAABBs(Node* start)
 	while (n)
 	{
 		n->aabb = n->child1->aabb.unionWith(n->child2->aabb);
+
+		rotate(n);
+
 		n = n->parent;
 	}
 }
 
 void AABBTree::rotate(Node* top)
 {
+	if (top->isLeaf)
+	{
+		return;
+	}
+
+	Node* A = top;
+	Node* B = A->child1.get();
+	Node* C = A->child2.get();
+
+	if (B->isLeaf && C->isLeaf)
+	{
+		return;
+	}
+
+	real periB = B->aabb.peri();
+	real periC = C->aabb.peri();
+
+	std::stack<int> rotations;
+
+	Node* D = nullptr;
+	Node* E = nullptr;
+	Node* F = nullptr;
+	Node* G = nullptr;
+
+	if (!C->isLeaf)
+	{
+		rotations.push(1);
+		rotations.push(2);
+
+		F = C->child1.get();
+		G = C->child2.get();
+	}
+	if (!B->isLeaf)
+	{
+		rotations.push(3);
+		rotations.push(4);
+
+		D = B->child1.get();
+		E = B->child2.get();
+	}
+
+	int bestType = 0;
+	real bestDeltaCost = 0;
+
+	while (!rotations.empty())
+	{
+		int type = rotations.top();
+		rotations.pop();
+
+		real deltaCost = 0;
+
+		switch (type)
+		{
+		case 1:
+			deltaCost = B->aabb.unionWith(G->aabb).peri() - periC;
+			break;
+
+		case 2:
+			deltaCost = B->aabb.unionWith(F->aabb).peri() - periC;
+			break;
+
+		case 3:
+			deltaCost = C->aabb.unionWith(D->aabb).peri() - periB;
+			break;
+
+		case 4:
+			deltaCost = C->aabb.unionWith(E->aabb).peri() - periB;
+			break;
+		}
+
+		if (deltaCost < bestDeltaCost)
+		{
+			bestDeltaCost = deltaCost;
+			bestType = type;
+		}
+	}
+
+	switch (bestType)
+	{
+	case 1:
+		A->child1.swap(C->child1);
+		F->parent = A;
+		B->parent = C;
+		C->aabb = B->aabb.unionWith(G->aabb);
+		break;
+
+	case 2:
+		A->child1.swap(C->child2);
+		G->parent = A;
+		B->parent = C;
+		C->aabb = B->aabb.unionWith(F->aabb);
+		break;
+
+	case 3:
+		A->child2.swap(B->child2);
+		E->parent = A;
+		C->parent = B;
+		B->aabb = C->aabb.unionWith(D->aabb);
+		break;
+
+	case 4:
+		A->child2.swap(B->child1);
+		D->parent = A;
+		C->parent = B;
+		B->aabb = C->aabb.unionWith(E->aabb);
+		break;
+	}
 }
