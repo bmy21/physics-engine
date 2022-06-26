@@ -127,9 +127,6 @@ void Game::run()
 		while (accTime >= ps.dt)
 		{
 			// Step simulation forward by dtPhysics seconds 
-
-			
-			
 			
 			updateConstraints();
 

@@ -65,6 +65,7 @@ private:
 	std::vector<std::unique_ptr<RigidBody>> rigidBodies;
 	std::vector<std::unique_ptr<Constraint>> constraints;
 
+	std::unordered_map<idPair, ContactConstraint*, idPairHasher> collidingPairs;
 	std::vector<std::unique_ptr<ContactConstraint>> contactConstraints;
 	std::vector<std::unique_ptr<ContactConstraint>> newContactConstraints;
 };

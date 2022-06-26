@@ -20,13 +20,8 @@ struct ContactPoint;
 
 using real = float;
 using vec2 = sf::Vector2<real>;
-//using RigidBodyPair = std::pair<RigidBody*, RigidBody*>;
-
-
 constexpr real pi = 3.14159265359;
-
 enum class Voronoi { Vertex, Edge, Inside };
-
 
 void centre(sf::Text& text);
 

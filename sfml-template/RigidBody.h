@@ -11,6 +11,16 @@ class ContactConstraint;
 struct Node;
 
 using idType = unsigned long;
+using idPair = std::pair<idType, idType>;
+
+struct idPairHasher
+{
+	size_t operator() (const idPair& p)
+	{
+		idType x = p.first, y = p.second;
+		return x < y ? y * y + x : x * x + x + y;
+	}
+};
 
 class RigidBody
 {
