@@ -7,13 +7,13 @@ struct PhysicsSettings
 	real dt = 1.0 / 200;
 
 	real slop = 0.005;
-	real beta = 0.1;
+	real beta = 0.2;
 
 	real vRelThreshold = 0.1;
-	
+
 	bool simulSolveVel = true;
-	bool simulSolvePos = 0;
-	bool warmStart = 1;  
+	bool simulSolvePos = true;
+	bool warmStart = true;
 
 	real maxCondVel = 1000;
 	real maxCondPos = 500;
@@ -21,11 +21,11 @@ struct PhysicsSettings
 	int maxIterGJK = 50;
 
 	int velIter = 12;
-	int posIter = 0;
+	int posIter = 3;
 
 	real grav = 10;
 
-	real muDefault = 0.5;
+	real muDefault = 0.4;
 	real eDefault = 0.2;
 
 	// TODO: add AABB fattening width
