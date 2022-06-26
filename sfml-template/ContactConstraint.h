@@ -22,6 +22,9 @@ public:
 	void prepareVelSolver();
 	void getImpulsesFrom(ContactConstraint* other);
 
+	void markForRemoval() { remove = true; }
+	bool removeFlagSet() const { return remove; }
+
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) = 0;
 
 	virtual bool matches(const ContactConstraint* other) const = 0;
@@ -72,6 +75,8 @@ private:
 
 	real mu = 0;
 	real e = 0;
+
+	bool remove = false;
 
 	bool rollingFriction = false;
 	real rfLength = 0;

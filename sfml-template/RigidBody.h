@@ -15,7 +15,7 @@ using idPair = std::pair<idType, idType>;
 
 struct idPairHasher
 {
-	size_t operator() (const idPair& p)
+	size_t operator() (const idPair& p) const
 	{
 		idType x = p.first, y = p.second;
 		return x < y ? y * y + x : x * x + x + y;

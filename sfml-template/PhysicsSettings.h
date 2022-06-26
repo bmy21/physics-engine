@@ -4,7 +4,7 @@
 
 struct PhysicsSettings
 {
-	real dt = 1.0 / 80;
+	real dt = 1.0 / 150;
 
 	real slop = 0.005;
 	real beta = 0.2;
@@ -20,12 +20,12 @@ struct PhysicsSettings
 
 	int maxIterGJK = 50;
 
-	int velIter = 10;
+	int velIter = 8;
 	int posIter = 3;
 
 	real grav = 10;
 
-	real muDefault = 0.4;
+	real muDefault = 0.5;
 	real eDefault = 0.2;
 
 	// TODO: add AABB fattening width

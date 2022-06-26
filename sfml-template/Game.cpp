@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 
-	int n = 15;
-	int m = 15;
+	int n = 25;
+	int m = 25;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -48,7 +48,7 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
-			if (0)//rand() % 2 == 0)
+			if (1)//rand() % 2 == 0)
 				addConvexPolygon(4, 0.3, { x, y }, 1);
 			else
 				addCircle(0.15, { x, y }, 1);
@@ -178,10 +178,10 @@ void Game::run()
 			rb->draw(window, pixPerUnit, fraction, false, &text);
 		}
 
-		for (auto& cc : contactConstraints)
-		{
+		//for (auto& cc : contactConstraints)
+		//{
 			//cc->draw(window, pixPerUnit, fraction, false, &text);
-		}
+		//}
 
 		window.display();
 	}
@@ -225,9 +225,9 @@ void Game::updateConstraints()
 		// TODO: rename this function
 		c->updateCache();
 	}
-	for (auto& cc : contactConstraints)
+	for (auto& cp : collidingPairs)
 	{
-		cc->prepareVelSolver();
+		cp.second->prepareVelSolver();
 	}
 }
 
@@ -238,9 +238,9 @@ void Game::warmStart()
 		c->warmStart();
 	}
 
-	for (auto& cc : contactConstraints)
+	for (auto& cp : collidingPairs)
 	{
-		cc->warmStart();
+		cp.second->warmStart();
 	}
 }
 
@@ -253,9 +253,9 @@ void Game::correctVelocities()
 			c->correctVel();
 		}
 
-		for (auto& cc : contactConstraints)
+		for (auto& cp : collidingPairs)
 		{
-			cc->correctVel();
+			cp.second->correctVel();
 		}
 	}
 }
@@ -269,9 +269,9 @@ void Game::correctPositions()
 			c->correctPos();
 		}
 		
-		for (auto& cc : contactConstraints)
+		for (auto& cp : collidingPairs)
 		{
-			cc->correctPos();
+			cp.second->correctPos();
 		}
 	}
 
@@ -324,6 +324,11 @@ void Game::updateCollidingPairs()
 	//	active.push_back(it->get());
 	//}
 
+	for (auto& cp : collidingPairs)
+	{
+		cp.second->markForRemoval();
+	}
+
 	for (auto& rb : rigidBodies)
 	{
 		rb->updateAABB();
@@ -334,7 +339,7 @@ void Game::updateCollidingPairs()
 	for (auto& rb : rigidBodies)
 	{
 		auto colliders = tree.getPossibleColliders(rb.get());
-		//std::cout << colliders.size() << "\n";
+
 		for (auto& c : colliders)
 		{
 			++nCheck;
@@ -362,10 +367,10 @@ void Game::updateCollidingPairs()
 
 
 	// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
-	int nContactCheck = 0;
+	/*int nContactCheck = 0;
 	for (auto newIt = newContactConstraints.begin(); newIt != newContactConstraints.end(); ++newIt)
 	{
-		for (auto it = contactConstraints.begin(); it != contactConstraints.end(); ++it)
+		for (auto it = collidingPairs.begin(); it != collidingPairs.end(); ++it)
 		{
 			++nContactCheck;
 			if ((*it)->matches(newIt->get()))
@@ -379,7 +384,21 @@ void Game::updateCollidingPairs()
 	std::cout << nContactCheck << "\t";
 	std::cout << newContactConstraints.size() << "\n";
 
-	contactConstraints = std::move(newContactConstraints);
+	contactConstraints = std::move(newContactConstraints);*/
+
+	for (auto it = collidingPairs.begin(); it != collidingPairs.end(); )
+	{
+		if (it->second->removeFlagSet())
+		{
+			it = collidingPairs.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	//std::cout << collidingPairs.size() << "\n";
 }
 
 void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
@@ -398,7 +417,26 @@ void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 	if (result)
 	{
 		result->init();
-		newContactConstraints.push_back(std::move(result));
+
+		idPair pair = { smallerID->id, largerID->id };
+
+		auto it = collidingPairs.find(pair);
+
+		if (it == collidingPairs.end())
+		{
+			// This pair is newly colliding
+			collidingPairs.insert({ pair, std::move(result)});
+		}
+		else
+		{
+			// This pair was already colliding
+			if (result->matches(it->second.get())) // TODO: match check in getImpulsesFrom()
+			{
+				result->getImpulsesFrom(it->second.get());
+			}
+
+			it->second = std::move(result);
+		}
 	}
 }
 
