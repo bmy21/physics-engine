@@ -63,8 +63,10 @@ private:
 	AABBTree tree;
 
 	std::vector<std::unique_ptr<RigidBody>> rigidBodies;
-	std::vector<std::unique_ptr<Constraint>> constraints;
+	std::vector<std::unique_ptr<Constraint>> constraints; 
 	std::unordered_map<idPair, std::unique_ptr<ContactConstraint>, idPairHasher> collidingPairs;
+
+	//std::map<idPair, std::unique_ptr<ContactConstraint>> collidingPairs;
 
 	std::vector<std::unique_ptr<ContactConstraint>> newContactConstraints;
 };

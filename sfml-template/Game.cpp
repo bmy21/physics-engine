@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 
-	int n = 25;
-	int m = 25;
+	int n = 12;
+	int m = 12;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -178,10 +178,10 @@ void Game::run()
 			rb->draw(window, pixPerUnit, fraction, false, &text);
 		}
 
-		//for (auto& cc : contactConstraints)
-		//{
-			//cc->draw(window, pixPerUnit, fraction, false, &text);
-		//}
+		for (auto& cp : collidingPairs)
+		{
+			//cp.second->draw(window, pixPerUnit, fraction, false, &text);
+		}
 
 		window.display();
 	}
@@ -365,27 +365,6 @@ void Game::updateCollidingPairs()
 
 	//std::cout << nCheck << "\n";
 
-
-	// TODO: store a vector of ContactConstraints in each rigid body to reduce number to check?
-	/*int nContactCheck = 0;
-	for (auto newIt = newContactConstraints.begin(); newIt != newContactConstraints.end(); ++newIt)
-	{
-		for (auto it = collidingPairs.begin(); it != collidingPairs.end(); ++it)
-		{
-			++nContactCheck;
-			if ((*it)->matches(newIt->get()))
-			{
-				(*newIt)->getImpulsesFrom(it->get());
-				break;
-			}
-		}
-	}
-
-	std::cout << nContactCheck << "\t";
-	std::cout << newContactConstraints.size() << "\n";
-
-	contactConstraints = std::move(newContactConstraints);*/
-
 	for (auto it = collidingPairs.begin(); it != collidingPairs.end(); )
 	{
 		if (it->second->removeFlagSet())
@@ -424,11 +403,13 @@ void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 
 		if (it == collidingPairs.end())
 		{
+			//std::cout << "new collider ";
 			// This pair is newly colliding
 			collidingPairs.insert({ pair, std::move(result)});
 		}
 		else
 		{
+			//std::cout << "old collider ";
 			// This pair was already colliding
 			if (result->matches(it->second.get())) // TODO: match check in getImpulsesFrom()
 			{

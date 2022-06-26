@@ -4,24 +4,24 @@
 
 struct PhysicsSettings
 {
-	real dt = 1.0 / 150;
+	real dt = 1.0 / 200;
 
 	real slop = 0.005;
-	real beta = 0.2;
+	real beta = 0.1;
 
 	real vRelThreshold = 0.1;
 	
 	bool simulSolveVel = true;
-	bool simulSolvePos = true;
-	bool warmStart = true;  
+	bool simulSolvePos = 0;
+	bool warmStart = 1;  
 
 	real maxCondVel = 1000;
 	real maxCondPos = 500;
 
 	int maxIterGJK = 50;
 
-	int velIter = 8;
-	int posIter = 3;
+	int velIter = 12;
+	int posIter = 0;
 
 	real grav = 10;
 
