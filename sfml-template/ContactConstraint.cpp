@@ -196,7 +196,7 @@ void ContactConstraint::warmStartPoint(ContactPoint& cp)
 {
 	if (ps.warmStart)
 	{
-		//cp.fRollLambda = 0;
+		cp.fRollLambda = 0;
 
 		rb1->applyDeltaVel(-n * rb1->mInv * cp.lambda - t * rb1->mInv * cp.fLambda,
 			-cp.nCrossFactor1 * rb1->IInv * cp.lambda - cp.tCrossFactor1 * rb1->IInv * cp.fLambda - rb1->IInv * cp.fRollLambda);
