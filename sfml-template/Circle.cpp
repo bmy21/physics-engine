@@ -24,11 +24,7 @@ void Circle::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool
 
 	vec2 radiusVector = { rad * std::cos(itheta), rad * std::sin(itheta) };
 
-	drawThickLine(window, 
-		ipos * pixPerUnit, 
-		(ipos + radiusVector) * pixPerUnit, 
-		1, 
-		sf::Color::Black);
+	
 
 	if (debug && text)
 	{
@@ -36,6 +32,12 @@ void Circle::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool
 	}
 
 	window.draw(shape);
+
+	drawThickLine(window,
+		ipos * pixPerUnit,
+		(ipos + radiusVector) * pixPerUnit,
+		1,
+		sf::Color::Black);
 }
 
 std::unique_ptr<ContactConstraint> Circle::checkCollision(ConvexPolygon* other)
@@ -80,7 +82,9 @@ vec2 Circle::furthestPoint(const vec2& d)
 
 void Circle::initShape()
 {
-	shape.setFillColor(sf::Color::Transparent);
+	sf::Color col(196, 250, 248);
+	shape.setFillColor(col);
+	//shape.setFillColor(sf::Color::Transparent);
 	shape.setOutlineColor(sf::Color::Black);
 	shape.setOutlineThickness(-1);
 	shape.setPointCount(60);

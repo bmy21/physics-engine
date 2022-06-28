@@ -41,6 +41,10 @@ void ContactConstraint::correctVel()
 		{
 			return;
 		}
+		else
+		{
+			//std::cout << "SimulSolve failed\n";
+		}
 	}
 
 	// At this point, simultaneous solution failed, either because the condition number was too high or 
@@ -113,6 +117,7 @@ void ContactConstraint::getImpulsesFrom(ContactConstraint* other)
 	// This function should only be called if *other is known to match *this
 	for (int i = 0; i < ncp; ++i)
 	{
+		//std::cout << other->contactPoints[i].lambda << "\n";
 		contactPoints[i].lambda = other->contactPoints[i].lambda;
 		contactPoints[i].fLambda = other->contactPoints[i].fLambda;
 		contactPoints[i].fRollLambda = other->contactPoints[i].fRollLambda;
@@ -191,13 +196,13 @@ void ContactConstraint::warmStartPoint(ContactPoint& cp)
 {
 	if (ps.warmStart)
 	{
+		//cp.fRollLambda = 0;
+
 		rb1->applyDeltaVel(-n * rb1->mInv * cp.lambda - t * rb1->mInv * cp.fLambda,
 			-cp.nCrossFactor1 * rb1->IInv * cp.lambda - cp.tCrossFactor1 * rb1->IInv * cp.fLambda - rb1->IInv * cp.fRollLambda);
 
 		rb2->applyDeltaVel(n * rb2->mInv * cp.lambda + t * rb2->mInv * cp.fLambda,
 			cp.nCrossFactor2 * rb2->IInv * cp.lambda + cp.tCrossFactor2 * rb2->IInv * cp.fLambda + rb2->IInv * cp.fRollLambda);
-
-		//cp.fRollLambda = 0;
 	}
 	else
 	{
@@ -248,10 +253,11 @@ bool ContactConstraint::simulSolveVel()
 
 	real alpha1 = cp1.vRelTarget - (dot(rb2->velocity() - rb1->velocity(), n) + cp1.nCrossFactor2 * rb2->angVel() - cp1.nCrossFactor1 * rb1->angVel());
 	real alpha2 = cp2.vRelTarget - (dot(rb2->velocity() - rb1->velocity(), n) + cp2.nCrossFactor2 * rb2->angVel() - cp2.nCrossFactor1 * rb1->angVel());
+	
 
+	// First assume both accumulated impulses are non-negative
 	real lam1 = (cp2.nMassFactor * alpha1 - A12 * alpha2) / det;
 	real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
-
 
 	if (cp1.lambda + lam1 >= 0 && cp2.lambda + lam2 >= 0)
 	{
@@ -263,6 +269,53 @@ bool ContactConstraint::simulSolveVel()
 
 		return true;
 	}
+
+	// Now try assuming both accumulated impulses are zero
+	// (Avoid the asymmetrical solutions if possible)
+	lam1 = -cp1.lambda;
+	lam2 = -cp2.lambda;
+
+	if (lam1 * cp1.nMassFactor + lam2 * A12 >= alpha1 && lam1 * A12 + lam2 * cp2.nMassFactor >= alpha2)
+	{
+		rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+		rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+
+		cp1.lambda += lam1;
+		cp2.lambda += lam2;
+
+		return true;
+	}
+
+	// Now try assuming accumulated impulse 1 is zero and accumulated impulse 2 is non-negative
+	lam1 = -cp1.lambda;
+	lam2 = alpha2 / cp2.nMassFactor;
+
+	if (cp2.lambda + lam2 >= 0 && lam1 * cp1.nMassFactor + lam2 * A12 >= alpha1)
+	{
+		rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+		rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+
+		cp1.lambda += lam1;
+		cp2.lambda += lam2;
+
+		return true;
+	}
+
+	// Now try assuming accumulated impulse 2 is zero and accumulated impulse 1 is non-negative
+	lam1 = alpha1 / cp1.nMassFactor;
+	lam2 = -cp2.lambda;
+
+	if (cp1.lambda + lam1 >= 0 && lam2 * cp2.nMassFactor + lam1 * A12 >= alpha2)
+	{
+		rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+		rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+
+		cp1.lambda += lam1;
+		cp2.lambda += lam2;
+
+		return true;
+	}
+	
 
 	return false;
 }

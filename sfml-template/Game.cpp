@@ -12,7 +12,7 @@ Game::Game():
 		sf::Style::Close,
 		settings);
 
-	//window.setVerticalSyncEnabled(vsync);
+	window.setVerticalSyncEnabled(vsync);
 	//window.setFramerateLimit(fpsLimit);
 	window.setMouseCursorVisible(true);
 
@@ -38,9 +38,9 @@ Game::Game():
 	addConvexPolygon(4, w, { w / 2, -w / 2 });
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
-
-	int n = 12;
-	int m = 12;
+	
+	int n = 28;
+	int m = 28;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -48,10 +48,10 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
-			if (1)//rand() % 2 == 0)
-				addConvexPolygon(4, 0.3, { x, y }, 1);
+			if (rand() % 2 == 0)
+				addConvexPolygon(6, 0.15, { x, y }, 10);
 			else
-				addCircle(0.15, { x, y }, 1);
+				addCircle(0.12, { x, y }, 10);
 		}
 	}
 
@@ -137,16 +137,6 @@ void Game::run()
 			correctVelocities();
 			
 			integratePositions();
-
-			/*for (auto& rb : rigidBodies)
-			{
-				tree.remove(rb.get());
-			}
-			for (auto& rb : rigidBodies)
-			{
-				rb->updateAABB();
-				tree.insert(rb.get());
-			}*/
 
 			updateCollidingPairs();
 
@@ -365,6 +355,7 @@ void Game::updateCollidingPairs()
 
 	//std::cout << nCheck << "\n";
 
+	// TODO: remove_if? and also for removing vertices from a simplex...
 	for (auto it = collidingPairs.begin(); it != collidingPairs.end(); )
 	{
 		if (it->second->removeFlagSet())
@@ -403,19 +394,23 @@ void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 
 		if (it == collidingPairs.end())
 		{
-			//std::cout << "new collider ";
 			// This pair is newly colliding
 			collidingPairs.insert({ pair, std::move(result)});
 		}
 		else
 		{
-			//std::cout << "old collider ";
 			// This pair was already colliding
-			if (result->matches(it->second.get())) // TODO: match check in getImpulsesFrom()
+			if (it->second->matches(result.get())) // TODO: match check in getImpulsesFrom()?
 			{
+				//std::cout << "match\n";
 				result->getImpulsesFrom(it->second.get());
 			}
-
+			else
+			{
+				//std::cout << "no match\n";
+			}
+			
+			
 			it->second = std::move(result);
 		}
 	}

@@ -5,6 +5,7 @@ PolyCircleContact::PolyCircleContact(ConvexPolygon* p, Circle* c,
 	p(p), c(c), localNormal(localNormal), localRefPoint(localRefPoint), region(region),
 	ContactConstraint(ps, p, c)
 {
+	// TODO: rolling friction (warm starting) causing infinite spinning?
 	setRollingFriction();
 }
 
