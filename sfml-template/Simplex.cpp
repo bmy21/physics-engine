@@ -138,19 +138,6 @@ void Simplex::addVertex(const Vertex* vertex)
 
 void Simplex::cleanupVertices()
 {
-   /* for (auto it = vertices.begin(); it != vertices.end(); )
-    {
-        if (it->removeFlagSet())
-        {
-            it->unsetRemoveFlag();
-            it = vertices.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }*/
-
     std::erase_if(vertices, [](const SimplexVertex& v) { return v.removeFlagSet(); });
 }
 

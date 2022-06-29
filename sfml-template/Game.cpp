@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	int n = 35;
-	int m = 35;
+	int n = 15;
+	int m = 15;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -51,7 +51,7 @@ Game::Game():
 			if (0)//rand() % 2 == 0)
 				addConvexPolygon(4, 0.2, { x, y }, 10);
 			else
-				addCircle(0.1, { x, y }, 10);
+				addCircle(0.25, { x, y }, 10);
 		}
 	}
 
@@ -161,12 +161,6 @@ void Game::run()
 
 void Game::integrateVelocities()
 {
-	/*for (auto& rb : rigidBodies)
-	{
-		rb->integrateVel(ps.dt);
-		rb->applyDamping(ps.dt);
-	}*/
-
 	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->integrateVel(ps.dt);
@@ -176,11 +170,6 @@ void Game::integrateVelocities()
 
 void Game::integratePositions()
 {
-	/*for (auto& rb : rigidBodies)
-	{
-		rb->integratePos(ps.dt);
-	}*/
-
 	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->integratePos(ps.dt);
@@ -190,17 +179,7 @@ void Game::integratePositions()
 void Game::updateConstraints()
 {
 	// Remove any constraints that were marked for deletion
-	for (auto it = constraints.begin(); it != constraints.end(); )
-	{
-		if ((*it)->removeFlagSet())
-		{
-			it = constraints.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
+	std::erase_if(constraints, [](const auto& c) { return c->removeFlagSet(); });
 
 	// Update cached data before correcting velocities
 	for (auto& c : constraints)
@@ -216,16 +195,6 @@ void Game::updateConstraints()
 
 void Game::warmStart()
 {
-	/*std::for_each(std::execution::par_unseq, constraints.begin(), constraints.end(), [&](const std::unique_ptr<Constraint>& c)
-	{
-		c->warmStart();
-	});
-	
-	std::for_each(std::execution::par_unseq, collidingPairs.begin(), collidingPairs.end(), [&](const auto& cp)
-	{
-		cp.second->warmStart();
-	});*/
-
 	for (auto& c : constraints)
 	{
 		c->warmStart();
@@ -269,12 +238,6 @@ void Game::correctPositions()
 	}
 
 	// The onMove() and onRotate() functions are not called every iteration
-	/*for (auto& rb : rigidBodies)
-	{
-		rb->onMove();
-		rb->onRotate();
-	}*/
-
 	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->onMove();
@@ -343,14 +306,6 @@ void Game::updateCollidingPairs()
 		tree.update(rb.get());
 	});
 	
-
-
-	/*for (auto& rb : rigidBodies)
-	{
-		rb->updateAABB();
-		tree.update(rb.get());
-	}*/
-
 
 	//int nCheck = 0;
 	//for (auto& rb : rigidBodies)
