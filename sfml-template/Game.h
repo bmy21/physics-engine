@@ -16,8 +16,6 @@ public:
 	Game();
 	void run();
 
-	// 1 Physics unit = pixPerUnit pixels
-	const real pixPerUnit = 120;
 	const int pixWidth = 1920;
 	const int pixHeight = 1080;
 

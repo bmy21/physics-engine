@@ -23,7 +23,7 @@ public:
 	void remove(RigidBody* rb);
 	void update(RigidBody* rb);
 
-	std::vector<RigidBody*> getPossibleColliders(RigidBody* rb);
+	std::forward_list<RigidBody*> getPossibleColliders(RigidBody* rb);
 
 	int count();
 

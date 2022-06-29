@@ -27,7 +27,7 @@ class RigidBody
 public:
 	RigidBody(const PhysicsSettings& ps, real mInv = 0, real IInv = 0);
 
-	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, 
+	virtual void draw(sf::RenderWindow& window, real fraction, 
 		bool debug = false, sf::Text* text = nullptr) = 0;
 
 	virtual std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) = 0;

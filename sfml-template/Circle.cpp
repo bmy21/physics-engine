@@ -10,19 +10,15 @@ Circle::Circle(const PhysicsSettings& ps, real rad, real mInv):
 	initShape();
 }
 
-void Circle::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
+void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text* text)
 {
 	vec2 ipos = interpolatePos(fraction);
-	real itheta = interpolateAngle(fraction);
+	real itheta = angle();// interpolateAngle(fraction);
 
-	shape.setPosition(ipos * pixPerUnit);
+	shape.setPosition(ipos * ps.pixPerUnit);
 	shape.setRotation(itheta);
 
-	// TODO: Ideally, don't call these every frame 
-	shape.setOrigin(rad * pixPerUnit, rad * pixPerUnit);
-	shape.setRadius(rad * pixPerUnit);
-
-	vec2 radiusVector = { rad * std::cos(itheta), rad * std::sin(itheta) };
+	//vec2 radiusVector = { rad * std::cos(itheta), rad * std::sin(itheta) };
 
 	
 
@@ -30,14 +26,14 @@ void Circle::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool
 	{
 		
 	}
-
+	 
 	window.draw(shape);
 
-	drawThickLine(window,
-		ipos * pixPerUnit,
-		(ipos + radiusVector) * pixPerUnit,
-		1,
-		sf::Color::Black);
+	//drawThickLine(window,
+	//	ipos * pixPerUnit,
+	//	(ipos + radiusVector) * pixPerUnit,
+	//	1,
+	//	sf::Color::Black);
 }
 
 std::unique_ptr<ContactConstraint> Circle::checkCollision(ConvexPolygon* other)
@@ -88,4 +84,8 @@ void Circle::initShape()
 	shape.setOutlineColor(sf::Color::Black);
 	shape.setOutlineThickness(-1);
 	shape.setPointCount(60);
+
+	// TODO: May need to update these later if pixPerUnit is changed
+	shape.setOrigin(rad * ps.pixPerUnit, rad * ps.pixPerUnit);
+	shape.setRadius(rad * ps.pixPerUnit);
 }

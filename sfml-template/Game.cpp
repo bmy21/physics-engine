@@ -2,7 +2,7 @@
 
 
 Game::Game():
-	mh(window, pixPerUnit)
+	mh(window, ps.pixPerUnit)
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
@@ -12,7 +12,7 @@ Game::Game():
 		sf::Style::Close,
 		settings);
 
-	window.setVerticalSyncEnabled(vsync);
+	//window.setVerticalSyncEnabled(vsync);
 	//window.setFramerateLimit(fpsLimit);
 	window.setMouseCursorVisible(true);
 
@@ -32,15 +32,15 @@ Game::Game():
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 
-	real w = pixWidth / pixPerUnit;
-	real h = pixHeight / pixPerUnit;
+	real w = pixWidth / ps.pixPerUnit;
+	real h = pixHeight / ps.pixPerUnit;
 	addConvexPolygon(4, w, { w / 2, h + w / 2 });
 	addConvexPolygon(4, w, { w / 2, -w / 2 });
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	int n = 28;
-	int m = 28;
+	int n = 15;
+	int m = 15;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -48,10 +48,10 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
-			if (rand() % 2 == 0)
-				addConvexPolygon(6, 0.15, { x, y }, 10);
+			if (0)//rand() % 2 == 0)
+				addConvexPolygon(4, 0.2, { x, y }, 10);
 			else
-				addCircle(0.12, { x, y }, 10);
+				addCircle(0.2, { x, y }, 10);
 		}
 	}
 
@@ -120,9 +120,6 @@ void Game::run()
 				}
 			}
 		}
-		
-		//detectCollisions();
-		//std::cout << tree.getPossibleColliders(rigidBodies[100].get()).size() << "\n";
 
 		while (accTime >= ps.dt)
 		{
@@ -142,21 +139,6 @@ void Game::run()
 
 			correctPositions();
 
-			//std::cout << ContactConstraints.size() << " " << NewContactConstraints.size() << '\n';
-			//std::cout << RigidBodies[0]->position().x << ", " << RigidBodies[0]->position().y << '\n';
-			//std::cout << magnitude(RigidBodies[0]->velocity()) << "\n";
-			
-			//std::cout << RigidBodies[0]->position().x << "\t\t" << RigidBodies[0]->position().y << '\n';
-			//std::cout << RigidBodies[0]->angle()*180./pi << "\n"; 
-			//std::cout << contactConstraints.size() << '\n';
-
-			//std::cout << rigidBodies.back()->velocity().x << "\t" << rigidBodies.back()->velocity().y << "\t"
-			//	<< rigidBodies.back()->angVel() << "\n";
-
-			//std::cout << (rigidBodies.back()->position() - rigidBodies.back()->prevPosition()).x << "\t" 
-			//	<< (rigidBodies.back()->position() - rigidBodies.back()->prevPosition()).y << "\t"
-			//	<< (rigidBodies.back()->angle() - rigidBodies.back()->prevAngle()) << "\n";
-
 			accTime -= ps.dt;
 		}
 
@@ -165,7 +147,7 @@ void Game::run()
 		// Draw world
 		for (auto& rb : rigidBodies)
 		{
-			rb->draw(window, pixPerUnit, fraction, false, &text);
+			rb->draw(window, fraction, false, &text);
 		}
 
 		for (auto& cp : collidingPairs)
@@ -179,19 +161,30 @@ void Game::run()
 
 void Game::integrateVelocities()
 {
-	for (auto& rb : rigidBodies)
+	/*for (auto& rb : rigidBodies)
 	{
 		rb->integrateVel(ps.dt);
 		rb->applyDamping(ps.dt);
-	}
+	}*/
+
+	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
+	{
+		rb->integrateVel(ps.dt);
+		rb->applyDamping(ps.dt);
+	});
 }
 
 void Game::integratePositions()
 {
-	for (auto& rb : rigidBodies)
+	/*for (auto& rb : rigidBodies)
 	{
 		rb->integratePos(ps.dt);
-	}
+	}*/
+
+	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
+	{
+		rb->integratePos(ps.dt);
+	});
 }
 
 void Game::updateConstraints()
@@ -266,11 +259,17 @@ void Game::correctPositions()
 	}
 
 	// The onMove() and onRotate() functions are not called every iteration
-	for (auto& rb : rigidBodies)
+	/*for (auto& rb : rigidBodies)
 	{
 		rb->onMove();
 		rb->onRotate();
-	}
+	}*/
+
+	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
+	{
+		rb->onMove();
+		rb->onRotate();
+	});
 }
 
 void Game::updateCollidingPairs()
@@ -314,33 +313,76 @@ void Game::updateCollidingPairs()
 	//	active.push_back(it->get());
 	//}
 
-	for (auto& cp : collidingPairs)
+	/*for (auto& cp : collidingPairs)
 	{
 		cp.second->markForRemoval();
-	}
+	}*/
 
-	for (auto& rb : rigidBodies)
+	std::for_each(std::execution::par_unseq, collidingPairs.begin(), collidingPairs.end(), [&](const auto& cp)
+	{
+		cp.second->markForRemoval();
+	});
+
+	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
+	{
+		rb->updateAABB();
+	});
+
+	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
+	{
+		tree.update(rb.get());
+	});
+	
+
+
+	/*for (auto& rb : rigidBodies)
 	{
 		rb->updateAABB();
 		tree.update(rb.get());
-	}
+	}*/
 
-	int nCheck = 0;
-	for (auto& rb : rigidBodies)
+
+	//int nCheck = 0;
+	//for (auto& rb : rigidBodies)
+	//{
+	//	auto colliders = tree.getPossibleColliders(rb.get());
+
+	//	/*std::for_each(std::execution::seq, colliders.begin(), colliders.end(), [&](RigidBody* c)
+	//	{
+	//		if (c->id < rb->id)
+	//		{
+	//			checkCollision(c, rb.get());
+	//		}
+	//	});*/
+
+	//	for (auto& c : colliders)
+	//	{
+	//		++nCheck;
+
+	//		// Avoid checking a pair twice
+	//		if (c->id < rb->id) 
+	//		{
+	//			checkCollision(c, rb.get());
+	//		}
+	//	}
+	//}
+
+
+	// TODO: par causes freezing - why?
+	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), 
+	[&](const std::unique_ptr<RigidBody>& rb)
 	{
 		auto colliders = tree.getPossibleColliders(rb.get());
 
 		for (auto& c : colliders)
 		{
-			++nCheck;
-
 			// Avoid checking a pair twice
-			if (c->id < rb->id) 
+			if (c->id < rb->id)
 			{
 				checkCollision(c, rb.get());
 			}
 		}
-	}
+	});
 
 
 	/*int nCheck = 0;
@@ -420,6 +462,7 @@ void Game::setupMouseConstraint()
 {
 	if (!mc)
 	{
+		// TODO: use AABB tree
 		for (auto& rb : rigidBodies)
 		{
 			if (rb->pointInside(mh.coords()))
@@ -466,5 +509,5 @@ void Game::addCircle(real rad, vec2 coords, real mInv)
 
 vec2 Game::pixToCoords(real xPix, real yPix) const
 {
-	return { xPix / pixPerUnit, yPix / pixPerUnit };
+	return { xPix / ps.pixPerUnit, yPix / ps.pixPerUnit };
 }

@@ -12,14 +12,14 @@ ConvexPolygon::ConvexPolygon(const PhysicsSettings& ps, int npoints, real sideLe
 	initShape();
 }
 
-void ConvexPolygon::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
+void ConvexPolygon::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text* text)
 {
 	vec2 ipos = interpolatePos(fraction);
 	real itheta = interpolateAngle(fraction);
 
 	for (int i = 0; i < npoints; ++i)
 	{
-		sf::Vector2f pointCoord = vertices[i]->global(ipos, itheta) * pixPerUnit;
+		sf::Vector2f pointCoord = vertices[i]->global(ipos, itheta) * ps.pixPerUnit;
 		shape.setPoint(i, pointCoord);
 	
 		if (debug && text)

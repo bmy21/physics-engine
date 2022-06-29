@@ -28,7 +28,6 @@ void ContactConstraint::correctVel()
 		}
 	}
 
-
 	for (auto& cp : contactPoints)
 	{
 		solvePointFriction(cp);
@@ -117,7 +116,6 @@ void ContactConstraint::getImpulsesFrom(ContactConstraint* other)
 	// This function should only be called if *other is known to match *this
 	for (int i = 0; i < ncp; ++i)
 	{
-		//std::cout << other->contactPoints[i].lambda << "\n";
 		contactPoints[i].lambda = other->contactPoints[i].lambda;
 		contactPoints[i].fLambda = other->contactPoints[i].fLambda;
 		contactPoints[i].fRollLambda = other->contactPoints[i].fRollLambda;
@@ -196,6 +194,7 @@ void ContactConstraint::warmStartPoint(ContactPoint& cp)
 {
 	if (ps.warmStart)
 	{
+		// Don't warm start rolling friction - this occasionally causes infinite spinning and should be investigated!
 		cp.fRollLambda = 0;
 
 		rb1->applyDeltaVel(-n * rb1->mInv * cp.lambda - t * rb1->mInv * cp.fLambda,

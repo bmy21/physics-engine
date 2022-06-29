@@ -25,8 +25,11 @@ struct PhysicsSettings
 
 	real grav = 10;
 
-	real muDefault = 0.2;
+	real muDefault = 0.4;
 	real eDefault = 0.2;
+
+	// 1 Physics unit = pixPerUnit pixels
+	real pixPerUnit = 120;
 
 	// TODO: add AABB fattening width
 
@@ -36,7 +39,7 @@ struct PhysicsSettings
 
 	// Decay constants for all rigid bodies
 	real linearDamp = 0;
-	real angularDamp = 0;
+	real angularDamp = 0; // decayConstant(5);
 
 	// Plane half-thickness for clipping
 	real clipPlaneEpsilon = 1e-5;
