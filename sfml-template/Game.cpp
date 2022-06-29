@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	int n = 35;
-	int m = 35;
+	int n = 40;
+	int m = 40;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -216,6 +216,16 @@ void Game::updateConstraints()
 
 void Game::warmStart()
 {
+	/*std::for_each(std::execution::par_unseq, constraints.begin(), constraints.end(), [&](const std::unique_ptr<Constraint>& c)
+	{
+		c->warmStart();
+	});
+	
+	std::for_each(std::execution::par_unseq, collidingPairs.begin(), collidingPairs.end(), [&](const auto& cp)
+	{
+		cp.second->warmStart();
+	});*/
+
 	for (auto& c : constraints)
 	{
 		c->warmStart();
@@ -367,18 +377,37 @@ void Game::updateCollidingPairs()
 	//	}
 	//}
 
+	//#pragma omp parallel for
+	//for (auto& rb : rigidBodies)
+	//{
+	//	auto colliders = tree.getPossibleColliders(rb.get());
+	//	for (auto& c : colliders)
+	//	{
+
+	//		// Avoid checking a pair twice
+	//		if (c->id < rb->id) 
+	//		{
+	//			checkCollision(c, rb.get());
+	//		}
+	//	}
+	//}
 
 	// TODO: par causes freezing - why?
+
+	//std::mutex m;
+
 	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), 
 	[&](const std::unique_ptr<RigidBody>& rb)
 	{
 		auto colliders = tree.getPossibleColliders(rb.get());
-
+		
 		for (auto& c : colliders)
 		{
 			// Avoid checking a pair twice
 			if (c->id < rb->id)
 			{
+
+				//std::lock_guard<std::mutex> lock{ m };
 				checkCollision(c, rb.get());
 			}
 		}

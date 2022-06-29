@@ -16,11 +16,6 @@ void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text*
 	real itheta = interpolateAngle(fraction);
 
 	shape.setPosition(ipos * ps.pixPerUnit);
-	//shape.setRotation(itheta);
-
-	//vec2 radiusVector = { rad * std::cos(itheta), rad * std::sin(itheta) };
-
-	
 
 	if (debug && text)
 	{
@@ -32,12 +27,6 @@ void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text*
 	line.setPosition(ipos * ps.pixPerUnit);
 	line.setRotation(itheta * 180 / pi);
 	window.draw(line);
-
-	//drawThickLine(window,
-	//	ipos * pixPerUnit,
-	//	(ipos + radiusVector) * pixPerUnit,
-	//	1,
-	//	sf::Color::Black);
 }
 
 std::unique_ptr<ContactConstraint> Circle::checkCollision(ConvexPolygon* other)
