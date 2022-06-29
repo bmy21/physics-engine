@@ -238,7 +238,7 @@ void Game::correctPositions()
 	}
 
 	// The onMove() and onRotate() functions are not called every iteration
-	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
+	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->onMove();
 		rb->onRotate();
@@ -291,12 +291,12 @@ void Game::updateCollidingPairs()
 		cp.second->markForRemoval();
 	}*/
 
-	std::for_each(std::execution::par_unseq, collidingPairs.begin(), collidingPairs.end(), [&](const auto& cp)
+	std::for_each(std::execution::par_unseq, collidingPairs.begin(), collidingPairs.end(), [](const auto& cp)
 	{
 		cp.second->markForRemoval();
 	});
 
-	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
+	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->updateAABB();
 	});
