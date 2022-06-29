@@ -16,7 +16,7 @@ void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text*
 	real itheta = interpolateAngle(fraction);
 
 	shape.setPosition(ipos * ps.pixPerUnit);
-	shape.setRotation(itheta);
+	//shape.setRotation(itheta);
 
 	//vec2 radiusVector = { rad * std::cos(itheta), rad * std::sin(itheta) };
 
@@ -30,8 +30,7 @@ void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text*
 	window.draw(shape);
 
 	line.setPosition(ipos * ps.pixPerUnit);
-	line.setRotation(itheta);
-
+	line.setRotation(itheta * 180 / pi);
 	window.draw(line);
 
 	//drawThickLine(window,
