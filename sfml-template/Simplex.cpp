@@ -138,7 +138,7 @@ void Simplex::addVertex(const Vertex* vertex)
 
 void Simplex::cleanupVertices()
 {
-    for (auto it = vertices.begin(); it != vertices.end(); )
+   /* for (auto it = vertices.begin(); it != vertices.end(); )
     {
         if (it->removeFlagSet())
         {
@@ -149,7 +149,9 @@ void Simplex::cleanupVertices()
         {
             ++it;
         }
-    }
+    }*/
+
+    std::erase_if(vertices, [](const SimplexVertex& v) { return v.removeFlagSet(); });
 }
 
 bool Simplex::contains(const Vertex* vertex) const

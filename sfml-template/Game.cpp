@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	int n = 40;
-	int m = 40;
+	int n = 35;
+	int m = 35;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -392,9 +392,8 @@ void Game::updateCollidingPairs()
 	//	}
 	//}
 
-	// TODO: par causes freezing - why?
-
-	//std::mutex m;
+	// Note: parallel processing actually slows this down, presumably because of the
+	// requirement for a mutex lock before accessing the contact constraint map
 
 	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), 
 	[&](const std::unique_ptr<RigidBody>& rb)
@@ -405,9 +404,7 @@ void Game::updateCollidingPairs()
 		{
 			// Avoid checking a pair twice
 			if (c->id < rb->id)
-			{
-
-				//std::lock_guard<std::mutex> lock{ m };
+			{;
 				checkCollision(c, rb.get());
 			}
 		}
@@ -426,18 +423,8 @@ void Game::updateCollidingPairs()
 
 	//std::cout << nCheck << "\n";
 
-	// TODO: remove_if? and also for removing vertices from a simplex...
-	for (auto it = collidingPairs.begin(); it != collidingPairs.end(); )
-	{
-		if (it->second->removeFlagSet())
-		{
-			it = collidingPairs.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
+	// TODO: also for removing vertices from a simplex...
+	std::erase_if(collidingPairs, [](const auto& cp) { return cp.second->removeFlagSet(); });
 
 	//std::cout << collidingPairs.size() << "\n";
 }
