@@ -32,5 +32,8 @@ private:
 	real rad = 1;
 
 	sf::CircleShape shape;
+
+	real lineThicknessPix = 1;
+	sf::RectangleShape line;
 };
 

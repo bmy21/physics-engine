@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	int n = 15;
-	int m = 15;
+	int n = 35;
+	int m = 35;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -51,7 +51,7 @@ Game::Game():
 			if (0)//rand() % 2 == 0)
 				addConvexPolygon(4, 0.2, { x, y }, 10);
 			else
-				addCircle(0.2, { x, y }, 10);
+				addCircle(0.1, { x, y }, 10);
 		}
 	}
 

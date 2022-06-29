@@ -13,7 +13,7 @@ Circle::Circle(const PhysicsSettings& ps, real rad, real mInv):
 void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text* text)
 {
 	vec2 ipos = interpolatePos(fraction);
-	real itheta = angle();// interpolateAngle(fraction);
+	real itheta = interpolateAngle(fraction);
 
 	shape.setPosition(ipos * ps.pixPerUnit);
 	shape.setRotation(itheta);
@@ -28,6 +28,11 @@ void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text*
 	}
 	 
 	window.draw(shape);
+
+	line.setPosition(ipos * ps.pixPerUnit);
+	line.setRotation(itheta);
+
+	window.draw(line);
 
 	//drawThickLine(window,
 	//	ipos * pixPerUnit,
@@ -88,4 +93,8 @@ void Circle::initShape()
 	// TODO: May need to update these later if pixPerUnit is changed
 	shape.setOrigin(rad * ps.pixPerUnit, rad * ps.pixPerUnit);
 	shape.setRadius(rad * ps.pixPerUnit);
+
+	line.setFillColor(sf::Color::Black);
+	line.setOrigin(0, lineThicknessPix / 2);
+	line.setSize({ rad * ps.pixPerUnit, lineThicknessPix });
 }
