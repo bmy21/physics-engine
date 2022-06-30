@@ -3,9 +3,10 @@
 
 vec2 rotate(const vec2& v, real theta)
 {
-	// TODO: cache sin & cos?
-    return { std::cos(theta) * v.x - std::sin(theta) * v.y,
-             std::sin(theta) * v.x + std::cos(theta) * v.y };
+	real c = std::cos(theta), s = std::sin(theta);
+
+    return { c * v.x - s * v.y,
+             s * v.x + c * v.y };
 }
 
 void centre(sf::Text& text)

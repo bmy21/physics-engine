@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	int n = 35;
-	int m = 35;
+	int n = 15;
+	int m = 15;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -49,7 +49,7 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
 			if (1)//rand() % 2 == 0)
-				addConvexPolygon(4, 0.2, { x, y }, 10);
+				addConvexPolygon(4, 0.4, { x, y }, 10);
 			else
 				addCircle(0.1, { x, y }, 10);
 		}
@@ -182,15 +182,15 @@ void Game::updateConstraints()
 	std::erase_if(constraints, [](const auto& c) { return c->removeFlagSet(); });
 
 	// Update cached data before correcting velocities
-	for (auto& c : constraints)
+	std::for_each(std::execution::unseq, constraints.begin(), constraints.end(), [&](const std::unique_ptr<Constraint>& c)
 	{
-		// TODO: rename this function
 		c->updateCache();
-	}
-	for (auto& cp : collidingPairs)
+	});
+
+	std::for_each(std::execution::unseq, collidingPairs.begin(), collidingPairs.end(), [&](const auto& cp)
 	{
 		cp.second->prepareVelSolver();
-	}
+	});
 }
 
 void Game::warmStart()
