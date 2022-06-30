@@ -39,8 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	int n = 15;
-	int m = 15;
+	int n = 35;
+	int m = 35;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -49,7 +49,7 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
 			if (1)//rand() % 2 == 0)
-				addConvexPolygon(4, 0.4, { x, y }, 10);
+				addConvexPolygon(4, 0.2, { x, y }, 10);
 			else
 				addCircle(0.1, { x, y }, 10);
 		}
@@ -350,7 +350,11 @@ void Game::updateCollidingPairs()
 	// Note: parallel processing actually slows this down, presumably because of the
 	// requirement for a mutex lock before accessing the contact constraint map
 
-	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), 
+	std::mutex m;
+
+	std::vector<std::pair<idPair, std::unique_ptr<ContactConstraint>>> newColliders;
+
+	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), 
 	[&](const std::unique_ptr<RigidBody>& rb)
 	{
 		auto colliders = tree.getPossibleColliders(rb.get());
@@ -359,11 +363,44 @@ void Game::updateCollidingPairs()
 		{
 			// Avoid checking a pair twice
 			if (c->id < rb->id)
-			{;
-				checkCollision(c, rb.get());
+			{
+				//checkCollision(c, rb.get());
+				std::unique_ptr<ContactConstraint> cc = c->checkCollision(rb.get());
+
+				if (cc)
+				{
+					cc->init();
+
+					//std::lock_guard<std::mutex> guard(m);
+
+					newColliders.push_back({ {c->id, rb->id}, std::move(cc) });
+					
+				}
 			}
 		}
 	});
+
+	for (auto& nc : newColliders)
+	{
+		auto it = collidingPairs.find(nc.first);
+
+		if (it == collidingPairs.end())
+		{
+			// This pair is newly colliding
+			collidingPairs.insert(std::move(nc));
+		}
+		else
+		{
+			// This pair was already colliding
+			if (it->second->matches(nc.second.get())) // TODO: match check in getImpulsesFrom()?
+			{
+				//std::cout << "match\n";
+				nc.second->getImpulsesFrom(it->second.get());
+			}
+
+			it->second = std::move(nc.second);
+		}
+	}
 
 
 	/*int nCheck = 0;

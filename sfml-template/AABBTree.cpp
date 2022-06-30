@@ -203,6 +203,7 @@ std::forward_list<RigidBody*> AABBTree::getPossibleColliders(RigidBody* rb)
 		{
 			if (n->isLeaf)
 			{
+				// TODO: only push if the IDs are in the correct order?
 				result.push_front(n->rb);
 			}
 			else
