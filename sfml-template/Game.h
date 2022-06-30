@@ -66,6 +66,6 @@ private:
 
 	std::map<idPair, std::unique_ptr<ContactConstraint>> collidingPairs;
 
-	std::vector<std::unique_ptr<ContactConstraint>> newContactConstraints;
+	//std::vector<std::unique_ptr<ContactConstraint>> newContactConstraints;
 };
 

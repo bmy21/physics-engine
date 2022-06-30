@@ -39,8 +39,9 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	int n = 35;
-	int m = 35;
+	// TODO: cache sin & cos in RigidBody
+	int n = 15;
+	int m = 15;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -49,7 +50,7 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
 			if (1)//rand() % 2 == 0)
-				addConvexPolygon(4, 0.2, { x, y }, 10);
+				addConvexPolygon(4, 0.4, { x, y }, 10);
 			else
 				addCircle(0.1, { x, y }, 10);
 		}
@@ -247,17 +248,22 @@ void Game::correctPositions()
 
 void Game::updateCollidingPairs()
 {
-	//for (auto& rb : rigidBodies)
-	//{
-	//	rb->updateAABB();
-	//}
+	std::for_each(std::execution::unseq, collidingPairs.begin(), collidingPairs.end(), [](const auto& cp)
+	{
+		cp.second->markForRemoval();
+	});
+
+	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
+	{
+		rb->updateAABB();
+	});
 
 	//auto compare = [](const std::unique_ptr<RigidBody>& a, const std::unique_ptr<RigidBody>& b)
 	//{
 	//	return a->left() < b->left();
 	//};
 
-	//std::sort(rigidBodies.begin(), rigidBodies.end(), compare);
+	//std::sort(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), compare);
 	//std::vector<RigidBody*> active;
 
 	////using RBPair = std::pair<RigidBody*, RigidBody*>;
@@ -286,20 +292,7 @@ void Game::updateCollidingPairs()
 	//	active.push_back(it->get());
 	//}
 
-	/*for (auto& cp : collidingPairs)
-	{
-		cp.second->markForRemoval();
-	}*/
-
-	std::for_each(std::execution::unseq, collidingPairs.begin(), collidingPairs.end(), [](const auto& cp)
-	{
-		cp.second->markForRemoval();
-	});
-
-	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
-	{
-		rb->updateAABB();
-	});
+	
 
 	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
 	{
@@ -307,54 +300,10 @@ void Game::updateCollidingPairs()
 	});
 	
 
-	//int nCheck = 0;
-	//for (auto& rb : rigidBodies)
-	//{
-	//	auto colliders = tree.getPossibleColliders(rb.get());
-
-	//	/*std::for_each(std::execution::seq, colliders.begin(), colliders.end(), [&](RigidBody* c)
-	//	{
-	//		if (c->id < rb->id)
-	//		{
-	//			checkCollision(c, rb.get());
-	//		}
-	//	});*/
-
-	//	for (auto& c : colliders)
-	//	{
-	//		++nCheck;
-
-	//		// Avoid checking a pair twice
-	//		if (c->id < rb->id) 
-	//		{
-	//			checkCollision(c, rb.get());
-	//		}
-	//	}
-	//}
-
-	//#pragma omp parallel for
-	//for (auto& rb : rigidBodies)
-	//{
-	//	auto colliders = tree.getPossibleColliders(rb.get());
-	//	for (auto& c : colliders)
-	//	{
-
-	//		// Avoid checking a pair twice
-	//		if (c->id < rb->id) 
-	//		{
-	//			checkCollision(c, rb.get());
-	//		}
-	//	}
-	//}
-
 	// Note: parallel processing actually slows this down, presumably because of the
 	// requirement for a mutex lock before accessing the contact constraint map
 
-	std::mutex m;
-
-	std::vector<std::pair<idPair, std::unique_ptr<ContactConstraint>>> newColliders;
-
-	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), 
+	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), 
 	[&](const std::unique_ptr<RigidBody>& rb)
 	{
 		auto colliders = tree.getPossibleColliders(rb.get());
@@ -364,44 +313,10 @@ void Game::updateCollidingPairs()
 			// Avoid checking a pair twice
 			if (c->id < rb->id)
 			{
-				//checkCollision(c, rb.get());
-				std::unique_ptr<ContactConstraint> cc = c->checkCollision(rb.get());
-
-				if (cc)
-				{
-					cc->init();
-
-					//std::lock_guard<std::mutex> guard(m);
-
-					newColliders.push_back({ {c->id, rb->id}, std::move(cc) });
-					
-				}
+				checkCollision(c, rb.get());
 			}
 		}
 	});
-
-	for (auto& nc : newColliders)
-	{
-		auto it = collidingPairs.find(nc.first);
-
-		if (it == collidingPairs.end())
-		{
-			// This pair is newly colliding
-			collidingPairs.insert(std::move(nc));
-		}
-		else
-		{
-			// This pair was already colliding
-			if (it->second->matches(nc.second.get())) // TODO: match check in getImpulsesFrom()?
-			{
-				//std::cout << "match\n";
-				nc.second->getImpulsesFrom(it->second.get());
-			}
-
-			it->second = std::move(nc.second);
-		}
-	}
-
 
 	/*int nCheck = 0;
 	for (auto it1 = rigidBodies.begin(); it1 != rigidBodies.end(); ++it1)
@@ -415,7 +330,6 @@ void Game::updateCollidingPairs()
 
 	//std::cout << nCheck << "\n";
 
-	// TODO: also for removing vertices from a simplex...
 	std::erase_if(collidingPairs, [](const auto& cp) { return cp.second->removeFlagSet(); });
 
 	//std::cout << collidingPairs.size() << "\n";
@@ -452,14 +366,8 @@ void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 			// This pair was already colliding
 			if (it->second->matches(result.get())) // TODO: match check in getImpulsesFrom()?
 			{
-				//std::cout << "match\n";
 				result->getImpulsesFrom(it->second.get());
 			}
-			else
-			{
-				//std::cout << "no match\n";
-			}
-			
 			
 			it->second = std::move(result);
 		}

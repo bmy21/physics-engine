@@ -388,6 +388,13 @@ const Vertex* ConvexPolygon::supportVertex(const vec2& d) const
 		}
 	}
 
+	/*std::max_element(std::execution::unseq, vertices.begin(), vertices.end(),
+		[](const std::unique_ptr<Vertex>& a, const std::unique_ptr<Vertex>& b)
+		{
+			return dotProduct = dot(v->global(), d);
+		}
+	);*/
+
 	return vertex;
 }
 
