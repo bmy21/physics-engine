@@ -3,10 +3,7 @@
 
 vec2 rotate(const vec2& v, real theta)
 {
-	real c = std::cos(theta), s = std::sin(theta);
-
-    return { c * v.x - s * v.y,
-             s * v.x + c * v.y };
+	return rotate(v, std::cos(theta), std::sin(theta));
 }
 
 void centre(sf::Text& text)
@@ -41,6 +38,23 @@ vec2 transform(const vec2& v, const vec2& offset, real angle)
 vec2 invTransform(const vec2& v, const vec2& offset, real angle)
 {
 	return rotate(v - offset, -angle);
+}
+
+vec2 rotate(const vec2& v, real c, real s)
+{
+	return { c * v.x - s * v.y,
+			 s * v.x + c * v.y };
+}
+
+vec2 transform(const vec2& v, const vec2& offset, real c, real s)
+{
+	return offset + rotate(v, c, s);
+}
+
+vec2 invTransform(const vec2& v, const vec2& offset, real c, real s)
+{
+	// cos(-x) = cos(x) but sin(-x) = -sin(x)
+	return rotate(v - offset, c, -s);
 }
 
 real magSquared(const vec2& v)

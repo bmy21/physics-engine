@@ -35,6 +35,10 @@ vec2 rotate(const vec2& v, real theta);
 vec2 transform(const vec2& v, const vec2& offset, real angle);
 vec2 invTransform(const vec2& v, const vec2& offset, real angle);
 
+vec2 rotate(const vec2& v, real c, real s);
+vec2 transform(const vec2& v, const vec2& offset, real c, real s);
+vec2 invTransform(const vec2& v, const vec2& offset, real c, real s);
+
 real magSquared(const vec2& v);
 real magnitude(const vec2& v);
 vec2 normalise(const vec2& v); 

@@ -41,7 +41,6 @@ Game::Game():
 	
 	// TODO: cache sin & cos in RigidBody
 	// TODO: map of {cpid, cp} in ConvexPolygon for quick matching?
-	// TODO: try real as double
 	int n = 35;
 	int m = 35;
 	for (int i = 0; i < n; ++i)
