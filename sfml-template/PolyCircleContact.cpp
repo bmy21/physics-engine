@@ -28,7 +28,7 @@ void PolyCircleContact::draw(sf::RenderWindow& window, real pixPerUnit, real fra
 
 			text->setString("\n\n" + cp.idAsString());
 
-			text->setPosition(cp.point * pixPerUnit);
+			text->setPosition(cp.point.x * pixPerUnit, cp.point.y * pixPerUnit);
 			centre(*text);
 
 			window.draw(*text);

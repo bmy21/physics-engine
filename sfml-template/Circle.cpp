@@ -12,10 +12,10 @@ Circle::Circle(const PhysicsSettings& ps, real rad, real mInv):
 
 void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text* text)
 {
-	vec2 ipos = interpolatePos(fraction);
+	vec2 ipos = interpolatePos(fraction) * ps.pixPerUnit;
 	real itheta = interpolateAngle(fraction);
 
-	shape.setPosition(ipos * ps.pixPerUnit);
+	shape.setPosition(ipos.x, ipos.y);
 
 	if (debug && text)
 	{
@@ -24,7 +24,7 @@ void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text*
 	 
 	window.draw(shape);
 
-	line.setPosition(ipos * ps.pixPerUnit);
+	line.setPosition(ipos.x, ipos.y);
 	line.setRotation(itheta * 180 / pi);
 	window.draw(line);
 }
@@ -84,5 +84,5 @@ void Circle::initShape()
 
 	line.setFillColor(sf::Color::Black);
 	line.setOrigin(0, lineThicknessPix / 2);
-	line.setSize({ rad * ps.pixPerUnit, lineThicknessPix });
+	line.setSize(sf::Vector2f(rad * ps.pixPerUnit, lineThicknessPix));
 }

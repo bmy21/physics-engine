@@ -20,7 +20,9 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real fraction, bool debug, sf
 	for (int i = 0; i < npoints; ++i)
 	{
 		// TODO: rotate instead of transform individually?
-		sf::Vector2f pointCoord = vertices[i]->global(ipos, itheta) * ps.pixPerUnit;
+		vec2 v = vertices[i]->global(ipos, itheta) * ps.pixPerUnit;
+		sf::Vector2f pointCoord(v.x, v.y); 
+
 		shape.setPoint(i, pointCoord);
 	
 		if (debug && text)

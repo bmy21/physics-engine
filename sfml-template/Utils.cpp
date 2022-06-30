@@ -142,8 +142,11 @@ void drawThickLine(sf::RenderWindow& window, const vec2& p1, const vec2& p2, rea
 	static sf::RectangleShape shape;
 
 	shape.setOrigin(0, width / 2);
-	shape.setPosition(p1);
-	shape.setSize({ magnitude(p2 - p1), width });
+	shape.setPosition(p1.x, p1.y);
+
+	vec2 size = { magnitude(p2 - p1), width };
+	shape.setSize(sf::Vector2f(size.x, size.y));
+
 	shape.setRotation(std::atan2(p2.y - p1.y, p2.x - p1.x) * 180 / pi);
 	shape.setFillColor(col);
 

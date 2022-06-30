@@ -40,8 +40,10 @@ Game::Game():
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
 	// TODO: cache sin & cos in RigidBody
-	int n = 15;
-	int m = 15;
+	// TODO: map of {cpid, cp} in ConvexPolygon for quick matching?
+	// TODO: try real as double
+	int n = 35;
+	int m = 35;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -50,7 +52,7 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
 			if (1)//rand() % 2 == 0)
-				addConvexPolygon(4, 0.4, { x, y }, 10);
+				addConvexPolygon(4, 0.2, { x, y }, 10);
 			else
 				addCircle(0.1, { x, y }, 10);
 		}
