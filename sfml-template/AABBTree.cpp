@@ -312,7 +312,7 @@ void AABBTree::rotate(Node* top)
 	real periB = B->aabb.peri();
 	real periC = C->aabb.peri();
 
-	std::stack<int> rotations;
+	std::vector<int> rotations;
 
 	Node* D = nullptr;
 	Node* E = nullptr;
@@ -321,16 +321,16 @@ void AABBTree::rotate(Node* top)
 
 	if (!C->isLeaf)
 	{
-		rotations.push(1);
-		rotations.push(2);
+		rotations.push_back(1);
+		rotations.push_back(2);
 
 		F = C->child1.get();
 		G = C->child2.get();
 	}
 	if (!B->isLeaf)
 	{
-		rotations.push(3);
-		rotations.push(4);
+		rotations.push_back(3);
+		rotations.push_back(4);
 
 		D = B->child1.get();
 		E = B->child2.get();
@@ -339,11 +339,8 @@ void AABBTree::rotate(Node* top)
 	int bestType = 0;
 	real bestDeltaCost = 0;
 
-	while (!rotations.empty())
+	for (int type : rotations)
 	{
-		int type = rotations.top();
-		rotations.pop();
-
 		real deltaCost = 0;
 
 		switch (type)
