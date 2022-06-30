@@ -48,7 +48,7 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
-			if (0)//rand() % 2 == 0)
+			if (1)//rand() % 2 == 0)
 				addConvexPolygon(4, 0.2, { x, y }, 10);
 			else
 				addCircle(0.1, { x, y }, 10);
@@ -161,7 +161,7 @@ void Game::run()
 
 void Game::integrateVelocities()
 {
-	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
+	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->integrateVel(ps.dt);
 		rb->applyDamping(ps.dt);
@@ -170,7 +170,7 @@ void Game::integrateVelocities()
 
 void Game::integratePositions()
 {
-	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
+	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->integratePos(ps.dt);
 	});
@@ -238,7 +238,7 @@ void Game::correctPositions()
 	}
 
 	// The onMove() and onRotate() functions are not called every iteration
-	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
+	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->onMove();
 		rb->onRotate();
@@ -291,12 +291,12 @@ void Game::updateCollidingPairs()
 		cp.second->markForRemoval();
 	}*/
 
-	std::for_each(std::execution::par_unseq, collidingPairs.begin(), collidingPairs.end(), [](const auto& cp)
+	std::for_each(std::execution::unseq, collidingPairs.begin(), collidingPairs.end(), [](const auto& cp)
 	{
 		cp.second->markForRemoval();
 	});
 
-	std::for_each(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
+	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->updateAABB();
 	});

@@ -178,7 +178,7 @@ void AABBTree::update(RigidBody* rb)
 	}
 
 	remove(rb);
-
+	 
 	rb->updateFatAABB(0.1);
 
 	insert(rb);
