@@ -43,6 +43,8 @@ public:
 	vec2 vecToLocal(const vec2& v) const;
 	vec2 vecToGlobal(const vec2& v) const;
 
+	void updateTrigCache();
+
 	void moveTo(const vec2& p);
 	void rotateTo(real t);
 
@@ -90,6 +92,8 @@ public:
 protected:
 	const PhysicsSettings& ps;
 	AABB aabb, aabbFat;
+
+	real cachedCos = 0, cachedSin = 0;
 
 private:
 	vec2 pos, vel, acc;

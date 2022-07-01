@@ -59,6 +59,8 @@ void ContactConstraint::correctPos()
 	// Try simultaneous solution first
 	if (ncp == 2 && ps.simulSolvePos)
 	{
+		rb1->updateTrigCache();
+		rb2->updateTrigCache();
 		updateNormal();
 
 		for (auto& cp : contactPoints)
@@ -79,6 +81,9 @@ void ContactConstraint::correctPos()
 	// At this point, the condition number was too high, so resort to the iterative solution.
 	for (auto& cp : contactPoints)
 	{
+		rb1->updateTrigCache();
+		rb2->updateTrigCache();
+
 		updateNormal();
 		rebuildPoint(cp);
 		updateNormalFactors(cp);

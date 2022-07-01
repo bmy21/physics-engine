@@ -18,3 +18,9 @@ void Edge::recompute(real angle)
 	globalEdge = rotate(localEdge, angle);
 	globalNorm = rotate(localNorm, angle);
 }
+
+void Edge::recompute(real c, real s)
+{
+	globalEdge = rotate(localEdge, c, s);
+	globalNorm = rotate(localNorm, c, s);
+}

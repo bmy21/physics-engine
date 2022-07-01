@@ -15,3 +15,8 @@ void Vertex::recompute(const vec2& pos, real theta)
 {
 	globalCoords = transform(localCoords, pos, theta);
 }
+
+void Vertex::recompute(const vec2& pos, real c, real s)
+{
+	globalCoords = transform(localCoords, pos, c, s);
+}

@@ -163,6 +163,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 			}
 		}
 
+		//updateTrigCache();
 		vec2 localNormal = vecToLocal(n);
 		vec2 localClosest = pointToLocal(projection);
 
@@ -174,6 +175,8 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 		{
 			// Shallow contact
 			// Normal points from polygon to circle
+
+			//updateTrigCache();
 			vec2 localClosest = pointToLocal(closest);
 			
 			vec2 localNormal = {0, 0};
@@ -232,22 +235,26 @@ bool ConvexPolygon::pointInside(const vec2& p) const
 
 void ConvexPolygon::onMove()
 {
+	updateTrigCache();
+
 	std::for_each(std::execution::unseq, vertices.begin(), vertices.end(), [&](const std::unique_ptr<Vertex>& v)
 	{
-		v->recompute(position(), angle());
+		v->recompute(position(), cachedCos, cachedSin);
 	});
 }
 
 void ConvexPolygon::onRotate()
 {
+	updateTrigCache();
+
 	std::for_each(std::execution::unseq, vertices.begin(), vertices.end(), [&](const std::unique_ptr<Vertex>& v)
 	{
-		v->recompute(position(), angle());
+		v->recompute(position(), cachedCos, cachedSin);
 	});
 
 	std::for_each(std::execution::unseq, edges.begin(), edges.end(), [&](const std::unique_ptr<Edge>& e)
 	{
-		e->recompute(angle());
+		e->recompute(cachedCos, cachedSin);
 	});
 }
 

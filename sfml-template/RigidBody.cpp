@@ -9,22 +9,28 @@ RigidBody::RigidBody(const PhysicsSettings& ps, real mInv, real IInv):
 
 vec2 RigidBody::pointToLocal(const vec2& p) const
 {
-	return invTransform(p, pos, theta);
+	return invTransform(p, pos, cachedCos, cachedSin);
 }
 
 vec2 RigidBody::pointToGlobal(const vec2& p) const
 {
-	return transform(p, pos, theta);
+	return transform(p, pos, cachedCos, cachedSin);
 }
 
 vec2 RigidBody::vecToLocal(const vec2& v) const
 {
-	return rotate(v, -theta);
+	return rotate(v, cachedCos, -cachedSin);
 }
 
 vec2 RigidBody::vecToGlobal(const vec2& v) const
 {
-	return rotate(v, theta);
+	return rotate(v, cachedCos, cachedSin);
+}
+
+void RigidBody::updateTrigCache()
+{
+	cachedCos = std::cos(theta);
+	cachedSin = std::sin(theta);
 }
 
 void RigidBody::moveTo(const vec2& p)
