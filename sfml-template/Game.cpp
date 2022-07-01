@@ -51,7 +51,7 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
 			if (1)//rand() % 2 == 0)
-				addConvexPolygon(4, 0.2, { x, y }, 10);
+				addConvexPolygon(6, 0.1, { x, y }, 10);
 			else
 				addCircle(0.1, { x, y }, 10);
 		}
@@ -239,11 +239,10 @@ void Game::correctPositions()
 		}
 	}
 
-	// The onMove() and onRotate() functions are not called every iteration
+	// The onMove() function is not called every iteration
 	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->onMove();
-		rb->onRotate();
 	});
 }
 

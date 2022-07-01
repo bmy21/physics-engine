@@ -36,7 +36,7 @@ void RigidBody::moveTo(const vec2& p)
 void RigidBody::rotateTo(real t)
 {
 	theta = thetaPrev = t;
-	onRotate();
+	onMove();
 }
 
 void RigidBody::integrateVel(real dt)
@@ -63,7 +63,6 @@ void RigidBody::integratePos(real dt)
 	theta += omega * dt;
 
 	onMove();
-	onRotate();
 }
 
 vec2 RigidBody::interpolatePos(real fraction) const
@@ -105,7 +104,6 @@ void RigidBody::applyDeltaPos(const vec2& dr, real dth, bool update)
 	if (update)
 	{
 		onMove();
-		onRotate();
 	}
 }
 

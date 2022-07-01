@@ -233,22 +233,14 @@ bool ConvexPolygon::pointInside(const vec2& p) const
 void ConvexPolygon::onMove()
 {
 	std::for_each(std::execution::unseq, vertices.begin(), vertices.end(), [&](const std::unique_ptr<Vertex>& v)
-	{
-		v->recompute(position(), angle());
-	});
-}
-
-void ConvexPolygon::onRotate()
-{
-	std::for_each(std::execution::unseq, vertices.begin(), vertices.end(), [&](const std::unique_ptr<Vertex>& v)
-	{
-		v->recompute(position(), angle());
-	});
+		{
+			v->recompute(position(), angle());
+		});
 
 	std::for_each(std::execution::unseq, edges.begin(), edges.end(), [&](const std::unique_ptr<Edge>& e)
-	{
-		e->recompute(angle());
-	});
+		{
+			e->recompute(angle());
+		});
 }
 
 

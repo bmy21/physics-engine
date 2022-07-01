@@ -20,8 +20,8 @@ public:
 	void updateAABB() override;
 	void updateFatAABB(real w) override;
 
+	// No data to update on move
 	void onMove() override { }
-	void onRotate() override { }
 
 	real radius() const { return rad; }
 	vec2 furthestPoint(const vec2& d);

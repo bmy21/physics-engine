@@ -46,9 +46,8 @@ public:
 	void moveTo(const vec2& p);
 	void rotateTo(real t);
 
-	// Functions called whenever position/orientation is changed
+	// Function called whenever position/orientation is changed
 	virtual void onMove() = 0;
-	virtual void onRotate() = 0;
 
 	void integrateVel(real dt);
 	void integratePos(real dt);

@@ -25,7 +25,6 @@ public:
 	bool pointInside(const vec2& p) const override;
 
 	void onMove() override;
-	void onRotate() override;
 
 	vec2 edge(int i) const { return edges[i]->global(); }
 	vec2 vertex(int i) const { return vertices[i]->global(); }
