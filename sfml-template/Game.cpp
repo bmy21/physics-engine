@@ -8,7 +8,7 @@ Game::Game():
 	settings.antialiasingLevel = 8;
 
 	window.create(sf::VideoMode(pixWidth, pixHeight),
-		"Physics",
+		"Physics", //sf::Style::Fullscreen,
 		sf::Style::Close,
 		settings);
 
@@ -39,10 +39,11 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	// TODO: cache sin & cos in RigidBody
+	// TODO: cache sin & cos in RigidBody?
 	// TODO: map of {cpid, cp} in ConvexPolygon for quick matching?
-	int n = 35;
-	int m = 35;
+	// TODO: handle RB removal
+	int n = 25;
+	int m = 25;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -51,9 +52,9 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 			//addCircle(0.2, { x, y }, 1);
 			if (1)//rand() % 2 == 0)
-				addConvexPolygon(6, 0.1, { x, y }, 10);
+				addConvexPolygon(4, 0.3, { x, y }, 10);
 			else
-				addCircle(0.1, { x, y }, 10);
+				addCircle(0.03, { x, y }, 10);
 		}
 	}
 
@@ -80,9 +81,6 @@ void Game::run()
 	while (window.isOpen())
 	{
 		dt = frameTimer.restart().asSeconds() / 1;
-
-		//std::cout << tree.root.get() << "\n";
-		//std::cout << tree.rbNodeMap.size() << "\n";
 
 		std::cout << 1 / dt << "\n";
 
@@ -258,42 +256,6 @@ void Game::updateCollidingPairs()
 		rb->updateAABB();
 	});
 
-	//auto compare = [](const std::unique_ptr<RigidBody>& a, const std::unique_ptr<RigidBody>& b)
-	//{
-	//	return a->left() < b->left();
-	//};
-
-	//std::sort(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), compare);
-	//std::vector<RigidBody*> active;
-
-	////using RBPair = std::pair<RigidBody*, RigidBody*>;
-	////std::set<RBPair> possibleColliders;
-
-	//int nCheck = 0;
-	//for (auto it = rigidBodies.begin(); it != rigidBodies.end(); ++it)
-	//{
-	//	// Check this rigid body against all others that could possibly be colliding
-	//	for (auto activeIt = active.begin(); activeIt != active.end(); )
-	//	{
-	//		// Remove any rigid bodies that have already been passed
-	//		if ((*activeIt)->right() < (*it)->left())
-	//		{
-	//			activeIt = active.erase(activeIt);
-	//			continue;
-	//		}
-
-	//		checkCollision(it->get(), *activeIt);
-	//		++nCheck;
-
-	//		++activeIt;
-	//	}
-
-	//	// This rigid body is now a potential collider with the next
-	//	active.push_back(it->get());
-	//}
-
-	
-
 	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
 	{
 		tree.update(rb.get());
@@ -311,12 +273,28 @@ void Game::updateCollidingPairs()
 		for (auto& c : colliders)
 		{
 			// Avoid checking a pair twice
-			if (c->id < rb->id)
+			//if (c->id < rb->id)
 			{
 				checkCollision(c, rb.get());
 			}
 		}
 	});
+
+	/*std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), 
+	[&](const std::unique_ptr<RigidBody>& rb)
+	{
+		rb->updatePossibleColliders(tree);
+	});*/
+
+	/*for (auto& rb : rigidBodies)
+	{
+		rb->updatePossibleColliders(tree);
+
+		for (auto& c : rb->possibleColliders)
+		{
+			checkCollision(c, rb.get());
+		}
+	}*/
 
 	/*int nCheck = 0;
 	for (auto it1 = rigidBodies.begin(); it1 != rigidBodies.end(); ++it1)
@@ -338,8 +316,8 @@ void Game::updateCollidingPairs()
 void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 {
 	// Ensure a given pair of rigid bodies is always checked in a consistent order
-	RigidBody* largerID = rb1;
-	RigidBody* smallerID = rb2;
+	RigidBody* smallerID = rb1;
+	RigidBody* largerID = rb2;
 
 	if (smallerID->id > largerID->id)
 	{
@@ -427,3 +405,40 @@ vec2 Game::pixToCoords(real xPix, real yPix) const
 {
 	return { xPix / ps.pixPerUnit, yPix / ps.pixPerUnit };
 }
+
+
+/* SWEEP AND PRUNE */
+
+//auto compare = [](const std::unique_ptr<RigidBody>& a, const std::unique_ptr<RigidBody>& b)
+//{
+//	return a->left() < b->left();
+//};
+
+//std::sort(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), compare);
+//std::vector<RigidBody*> active;
+
+////using RBPair = std::pair<RigidBody*, RigidBody*>;
+////std::set<RBPair> possibleColliders;
+
+//int nCheck = 0;
+//for (auto it = rigidBodies.begin(); it != rigidBodies.end(); ++it)
+//{
+//	// Check this rigid body against all others that could possibly be colliding
+//	for (auto activeIt = active.begin(); activeIt != active.end(); )
+//	{
+//		// Remove any rigid bodies that have already been passed
+//		if ((*activeIt)->right() < (*it)->left())
+//		{
+//			activeIt = active.erase(activeIt);
+//			continue;
+//		}
+
+//		checkCollision(it->get(), *activeIt);
+//		++nCheck;
+
+//		++activeIt;
+//	}
+
+//	// This rigid body is now a potential collider with the next
+//	active.push_back(it->get());
+//}

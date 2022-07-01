@@ -32,6 +32,7 @@ public:
 
 	// Recalculate the global vector and global normal
 	void recompute(real angle);
+	void recompute(real c, real s);
 
 private:
 	// TODO: is it necessary to store these?

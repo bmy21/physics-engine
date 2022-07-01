@@ -23,6 +23,7 @@ public:
 
 	// Recalculate the global coords
 	void recompute(const vec2& pos, real theta);
+	void recompute(const vec2& pos, real c, real s);
 
 private:
 	const int i;

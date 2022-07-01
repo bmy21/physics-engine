@@ -184,9 +184,9 @@ void AABBTree::update(RigidBody* rb)
 	insert(rb);
 }
 
-std::forward_list<RigidBody*> AABBTree::getPossibleColliders(RigidBody* rb)
+std::vector<RigidBody*> AABBTree::getPossibleColliders(RigidBody* rb) const
 {
-	std::forward_list<RigidBody*> result;
+	std::vector<RigidBody*> result;
 
 	std::stack<Node*> s;
 	if (root)
@@ -203,8 +203,11 @@ std::forward_list<RigidBody*> AABBTree::getPossibleColliders(RigidBody* rb)
 		{
 			if (n->isLeaf)
 			{
-				// TODO: only push if the IDs are in the correct order?
-				result.push_front(n->rb);
+				// Avoid checking a pair twice
+				if (n->rb->id < rb->id)
+				{
+					result.push_back(n->rb);
+				}
 			}
 			else
 			{

@@ -40,10 +40,6 @@ void ContactConstraint::correctVel()
 		{
 			return;
 		}
-		else
-		{
-			//std::cout << "SimulSolve failed\n";
-		}
 	}
 
 	// At this point, simultaneous solution failed, either because the condition number was too high or 

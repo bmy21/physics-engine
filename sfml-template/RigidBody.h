@@ -8,6 +8,7 @@
 class ConvexPolygon;
 class Circle;
 class ContactConstraint;
+class AABBTree;
 struct Node;
 
 using idType = unsigned long;
@@ -78,7 +79,6 @@ public:
 
 	AABB getAABB() const { return aabb; }
 	AABB getFatAABB() const { return aabbFat; }
-
 
 	//Node* treeNode = nullptr;
 	const idType id;

@@ -1,4 +1,5 @@
 #include "RigidBody.h"
+#include "AABBTree.h"
 
 RigidBody::RigidBody(const PhysicsSettings& ps, real mInv, real IInv):
 	ps(ps), mInv(mInv), IInv(IInv),
@@ -83,23 +84,15 @@ void RigidBody::applyDeltaVel(const vec2& dv, real dw)
 {
 	vel += dv;
 	omega += dw;
-
-	assert(!isnan(dv.x));
-	assert(!isnan(dv.y));
-	assert(!isnan(dw));
 }
 
 void RigidBody::applyDeltaPos(const vec2& dr, real dth, bool update)
 {
-	// onMove() and onRotate() will only be called if update is true
+	// onMove() will only be called if update is true
 	// Note: previous position and angle are NOT updated here
 
 	pos += dr;
 	theta += dth;
-
-	assert(!isnan(dr.x));
-	assert(!isnan(dr.y));
-	assert(!isnan(dth));
 
 	if (update)
 	{

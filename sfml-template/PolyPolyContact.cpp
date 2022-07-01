@@ -77,6 +77,8 @@ void PolyPolyContact::updateNormal()
 
 void PolyPolyContact::initPoints()
 {
+	contactPoints.reserve(2);
+
 	vec2 refPoint1 = refEdge->point1();
 	vec2 refPoint2 = refEdge->point2();
 
