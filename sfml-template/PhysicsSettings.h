@@ -28,10 +28,10 @@ struct PhysicsSettings
 	real muDefault = 0.4;
 	real eDefault = 0.2;
 
+	real aabbFattening = 0.1;
+
 	// 1 Physics unit = pixPerUnit pixels
 	real pixPerUnit = 120;
-
-	// TODO: add AABB fattening width
 
 	// Perpendicular distance of normal reaction from point of contact 
 	// used to compute rolling friction torque

@@ -192,15 +192,15 @@ void ConvexPolygon::updateAABB()
 	std::tie(aabb.lower.y, aabb.upper.y) = shadow({ 0, 1 });
 }
 
-void ConvexPolygon::updateFatAABB(real w)
+void ConvexPolygon::updateFatAABB()
 {
 	std::tie(aabbFat.lower.x, aabbFat.upper.x) = shadow({ 1, 0 });
 	std::tie(aabbFat.lower.y, aabbFat.upper.y) = shadow({ 0, 1 });
 
-	aabbFat.lower.x -= w;
-	aabbFat.lower.y -= w;
-	aabbFat.upper.x += w;
-	aabbFat.upper.y += w;
+	aabbFat.lower.x -= ps.aabbFattening;
+	aabbFat.lower.y -= ps.aabbFattening;
+	aabbFat.upper.x += ps.aabbFattening;
+	aabbFat.upper.y += ps.aabbFattening;
 }
 
 bool ConvexPolygon::pointInside(const vec2& p) const

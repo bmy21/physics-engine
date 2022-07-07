@@ -64,7 +64,7 @@ Game::Game():
 
 	for (auto& rb : rigidBodies)
 	{
-		rb->updateFatAABB(0.1);
+		rb->updateFatAABB();
 		tree.insert(rb.get());
 	}
 }

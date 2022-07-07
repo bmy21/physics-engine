@@ -37,7 +37,7 @@ public:
 
 	virtual bool pointInside(const vec2& p) const = 0;
 	virtual void updateAABB() = 0;
-	virtual void updateFatAABB(real w) = 0;
+	virtual void updateFatAABB() = 0;
 
 	vec2 pointToLocal(const vec2& p) const;
 	vec2 pointToGlobal(const vec2& p) const;
@@ -79,8 +79,7 @@ public:
 
 	AABB getAABB() const { return aabb; }
 	AABB getFatAABB() const { return aabbFat; } 
-
-	//Node* treeNode = nullptr;
+	
 	const idType id;
 
 	// TODO: make these private
