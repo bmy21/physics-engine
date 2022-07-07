@@ -70,8 +70,8 @@ private:
 	void solvePointPos(ContactPoint& cp);
 	void warmStartPoint(ContactPoint& cp);
 
-	RigidBody* rb1 = nullptr;
-	RigidBody* rb2 = nullptr;
+	RigidBody* const rb1;
+	RigidBody* const rb2;
 
 	real mu = 0;
 	real e = 0;

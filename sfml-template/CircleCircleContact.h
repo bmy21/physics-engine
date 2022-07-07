@@ -20,7 +20,7 @@ private:
 	void rebuildPoint(ContactPoint& cp) override;
 	void updateNormal() override;
 
-	Circle* c1 = nullptr;
-	Circle* c2 = nullptr;
+	const Circle* const c1;
+	const Circle* const c2;
 };
 

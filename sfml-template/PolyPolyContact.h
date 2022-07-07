@@ -21,8 +21,8 @@ private:
 	void rebuildPoint(ContactPoint& cp) override;
 	void updateNormal() override;
 
-	ConvexPolygon* ref = nullptr;
-	ConvexPolygon* inc = nullptr;
+	const ConvexPolygon* const ref;
+	const ConvexPolygon* const inc;
 
 	// TODO: probably don't need to store these
 	const Edge* refEdge = nullptr;
