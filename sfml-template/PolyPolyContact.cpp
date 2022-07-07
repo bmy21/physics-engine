@@ -30,7 +30,7 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 	for (const auto& cp : contactPoints)
 	{
 		circle.setPosition(cp.point.x*pixPerUnit, cp.point.y*pixPerUnit);
-		window.draw(circle);
+		//window.draw(circle);
 
 		if (debug && text)
 		{
@@ -45,29 +45,6 @@ void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fract
 			window.draw(*text);
 		}
 	}
-}
-
-bool PolyPolyContact::matches(const PolyPolyContact* other) const
-{
-	if (!idsMatch(other) || ncp != other->ncp || ncp == 0)
-	{
-		return false;
-	}
-
-	auto& cp = contactPoints;
-	auto& cpOther = other->contactPoints;
-	
-	// Assumes that the contact points are ordered consistently in both constraints,
-	// i.e. cannot have 0 matching with 1 and 1 matching with 0
-	for (int i = 0; i < ncp; ++i)
-	{
-		if (!cp[i].matches(cpOther[i]))
-		{
-			return false;
-		}
-	}
-
-	return true;
 }
 
 void PolyPolyContact::updateNormal()

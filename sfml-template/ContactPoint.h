@@ -26,12 +26,10 @@ struct ContactPoint
 	// A point on the incident body used to generate the contact point
 	vec2 localIncPoint;
 
-	// Complete set of information that specifies how this 
-	// contact point was generated. Can be used to recompute
-	// the contact point or to match agatinst other contact points.
-
-	// TODO: IndexedContactPoint subclass?
-
+	// Indices that specify how this contact point was generated,
+	// used to match against other contact points. Only used in cases
+	// where there can be more than one contact point (e.g. poly-poly).
+	
 	// Index of point on incident body
 	int incPointIndex = -1;
 

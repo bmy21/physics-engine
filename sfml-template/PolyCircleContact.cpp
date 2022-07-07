@@ -36,12 +36,6 @@ void PolyCircleContact::draw(sf::RenderWindow& window, real pixPerUnit, real fra
 	}
 }
 
-bool PolyCircleContact::matches(const PolyCircleContact* other) const
-{
-	// Match based on which bodies are colliding, as there can only be one contact point
-	return idsMatch(other);
-}
-
 void PolyCircleContact::initPoints()
 {
 	updateNormal();

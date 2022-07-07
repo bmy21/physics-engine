@@ -39,7 +39,7 @@ struct PhysicsSettings
 
 	// Decay constants for all rigid bodies
 	real linearDamp = 0;
-	real angularDamp = 0; // decayConstant(5);
+	real angularDamp = decayConstant(3);
 
 	// Plane half-thickness for clipping
 	real clipPlaneEpsilon = 1e-5;

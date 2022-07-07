@@ -109,12 +109,23 @@ void ContactConstraint::prepareVelSolver()
 
 void ContactConstraint::getImpulsesFrom(ContactConstraint* other)
 {
-	// This function should only be called if *other is known to match *this
+	if (!idsMatch(other))
+	{
+		return;
+	}
+
 	for (int i = 0; i < ncp; ++i)
 	{
-		contactPoints[i].lambda = other->contactPoints[i].lambda;
-		contactPoints[i].fLambda = other->contactPoints[i].fLambda;
-		contactPoints[i].fRollLambda = other->contactPoints[i].fRollLambda;
+		for (int j = 0; j < other->ncp; ++j)
+		{
+			if (contactPoints[i].matches(other->contactPoints[j]))
+			{
+				contactPoints[i].lambda = other->contactPoints[j].lambda;
+				contactPoints[i].fLambda = other->contactPoints[j].fLambda;
+				contactPoints[i].fRollLambda = other->contactPoints[j].fRollLambda;
+				break;
+			}
+		}
 	}
 }
 

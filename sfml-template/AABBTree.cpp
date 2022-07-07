@@ -192,7 +192,8 @@ std::vector<RigidBody*> AABBTree::getPossibleColliders(RigidBody* rb) const
 		{
 			if (n->isLeaf)
 			{
-				// Avoid checking a pair twice
+				// Avoid checking a pair twice - only return candidates whose id
+				// is smaller than the RigidBody provided
 				if (n->rb->id < rb->id)
 				{
 					result.push_back(n->rb);

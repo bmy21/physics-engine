@@ -3,9 +3,9 @@
 // Returns <closest point, new search direction, region type>
 std::tuple<vec2, vec2, Voronoi> Simplex::closestPoint(const vec2& point)
 {
-    // TODO: reduce code duplication (search direction calculation)
+    // Note: could reduce code duplication here (search direction calculation)
     
-    // Note: the sign of a 2-point barycentric coordinate doesn't depend on whether the division
+    // The sign of a 2-point barycentric coordinate doesn't depend on whether the division
     // has taken place, but for a 3-point coordinate it does.
 
     int npoints = vertices.size();

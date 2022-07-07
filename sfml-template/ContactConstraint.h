@@ -26,11 +26,6 @@ public:
 	bool removeFlagSet() const { return remove; }
 
 	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) = 0;
-
-	virtual bool matches(const ContactConstraint* other) const = 0;
-	virtual bool matches(const PolyPolyContact* other) const = 0;
-	virtual bool matches(const CircleCircleContact* other) const = 0;
-	virtual bool matches(const PolyCircleContact* other) const = 0;
 	
 	int numPersist = 0;
 

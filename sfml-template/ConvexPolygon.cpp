@@ -19,7 +19,6 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real fraction, bool debug, sf
 
 	for (int i = 0; i < npoints; ++i)
 	{
-		// TODO: rotate instead of transform individually?
 		vec2 v = vertices[i]->global(ipos, itheta) * ps.pixPerUnit;
 		sf::Vector2f pointCoord(v.x, v.y); 
 
@@ -79,7 +78,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	const Edge* incEdge = nullptr;
 	const Vertex* incVertex = nullptr;
 	
-	// TODO: include both relative & absolute tolerance?
+	// NOTE: could include both relative & absolute tolerance here?
 	if (penetrationBtoA > penetrationAtoB + ps.refEdgeAbsTol)
 	{
 		// Penetrations are signed, so here A penetrates into B more than B penetrates into A
@@ -103,8 +102,6 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	// and the previous edge. The incident edge is least well-aligned with the reference normal.
 	vec2 normal = refEdge->normal();
 	
-	// TODO: add tolerance?
-	// TODO: use normal dot products?
 	if (inc->absEdgeDot(incVertex->e1(), normal) < inc->absEdgeDot(incVertex->e2(), normal))
 	{
 		incEdge = incVertex->e1();
@@ -317,7 +314,7 @@ int ConvexPolygon::prevIndex(int i) const
 // Returns <closest point, region type>
 std::pair<vec2, Voronoi> ConvexPolygon::closestPoint(const vec2& point)
 {
-	// TODO: caching of previous result?
+	// NOTE: perhaps worth caching the previous result?
 	int nIter = 0;
 	
 	Simplex s;

@@ -11,11 +11,6 @@ public:
 
 	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) override;
 
-	bool matches(const ContactConstraint* other) const override { return other->matches(this); }
-	bool matches(const PolyPolyContact* other) const override { return false;  }
-	bool matches(const CircleCircleContact* other) const override { return false; }
-	bool matches(const PolyCircleContact* other) const override;
-
 private:
 	void initPoints() override;
 	void rebuildPoint(ContactPoint& cp) override;
@@ -23,7 +18,6 @@ private:
 
 	void setRollingFriction();
 
-	// TODO: make these const pointers (in other CCs too)
 	const ConvexPolygon* const p;
 	const Circle* const c;
 

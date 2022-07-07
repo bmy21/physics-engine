@@ -245,21 +245,17 @@ void Game::correctPositions()
 
 void Game::updateCollidingPairs()
 {
+	// By default, remove all contact constraints
 	std::for_each(std::execution::unseq, collidingPairs.begin(), collidingPairs.end(), [](const auto& cp)
 	{
 		cp.second->markForRemoval();
 	});
 
-	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [](const std::unique_ptr<RigidBody>& rb)
+	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
 	{
 		rb->updateAABB();
-	});
-
-	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), [&](const std::unique_ptr<RigidBody>& rb)
-	{
 		tree.update(rb.get());
 	});
-	
 
 	// Note: parallel processing actually slows this down, presumably because of the
 	// requirement for a mutex lock before accessing the contact constraint map
@@ -267,33 +263,14 @@ void Game::updateCollidingPairs()
 	std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), 
 	[&](const std::unique_ptr<RigidBody>& rb)
 	{
+		// colliders will only contain rigid bodies with id less than rb's id
 		auto colliders = tree.getPossibleColliders(rb.get());
 		
 		for (auto& c : colliders)
 		{
-			// Avoid checking a pair twice
-			//if (c->id < rb->id)
-			{
-				checkCollision(c, rb.get());
-			}
-		}
-	});
-
-	/*std::for_each(std::execution::seq, rigidBodies.begin(), rigidBodies.end(), 
-	[&](const std::unique_ptr<RigidBody>& rb)
-	{
-		rb->updatePossibleColliders(tree);
-	});*/
-
-	/*for (auto& rb : rigidBodies)
-	{
-		rb->updatePossibleColliders(tree);
-
-		for (auto& c : rb->possibleColliders)
-		{
 			checkCollision(c, rb.get());
 		}
-	}*/
+	});
 
 	/*int nCheck = 0;
 	for (auto it1 = rigidBodies.begin(); it1 != rigidBodies.end(); ++it1)
@@ -307,6 +284,7 @@ void Game::updateCollidingPairs()
 
 	//std::cout << nCheck << "\n";
 
+	// Any previously colliding pairs that are no longer in contact should be removed
 	std::erase_if(collidingPairs, [](const auto& cp) { return cp.second->removeFlagSet(); });
 
 	//std::cout << collidingPairs.size() << "\n";
@@ -314,22 +292,15 @@ void Game::updateCollidingPairs()
 
 void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 {
-	// Ensure a given pair of rigid bodies is always checked in a consistent order
-	RigidBody* smallerID = rb1;
-	RigidBody* largerID = rb2;
+	// Assumes that the ordering of rb1 and rb2 is always consistent, e.g. rb1->id < rb2->id
 
-	if (smallerID->id > largerID->id)
-	{
-		std::swap(smallerID, largerID);
-	}
-
-	std::unique_ptr<ContactConstraint> result = smallerID->checkCollision(largerID);
+	std::unique_ptr<ContactConstraint> result = rb1->checkCollision(rb2);
 
 	if (result)
 	{
 		result->init();
 
-		idPair pair = { smallerID->id, largerID->id };
+		idPair pair = { rb1->id, rb2->id };
 
 		auto it = collidingPairs.find(pair);
 
@@ -340,12 +311,8 @@ void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 		}
 		else
 		{
-			// This pair was already colliding
-			if (it->second->matches(result.get())) // TODO: match check in getImpulsesFrom()?
-			{
-				result->getImpulsesFrom(it->second.get());
-			}
-			
+			// This pair was already colliding, so take the impulses for warm starting
+			result->getImpulsesFrom(it->second.get());
 			it->second = std::move(result);
 		}
 	}
