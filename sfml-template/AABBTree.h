@@ -3,19 +3,6 @@
 #include "RigidBody.h"
 #include <unordered_map>
 
-struct Node
-{
-	RigidBody* rb = nullptr;
-	AABB aabb;
-
-	bool isLeaf = false;
-
-	Node* parent = nullptr;
-	std::unique_ptr<Node> child1 = nullptr;
-	std::unique_ptr<Node> child2 = nullptr;
-};
-
-
 class AABBTree
 {
 public:
@@ -28,6 +15,8 @@ public:
 	int count();
 
 private:
+	struct Node;
+
 	real insertionCost(Node* toAdd, Node* sibling);
 	real subTreeLowerBound(Node* toAdd, Node* top);
 	void refitAABBs(Node* start);
@@ -37,3 +26,14 @@ private:
 	std::map<idType, Node*> rbNodeMap;
 };
 
+struct AABBTree::Node
+{
+	RigidBody* rb = nullptr;
+	AABB aabb;
+
+	bool isLeaf = false;
+
+	Node* parent = nullptr;
+	std::unique_ptr<Node> child1 = nullptr;
+	std::unique_ptr<Node> child2 = nullptr;
+};

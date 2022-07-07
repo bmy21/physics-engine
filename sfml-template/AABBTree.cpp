@@ -18,14 +18,14 @@ void AABBTree::insert(RigidBody* rb)
 		return;
 	}
 
-	// find best sibling
+	// Find the best sibling
 	Node* bestSibling = root.get();
 	real bestCost = insertionCost(newNode.get(), bestSibling);
 
 	using NodeCostPair = std::pair<Node*, real>;
 	auto compare = [](const NodeCostPair& p1, const NodeCostPair& p2)
 	{
-		// greater than to ensure that the lowest cost pair is at the top
+		// Greater than to ensure that the lowest cost pair is at the top
 		return p1.second > p2.second;
 	};
 
@@ -55,8 +55,7 @@ void AABBTree::insert(RigidBody* rb)
 		}
 	}
 	
-
-	// create new parent
+	// Create a new parent
 	Node* oldParent = bestSibling->parent;
 	std::unique_ptr<Node> newParent = std::make_unique<Node>();
 	newParent->parent = oldParent;
@@ -73,7 +72,6 @@ void AABBTree::insert(RigidBody* rb)
 			newParent->child1 = std::move(oldParent->child1);
 			newParent->child2 = std::move(newNode);
 
-			//oldParent->child1.release();
 			oldParent->child1 = std::move(newParent);
 		}
 		else
@@ -81,7 +79,6 @@ void AABBTree::insert(RigidBody* rb)
 			newParent->child1 = std::move(oldParent->child2);
 			newParent->child2 = std::move(newNode);
 
-			//oldParent->child2.release();
 			oldParent->child2 = std::move(newParent);
 		}
 	}
@@ -93,8 +90,7 @@ void AABBTree::insert(RigidBody* rb)
 		root = std::move(newParent);
 	}
 
-	
-	// refit aabbs
+	// Refit the AABBs
 	refitAABBs(newNodeObserver->parent);
 }
 
@@ -103,16 +99,11 @@ void AABBTree::remove(RigidBody* rb)
 	Node* rbNode = rbNodeMap[rb->id];
 	rbNodeMap.erase(rb->id);
 
-	//std::cout << root.get() << "\n";
-	//std::cout << rbNode << "\n";
-
 	if (rbNode == root.get())
 	{
 		// If rb is the root, it must be the only node in the tree
 		// as each node has either 0 or 2 children
 		root.reset();
-
-		//std::cout << "resetting root\n";
 		return;
 	}
 
@@ -156,13 +147,11 @@ void AABBTree::remove(RigidBody* rb)
 		// No grandparent, so sibling becomes the root
 		if (parent->child1.get() == rbNode)
 		{
-			//root->child2.release();
 			parent->child2->parent = nullptr;
 			root = std::move(parent->child2);
 		}
 		else
 		{
-			//root->child1.release();
 			parent->child1->parent = nullptr;
 			root = std::move(parent->child1);
 		}
@@ -229,7 +218,6 @@ int AABBTree::count()
 	{
 		s.push(root.get());
 	}
-	
 
 	while (!s.empty())
 	{
@@ -254,13 +242,13 @@ real AABBTree::insertionCost(Node* toAdd, Node* sibling)
 {
 	// How much extra perimeter would be added by inserting toAdd next to a given sibling?
 	
-	// direct cost
+	// Direct cost
 	real cost = toAdd->aabb.unionWith(sibling->aabb).peri();
 	
 	Node* n = sibling->parent;
 	while (n)
 	{
-		// inherited cost
+		// Inherited cost
 		cost += toAdd->aabb.unionWith(n->aabb).peri() - n->aabb.peri();
 		n = n->parent;
 	}
@@ -270,13 +258,13 @@ real AABBTree::insertionCost(Node* toAdd, Node* sibling)
 
 real AABBTree::subTreeLowerBound(Node* toAdd, Node* top)
 {
-	// lower bound on direct cost
+	// Lower bound on direct cost
 	real cost = toAdd->aabb.peri();
 
 	Node* n = top;
 	while (n)
 	{
-		// inherited cost
+		// Inherited cost
 		cost += toAdd->aabb.unionWith(n->aabb).peri() - n->aabb.peri();
 		n = n->parent;
 	}
