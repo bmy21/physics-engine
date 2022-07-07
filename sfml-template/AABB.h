@@ -15,6 +15,12 @@ struct AABB
 			&& rangeContains({ lower.y, upper.y }, { other.lower.y, other.upper.y });
 	}
 
+	bool contains(const vec2& p)
+	{
+		return rangeContains({ lower.x, upper.x }, p.x)
+			&& rangeContains({ lower.y, upper.y }, p.y);
+	}
+
 	AABB unionWith(const AABB& other)
 	{
 		AABB u;

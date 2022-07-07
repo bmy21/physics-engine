@@ -308,8 +308,9 @@ void Game::setupMouseConstraint()
 {
 	if (!mc)
 	{
-		// TODO: use AABB tree
-		for (auto& rb : rigidBodies)
+		auto containers = tree.getPossibleContainers(mh.coords());
+
+		for (auto& rb : containers)
 		{
 			if (rb->pointInside(mh.coords()))
 			{
@@ -317,9 +318,9 @@ void Game::setupMouseConstraint()
 				real fMax = 300.f / rb->mInv;
 
 				// TODO: Consider force/acceleration limit & contact breaking
-
-				auto newMC = std::make_unique<MouseConstraint>(rb.get(), mh, ps, local, .1f, 4.f, fMax);
+				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .1f, 4.f, fMax);
 				mc = newMC.get();
+
 				constraints.push_back(std::move(newMC));
 
 				break;

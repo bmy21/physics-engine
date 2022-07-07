@@ -19,7 +19,7 @@ std::tuple<vec2, vec2, Voronoi> Simplex::closestPoint(const vec2& point)
     }
 
     vec2 pB = vertices[1].coords();
-    auto [uAB, vAB, divAB] = nonNormalisedBary(point, pA, pB);
+    auto [uAB, vAB, divAB] = unNormalisedBary(point, pA, pB);
 
     if (npoints == 2)
     {
@@ -50,9 +50,9 @@ std::tuple<vec2, vec2, Voronoi> Simplex::closestPoint(const vec2& point)
     }
 
     vec2 pC = vertices[2].coords();
-    auto [uBC, vBC, divBC] = nonNormalisedBary(point, pB, pC);
-    auto [uCA, vCA, divCA] = nonNormalisedBary(point, pC, pA);
-    auto [uABC, vABC, wABC, divABC] = nonNormalisedBary(point, pA, pB, pC);
+    auto [uBC, vBC, divBC] = unNormalisedBary(point, pB, pC);
+    auto [uCA, vCA, divCA] = unNormalisedBary(point, pC, pA);
+    auto [uABC, vABC, wABC, divABC] = unNormalisedBary(point, pA, pB, pC);
 
     if (npoints == 3)
     {

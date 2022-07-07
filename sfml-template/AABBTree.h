@@ -11,6 +11,7 @@ public:
 	void update(RigidBody* rb);
 
 	std::vector<RigidBody*> getPossibleColliders(RigidBody* rb) const;
+	std::vector<RigidBody*> getPossibleContainers(const vec2& p) const;
 
 	int count();
 

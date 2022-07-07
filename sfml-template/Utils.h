@@ -46,11 +46,13 @@ real zcross(const vec2& v, const vec2& w);
 
 std::pair<real, real> bary(const vec2& q, const vec2& v1, const vec2& v2);
 std::tuple<real, real, real> bary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3);
-std::tuple<real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2);
-std::tuple<real, real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3);
+
+std::tuple<real, real, real> unNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2);
+std::tuple<real, real, real, real> unNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3);
 
 bool rangeOverlaps(const std::pair<real, real>& R1, const std::pair<real, real>& R2);
 bool rangeContains(const std::pair<real, real>& R1, const std::pair<real, real>& R2);
+bool rangeContains(const std::pair<real, real>& R, real x);
 
 real decayConstant(real halfLife);
 

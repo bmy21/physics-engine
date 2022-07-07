@@ -103,7 +103,7 @@ std::tuple<real, real, real> bary(const vec2& q, const vec2& v1, const vec2& v2,
 	return { u, v, w };
 }
 
-std::tuple<real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2)
+std::tuple<real, real, real> unNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2)
 {
 	vec2 v12 = v2 - v1;
 	real msq = magSquared(v12);
@@ -114,7 +114,7 @@ std::tuple<real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, co
 	return { u, v, msq };
 }
 
-std::tuple<real, real, real, real> nonNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3)
+std::tuple<real, real, real, real> unNormalisedBary(const vec2& q, const vec2& v1, const vec2& v2, const vec2& v3)
 {
 	real a123 = zcross(v2 - v1, v3 - v1);
 
@@ -134,6 +134,11 @@ bool rangeContains(const std::pair<real, real>& R1, const std::pair<real, real>&
 {
 	// True if R1 contains R2
 	return (R1.first <= R2.first) && (R1.second >= R2.second);
+}
+
+bool rangeContains(const std::pair<real, real>& R, real x)
+{
+	return R.first <= x && x <= R.second;
 }
 
 real decayConstant(real halfLife)

@@ -210,6 +210,38 @@ std::vector<RigidBody*> AABBTree::getPossibleColliders(RigidBody* rb) const
 	return result;
 }
 
+std::vector<RigidBody*> AABBTree::getPossibleContainers(const vec2& p) const
+{
+	std::vector<RigidBody*> result;
+
+	std::stack<Node*> s;
+	if (root)
+	{
+		s.push(root.get());
+	}
+
+	while (!s.empty())
+	{
+		Node* n = s.top();
+		s.pop();
+
+		if (n->aabb.contains(p))
+		{
+			if (n->isLeaf)
+			{
+				result.push_back(n->rb);
+			}
+			else
+			{
+				s.push(n->child1.get());
+				s.push(n->child2.get());
+			}
+		}
+	}
+
+	return result;
+}
+
 int AABBTree::count()
 {
 	int result = 0;
