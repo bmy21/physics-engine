@@ -51,29 +51,17 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real fraction, bool debug, sf
 
 std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* other)
 {
-	//TODO: allow processing time at the start for all separating vectors to be cached?
-
-
 	// Quickly rule out collisions using an AABB test
 	/*if (!aabb.overlaps(other->aabb))
 	{
 		return nullptr;
 	}*/
 
-
-	//vec2 sepAxis = separatingAxes[other->id];
-
-	//if (!isZero(sepAxis) && !rangeOverlaps(shadow(sepAxis), other->shadow(sepAxis)))
-	//{
-	//	return nullptr;
-	//}
-
 	// Check normal directions of *this
 	auto [earlyOutA, penetrationBtoA, edgeA, vertexB] = this->maxSignedPenetration(*other);
 
 	if (earlyOutA)
 	{
-		//separatingAxes[other->id] = edgeA->normal();
 		return nullptr;
 	}
 
@@ -82,7 +70,6 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 
 	if (earlyOutB)
 	{
-		//separatingAxes[other->id] = edgeB->normal();
 		return nullptr;
 	}
 	
@@ -137,7 +124,6 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 	{
 		return nullptr;
 	}*/
-
 
 	vec2 centre = other->position();
 	real rad = other->radius();
@@ -383,13 +369,6 @@ const Vertex* ConvexPolygon::supportVertex(const vec2& d) const
 			vertex = v.get();
 		}
 	}
-
-	/*std::max_element(std::execution::unseq, vertices.begin(), vertices.end(),
-		[](const std::unique_ptr<Vertex>& a, const std::unique_ptr<Vertex>& b)
-		{
-			return dotProduct = dot(v->global(), d);
-		}
-	);*/
 
 	return vertex;
 }

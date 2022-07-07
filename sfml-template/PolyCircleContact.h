@@ -24,8 +24,8 @@ private:
 	void setRollingFriction();
 
 	// TODO: make these const pointers (in other CCs too)
-	ConvexPolygon* p = nullptr;
-	Circle* c = nullptr;
+	const ConvexPolygon* p;
+	const Circle* c;
 
 	vec2 localNormal;
 	vec2 localRefPoint;

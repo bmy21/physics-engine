@@ -28,7 +28,6 @@ private:
 	const Edge* refEdge = nullptr;
 	const Edge* incEdge = nullptr;
 
-	// TODO: these could be in the base class?
 	vec2 localNormal;
 	vec2 localRefPoint;
 

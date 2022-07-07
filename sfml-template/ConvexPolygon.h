@@ -46,7 +46,7 @@ private:
 	const Vertex* supportVertex(const vec2& d) const;
 
 	// Find penetration of other polygon into this polygon along normal of edge e
-	std::pair<real, const Vertex*> normalPenetration(const Edge* e, const ConvexPolygon& other) const; // TODO: why mix pointer and reference?
+	std::pair<real, const Vertex*> normalPenetration(const Edge* e, const ConvexPolygon& other) const;
 
 	// Find maximum signed penetration of other polygon into this polygon along any edge normal
 	std::tuple<bool, real, const Edge*, const Vertex*> maxSignedPenetration(const ConvexPolygon& other) const;

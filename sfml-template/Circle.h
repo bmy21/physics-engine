@@ -13,7 +13,7 @@ public:
 	void draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text* text) override;
 
 	std::unique_ptr<ContactConstraint> checkCollision(RigidBody* other) override { return other->checkCollision(this); }
-	std::unique_ptr<ContactConstraint> checkCollision(ConvexPolygon* other) override; // Need checkCirclePolyCollide(this, other)?
+	std::unique_ptr<ContactConstraint> checkCollision(ConvexPolygon* other) override;
 	std::unique_ptr<ContactConstraint> checkCollision(Circle* other) override;
 
 	bool pointInside(const vec2& p) const override;
@@ -24,7 +24,7 @@ public:
 	void onMove() override { }
 
 	real radius() const { return rad; }
-	vec2 furthestPoint(const vec2& d);
+	vec2 furthestPoint(const vec2& d) const;
 
 private:
 	void initShape();

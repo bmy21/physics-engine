@@ -64,7 +64,7 @@ void Circle::updateFatAABB(real w)
 	aabbFat.upper = { position().x + rad + w, position().y + rad + w };
 }
 
-vec2 Circle::furthestPoint(const vec2& d)
+vec2 Circle::furthestPoint(const vec2& d) const
 {
 	return position() + d * rad;
 }

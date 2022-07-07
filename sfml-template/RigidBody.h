@@ -78,7 +78,7 @@ public:
 	void applyDamping(real dt);
 
 	AABB getAABB() const { return aabb; }
-	AABB getFatAABB() const { return aabbFat; }
+	AABB getFatAABB() const { return aabbFat; } 
 
 	//Node* treeNode = nullptr;
 	const idType id;

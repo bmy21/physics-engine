@@ -34,8 +34,6 @@ private:
 	void rotate(Node* top);
 
 	std::unique_ptr<Node> root;
-
-	// TODO: unordered_map?
 	std::map<idType, Node*> rbNodeMap;
 };
 

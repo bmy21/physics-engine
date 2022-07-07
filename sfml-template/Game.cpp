@@ -2,7 +2,7 @@
 
 
 Game::Game():
-	mh(window, ps.pixPerUnit)
+	mh(window, ps)
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
@@ -39,9 +39,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 	
-	// TODO: cache sin & cos in RigidBody?
-	// TODO: map of {cpid, cp} in ConvexPolygon for quick matching?
 	// TODO: handle RB removal
+
 	int n = 25;
 	int m = 25;
 	for (int i = 0; i < n; ++i)
@@ -50,7 +49,7 @@ Game::Game():
 		{
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
-			//addCircle(0.2, { x, y }, 1);
+
 			if (1)//rand() % 2 == 0)
 				addConvexPolygon(4, 0.3, { x, y }, 10);
 			else
@@ -337,7 +336,7 @@ void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 		if (it == collidingPairs.end())
 		{
 			// This pair is newly colliding
-			collidingPairs.insert({ pair, std::move(result)});
+			collidingPairs.insert({ pair, std::move(result) });
 		}
 		else
 		{
