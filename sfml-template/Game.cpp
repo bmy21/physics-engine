@@ -272,22 +272,8 @@ void Game::updateCollidingPairs()
 		}
 	});
 
-	/*int nCheck = 0;
-	for (auto it1 = rigidBodies.begin(); it1 != rigidBodies.end(); ++it1)
-	{
-		for (auto it2 = rigidBodies.begin(); it2 < it1; ++it2)
-		{
-			++nCheck;
-			checkCollision(it1->get(), it2->get());
-		}
-	}*/
-
-	//std::cout << nCheck << "\n";
-
 	// Any previously colliding pairs that are no longer in contact should be removed
 	std::erase_if(collidingPairs, [](const auto& cp) { return cp.second->removeFlagSet(); });
-
-	//std::cout << collidingPairs.size() << "\n";
 }
 
 void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
@@ -371,40 +357,3 @@ vec2 Game::pixToCoords(real xPix, real yPix) const
 {
 	return { xPix / ps.pixPerUnit, yPix / ps.pixPerUnit };
 }
-
-
-/* SWEEP AND PRUNE */
-
-//auto compare = [](const std::unique_ptr<RigidBody>& a, const std::unique_ptr<RigidBody>& b)
-//{
-//	return a->left() < b->left();
-//};
-
-//std::sort(std::execution::par_unseq, rigidBodies.begin(), rigidBodies.end(), compare);
-//std::vector<RigidBody*> active;
-
-////using RBPair = std::pair<RigidBody*, RigidBody*>;
-////std::set<RBPair> possibleColliders;
-
-//int nCheck = 0;
-//for (auto it = rigidBodies.begin(); it != rigidBodies.end(); ++it)
-//{
-//	// Check this rigid body against all others that could possibly be colliding
-//	for (auto activeIt = active.begin(); activeIt != active.end(); )
-//	{
-//		// Remove any rigid bodies that have already been passed
-//		if ((*activeIt)->right() < (*it)->left())
-//		{
-//			activeIt = active.erase(activeIt);
-//			continue;
-//		}
-
-//		checkCollision(it->get(), *activeIt);
-//		++nCheck;
-
-//		++activeIt;
-//	}
-
-//	// This rigid body is now a potential collider with the next
-//	active.push_back(it->get());
-//}
