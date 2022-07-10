@@ -79,6 +79,9 @@ public:
 
 	AABB getAABB() const { return aabb; }
 	AABB getFatAABB() const { return aabbFat; } 
+
+	void markForRemoval() { remove = true; }
+	bool removeFlagSet() const { return remove; }
 	
 	const idType id;
 
@@ -95,6 +98,8 @@ private:
 
 	vec2 posPrev;
 	real thetaPrev = 0;
+
+	bool remove = false;
 
 	static inline idType counter = 0;
 };

@@ -42,19 +42,15 @@ void ConvexPolygon::draw(sf::RenderWindow& window, real fraction, bool debug, sf
 	sf::CircleShape circle(rad);
 	circle.setOrigin(rad, rad);
 	circle.setFillColor(sf::Color::Magenta);
-
-	//vec2 closest = closestPoint({ 0, 0 }).first;
-	//circle.setPosition(closest.x * pixPerUnit, closest.y * pixPerUnit);
-	//window.draw(circle);
 }
 
 std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* other)
 {
 	// Quickly rule out collisions using an AABB test
-	/*if (!aabb.overlaps(other->aabb))
+	if (!aabb.overlaps(other->aabb))
 	{
 		return nullptr;
-	}*/
+	}
 
 	// Check normal directions of *this
 	auto [earlyOutA, penetrationBtoA, edgeA, vertexB] = this->maxSignedPenetration(*other);
@@ -117,10 +113,10 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(Circle* other)
 {
 	// Quickly rule out collisions using an AABB test
-	/*if (!aabb.overlaps(other->getAABB()))
+	if (!aabb.overlaps(other->getAABB()))
 	{
 		return nullptr;
-	}*/
+	}
 
 	vec2 centre = other->position();
 	real rad = other->radius();
