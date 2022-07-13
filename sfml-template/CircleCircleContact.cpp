@@ -7,12 +7,6 @@ CircleCircleContact::CircleCircleContact(Circle* c1, Circle* c2, const PhysicsSe
 	
 }
 
-
-void CircleCircleContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
-{
-
-}
-
 void CircleCircleContact::initPoints()
 {
 	updateNormal();

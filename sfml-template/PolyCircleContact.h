@@ -9,8 +9,6 @@ public:
 	PolyCircleContact(ConvexPolygon* p, Circle* c, const vec2& localNormal, const vec2& localRefPoint, 
 		Voronoi region, const PhysicsSettings& ps);
 
-	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) override;
-
 private:
 	void initPoints() override;
 	void rebuildPoint(ContactPoint& cp) override;

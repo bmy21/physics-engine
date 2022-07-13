@@ -9,43 +9,43 @@ PolyPolyContact::PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const E
 	localRefPoint = ref->pointToLocal(refEdge->point1());
 }
 
-void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
-{
-	// std::cout << numPersist << '\n';
-
-	vec2 refPoint1 = refEdge->point1() * pixPerUnit;
-	vec2 refPoint2 = refEdge->point2() * pixPerUnit;
-
-	vec2 incPoint1 = incEdge->point1() * pixPerUnit;
-	vec2 incPoint2 = incEdge->point2() * pixPerUnit;
-
-	drawThickLine(window, refPoint1, refPoint2, 3, sf::Color::Red);
-	drawThickLine(window, incPoint1, incPoint2, 3, sf::Color::Green);
-
-	real rad = 5;
-	sf::CircleShape circle(rad);
-	circle.setOrigin(rad, rad);
-	circle.setFillColor(sf::Color::Magenta);
-
-	for (const auto& cp : contactPoints)
-	{
-		circle.setPosition(cp.point.x*pixPerUnit, cp.point.y*pixPerUnit);
-		//window.draw(circle);
-
-		if (debug && text)
-		{
-			text->setCharacterSize(40);
-			text->setFillColor(sf::Color::Magenta);
-
-			text->setString("\n\n" + cp.idAsString());
-
-			text->setPosition(cp.point.x * pixPerUnit, cp.point.y * pixPerUnit);
-			centre(*text);
-
-			window.draw(*text);
-		}
-	}
-}
+//void PolyPolyContact::draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug, sf::Text* text)
+//{
+//	//std::cout << numPersist << '\n';
+//
+//	vec2 refPoint1 = refEdge->point1() * pixPerUnit;
+//	vec2 refPoint2 = refEdge->point2() * pixPerUnit;
+//
+//	vec2 incPoint1 = incEdge->point1() * pixPerUnit;
+//	vec2 incPoint2 = incEdge->point2() * pixPerUnit;
+//
+//	drawThickLine(window, refPoint1, refPoint2, 3, sf::Color::Red);
+//	drawThickLine(window, incPoint1, incPoint2, 3, sf::Color::Green);
+//
+//	real rad = 5;
+//	sf::CircleShape circle(rad);
+//	circle.setOrigin(rad, rad);
+//	circle.setFillColor(sf::Color::Magenta);
+//
+//	for (const auto& cp : contactPoints)
+//	{
+//		circle.setPosition(cp.point.x*pixPerUnit, cp.point.y*pixPerUnit);
+//		//window.draw(circle);
+//
+//		if (debug && text)
+//		{
+//			text->setCharacterSize(40);
+//			text->setFillColor(sf::Color::Magenta);
+//
+//			text->setString("\n\n" + cp.idAsString());
+//
+//			text->setPosition(cp.point.x * pixPerUnit, cp.point.y * pixPerUnit);
+//			centre(*text);
+//
+//			window.draw(*text);
+//		}
+//	}
+//}
 
 void PolyPolyContact::updateNormal()
 {

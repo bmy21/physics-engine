@@ -10,6 +10,8 @@ class CircleCircleContact;
 class PolyCircleContact;
 class RigidBody;
 
+// TODO: ContactConstraint draw functions should show normals
+
 class ContactConstraint
 {
 public:
@@ -25,13 +27,12 @@ public:
 	void markForRemoval() { remove = true; }
 	bool removeFlagSet() const { return remove; }
 
-	virtual void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) = 0;
+	void draw(sf::RenderWindow& window, real fraction, bool debug = false, sf::Text* text = nullptr);
 	
 	int numPersist = 0;
 
 protected:
-	// The details of the below functions depend on the specific types of rigid body involved,
-	// so they need to be virtual
+	// The details of the below functions depend on the specific types of rigid body involved
 	virtual void initPoints() = 0;
 	virtual void updateNormal() = 0;
 	virtual void rebuildPoint(ContactPoint& cp) = 0;

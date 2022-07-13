@@ -129,6 +129,29 @@ void ContactConstraint::getImpulsesFrom(ContactConstraint* other)
 	}
 }
 
+void ContactConstraint::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text* text)
+{
+	real normalHalfLengthPix = 6;
+	real normalThickness = 2;
+
+	for (const auto& cp : contactPoints)
+	{
+		vec2 pos = { cp.point.x * ps.pixPerUnit, cp.point.y * ps.pixPerUnit };
+		drawThickLine(window, pos - normalHalfLengthPix * n, pos + normalHalfLengthPix * n, normalThickness, sf::Color::Black);
+
+		if (debug && text)
+		{
+			text->setCharacterSize(40);
+			text->setFillColor(sf::Color::Magenta);
+			text->setString("\n\n" + cp.idAsString());
+			text->setPosition(pos.x, pos.y);
+			centre(*text);
+
+			window.draw(*text);
+		}
+	}
+}
+
 void ContactConstraint::solvePointRollFriction(ContactPoint& cp)
 {
 	real vDotGradCfRoll = rb2->angVel() - rb1->angVel();

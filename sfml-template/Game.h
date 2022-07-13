@@ -30,8 +30,6 @@ private:
 	int fpsLimit = 144;
 	real dtMax = 1.0 / 10;
 
-	// TODO: function to remove a rigid body & perform associated cleanup
-
 	void integrateVelocities();
 	void integratePositions();
 

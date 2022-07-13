@@ -9,8 +9,6 @@ class PolyPolyContact : public ContactConstraint
 public:
 	PolyPolyContact(ConvexPolygon* ref, ConvexPolygon* inc, const Edge* refEdge, const Edge* incEdge, const PhysicsSettings& ps);
 
-	void draw(sf::RenderWindow& window, real pixPerUnit, real fraction, bool debug = false, sf::Text* text = nullptr) override;
-
 private:
 	void initPoints() override;
 	void rebuildPoint(ContactPoint& cp) override;
@@ -19,7 +17,7 @@ private:
 	const ConvexPolygon* const ref;
 	const ConvexPolygon* const inc;
 
-	// TODO: probably don't need to store these
+	// Store incident and reference edges for use in initPoints
 	const Edge* refEdge = nullptr;
 	const Edge* incEdge = nullptr;
 

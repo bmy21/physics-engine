@@ -32,17 +32,17 @@ Game::Game():
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 
+	// TODO: fix boundaries & add deletion-possible flag
+
 	real w = pixWidth / ps.pixPerUnit;
 	real h = pixHeight / ps.pixPerUnit;
 	addConvexPolygon(4, w, { w / 2, h + w / 2 });
 	addConvexPolygon(4, w, { w / 2, -w / 2 });
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
-	
-	// TODO: handle RB removal
 
-	int n = 25;
-	int m = 25;
+	int n = 12;
+	int m = 12;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -51,9 +51,9 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 
 			if (1)//rand() % 2 == 0)
-				addConvexPolygon(4, 0.3, { x, y }, 10);
+				addConvexPolygon(4, 0.6, { x, y }, 10);
 			else
-				addCircle(0.03, { x, y }, 10);
+				addCircle(0.18, { x, y }, 10);
 		}
 	}
 
@@ -92,7 +92,6 @@ void Game::run()
 		accTime += dt;
 
 		window.clear(sf::Color::White);
-
 		mh.update();
 
 		sf::Event event;
@@ -112,7 +111,7 @@ void Game::run()
 
 				else if (event.mouseButton.button == sf::Mouse::Right)
 				{
-					removeClickedRigidBody();
+					//removeClickedRigidBody();
 				}
 			}
 
@@ -125,12 +124,14 @@ void Game::run()
 			}
 		}
 
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+		{
+			removeClickedRigidBody();
+		}
+
 		while (accTime >= ps.dt)
 		{
 			// Step simulation forward by ps.dt seconds 
-
-
-			// TODO: constraint tracking and removal
 
 			updateCollidingPairs();
 			
@@ -164,9 +165,12 @@ void Game::run()
 			rb->draw(window, fraction, false, &text);
 		}
 
-		for (auto& cp : collidingPairs)
+		if (ps.showContactConstraints)
 		{
-			//cp.second->draw(window, pixPerUnit, fraction, false, &text);
+			for (auto& cp : collidingPairs)
+			{
+				cp.second->draw(window, fraction, false, &text);
+			}
 		}
 
 		window.display();
@@ -388,8 +392,6 @@ void Game::setupMouseConstraint()
 				// TODO: Consider force/acceleration limit & contact breaking
 				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .1f, 4.f, fMax);
 				mc = newMC.get();
-
-				//rb->addConstraint(mc);
 
 				constraints.push_back(std::move(newMC));
 
