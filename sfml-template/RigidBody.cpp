@@ -1,5 +1,6 @@
 #include "RigidBody.h"
 #include "AABBTree.h"
+#include "Constraint.h"
 
 RigidBody::RigidBody(const PhysicsSettings& ps, real mInv, real IInv):
 	ps(ps), mInv(mInv), IInv(IInv),
@@ -111,4 +112,19 @@ void RigidBody::applyDamping(real dt)
 
 	vel *= linearScale > 0 ? linearScale : 0;
 	omega *= angularScale > 0 ? angularScale : 0;
+}
+
+void RigidBody::markForRemoval()
+{
+	markConstraintsForRemoval();
+
+	remove = true;
+}
+
+void RigidBody::markConstraintsForRemoval()
+{
+	std::for_each(std::execution::unseq, constraints.begin(), constraints.end(), [](Constraint* const c)
+	{
+		c->markForRemoval();
+	});
 }

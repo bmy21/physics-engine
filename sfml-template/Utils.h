@@ -17,6 +17,8 @@
 #include <unordered_set>
 #include <execution>
 #include <forward_list>
+#include <initializer_list>
+
 
 struct ContactPoint;
 

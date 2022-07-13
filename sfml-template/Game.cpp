@@ -81,7 +81,7 @@ void Game::run()
 	{
 		dt = frameTimer.restart().asSeconds() / 1;
 
-		std::cout << 1 / dt << "\n";
+		//std::cout << 1 / dt << "\n";
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -109,6 +109,11 @@ void Game::run()
 				{
 					setupMouseConstraint();
 				}
+
+				else if (event.mouseButton.button == sf::Mouse::Right)
+				{
+					removeClickedRigidBody();
+				}
 			}
 
 			if (event.type == sf::Event::MouseButtonReleased)
@@ -122,9 +127,14 @@ void Game::run()
 
 		while (accTime >= ps.dt)
 		{
-			// Step simulation forward by dtPhysics seconds 
+			// Step simulation forward by ps.dt seconds 
+
+
+			// TODO: constraint tracking and removal
+
+			updateCollidingPairs();
 			
-			updateConstraints();
+			prepareVelSolvers();
 
 			warmStart(); 
 
@@ -134,9 +144,14 @@ void Game::run()
 			
 			integratePositions();
 
-			updateCollidingPairs();
-
 			correctPositions();
+
+			// Handle constraint removal before rigid body removal, because a
+			// constraint's destructor accesses all the rigid bodies it acts on
+
+			handleConstraintRemoval();
+
+			handleRigidBodyRemoval();
 
 			accTime -= ps.dt;
 		}
@@ -175,15 +190,12 @@ void Game::integratePositions()
 	});
 }
 
-void Game::updateConstraints()
+void Game::prepareVelSolvers()
 {
-	// Remove any constraints that were marked for deletion
-	std::erase_if(constraints, [](const auto& c) { return c->removeFlagSet(); });
-
 	// Update cached data before correcting velocities
 	std::for_each(std::execution::unseq, constraints.begin(), constraints.end(), [&](const std::unique_ptr<Constraint>& c)
 	{
-		c->updateCache();
+		c->prepareVelSolver();
 	});
 
 	std::for_each(std::execution::unseq, collidingPairs.begin(), collidingPairs.end(), [&](const auto& cp)
@@ -304,6 +316,62 @@ void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 	}
 }
 
+void Game::removeClickedRigidBody()
+{
+	auto containers = tree.getPossibleContainers(mh.coords());
+
+	for (auto& rb : containers)
+	{
+		if (rb->pointInside(mh.coords()))
+		{
+			rb->markForRemoval();
+			break;
+		}
+	}
+}
+
+void Game::handleConstraintRemoval()
+{
+	// Remove any constraints that were marked for deletion
+	//std::erase_if(constraints, [](const auto& c) { return c->removeFlagSet(); });
+
+	for (auto it = constraints.begin(); it != constraints.end(); )
+	{
+		if ((*it)->removeFlagSet())
+		{
+			if (it->get() == mc)
+			{
+				// Remove the mouse constraint
+				mc = nullptr;
+			}
+
+			it = constraints.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	std::cout << constraints.size() << "\n";
+}
+
+void Game::handleRigidBodyRemoval()
+{
+	for (auto it = rigidBodies.begin(); it != rigidBodies.end(); )
+	{
+		if ((*it)->removeFlagSet())
+		{
+			tree.remove(it->get());
+			it = rigidBodies.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
 void Game::setupMouseConstraint()
 {
 	if (!mc)
@@ -320,6 +388,8 @@ void Game::setupMouseConstraint()
 				// TODO: Consider force/acceleration limit & contact breaking
 				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .1f, 4.f, fMax);
 				mc = newMC.get();
+
+				//rb->addConstraint(mc);
 
 				constraints.push_back(std::move(newMC));
 

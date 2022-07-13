@@ -11,7 +11,7 @@ public:
 	void correctVel() override;
 	void correctPos() override;
 	void warmStart() override;
-	void updateCache() override;
+	void prepareVelSolver() override;
 
 	void calculateParams();
 

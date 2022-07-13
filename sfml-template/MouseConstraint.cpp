@@ -3,7 +3,7 @@
 MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler& mh, const PhysicsSettings& ps,
 	const vec2& localPoint, real tOsc, real dampingRatio, real fMax):
 	rb(rb), mh(mh), localPoint(localPoint), fMax(fMax),
-	Constraint(ps)
+	Constraint(ps, { rb })
 {
 	// Set k and b based on specified oscillation timescale and damping ratio
 	if (rb->mInv != 0)
@@ -74,7 +74,7 @@ void MouseConstraint::warmStart()
 	}
 }
 
-void MouseConstraint::updateCache()
+void MouseConstraint::prepareVelSolver()
 {
 	globalPoint = transform(localPoint, rb->position(), rb->angle());
 

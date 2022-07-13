@@ -9,7 +9,7 @@ class ConvexPolygon;
 class Circle;
 class ContactConstraint;
 class AABBTree;
-struct Node;
+class Constraint;
 
 using idType = unsigned long;
 using idPair = std::pair<idType, idType>;
@@ -80,8 +80,11 @@ public:
 	AABB getAABB() const { return aabb; }
 	AABB getFatAABB() const { return aabbFat; } 
 
-	void markForRemoval() { remove = true; }
+	void markForRemoval();
 	bool removeFlagSet() const { return remove; }
+
+	void addConstraint(Constraint* c) { constraints.insert(c); }
+	void removeConstraint(Constraint* c) { constraints.erase(c); }
 	
 	const idType id;
 
@@ -93,6 +96,8 @@ protected:
 	AABB aabb, aabbFat;
 
 private:
+	void markConstraintsForRemoval();
+
 	vec2 pos, vel, acc;
 	real theta = 0, omega = 0, alpha = 0;
 
@@ -100,6 +105,9 @@ private:
 	real thetaPrev = 0;
 
 	bool remove = false;
+
+	// Keep track of which constraints are currently acting on this rigid body
+	std::unordered_set<Constraint*> constraints;
 
 	static inline idType counter = 0;
 };

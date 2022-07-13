@@ -35,7 +35,7 @@ private:
 	void integrateVelocities();
 	void integratePositions();
 
-	void updateConstraints();
+	void prepareVelSolvers();
 	void warmStart();
 
 	void correctVelocities();
@@ -43,6 +43,11 @@ private:
 
 	void updateCollidingPairs();
 	void checkCollision(RigidBody* rb1, RigidBody* rb2);
+
+	void removeClickedRigidBody();
+
+	void handleConstraintRemoval();
+	void handleRigidBodyRemoval();
 
 	void setupMouseConstraint();
 	void removeMouseConstraint();
@@ -65,7 +70,5 @@ private:
 	//std::unordered_map<idPair, std::unique_ptr<ContactConstraint>, idPairHasher> collidingPairs;
 
 	std::map<idPair, std::unique_ptr<ContactConstraint>> collidingPairs;
-
-	//std::vector<std::unique_ptr<ContactConstraint>> newContactConstraints;
 };
 
