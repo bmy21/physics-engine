@@ -78,7 +78,8 @@ void Circle::initShape()
 	shape.setOutlineThickness(-1);
 	shape.setPointCount(60);
 
-	// TODO: May need to update these later if pixPerUnit is changed
+	// NOTE: May need to update these later if pixPerUnit is changed, perhaps simply by
+	// calling this function whenever necessary
 	shape.setOrigin(rad * ps.pixPerUnit, rad * ps.pixPerUnit);
 	shape.setRadius(rad * ps.pixPerUnit);
 

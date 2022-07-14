@@ -10,8 +10,6 @@ class CircleCircleContact;
 class PolyCircleContact;
 class RigidBody;
 
-// TODO: ContactConstraint draw functions should show normals
-
 class ContactConstraint
 {
 public:

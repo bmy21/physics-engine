@@ -32,21 +32,20 @@ Game::Game():
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 
-
-	// TODO: fix boundaries (walls)
-
 	real w = pixWidth / ps.pixPerUnit;
 	real h = pixHeight / ps.pixPerUnit;
 
-	addConvexPolygon(4, w, { w / 2, h + w / 2 })->setAsUnremovable();
-	addConvexPolygon(4, w, { w / 2, -w / 2 })->setAsUnremovable();
-	addConvexPolygon(4, h, { w + h / 2, h / 2})->setAsUnremovable();
-	addConvexPolygon(4, h, { - h / 2, h / 2 })->setAsUnremovable();
+	real scale = 2;
+
+	addConvexPolygon(4, w*scale, { w / 2, h + w*scale / 2 })->setAsUnremovable();
+	addConvexPolygon(4, w*scale, { w / 2, -w*scale / 2 })->setAsUnremovable();
+	addConvexPolygon(4, h*scale, { w + h*scale / 2, h / 2})->setAsUnremovable();
+	addConvexPolygon(4, h*scale, { - h*scale / 2, h / 2 })->setAsUnremovable();
 
 
 
-	int n = 20;
-	int m = 20;
+	int n = 35;
+	int m = 35;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -55,9 +54,9 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 
 			if (rand() % 2 == 0)
-				addConvexPolygon(5, 0.2, { x, y }, 10);
+				addConvexPolygon(5, 0.15, { x, y }, 10);
 			else
-				addCircle(0.18, { x, y }, 10);
+				addCircle(0.15, { x, y }, 10);
 		}
 	}
 
