@@ -36,10 +36,13 @@ Game::Game():
 
 	real w = pixWidth / ps.pixPerUnit;
 	real h = pixHeight / ps.pixPerUnit;
+
 	addConvexPolygon(4, w, { w / 2, h + w / 2 });
 	addConvexPolygon(4, w, { w / 2, -w / 2 });
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
+
+
 
 	int n = 20;
 	int m = 20;

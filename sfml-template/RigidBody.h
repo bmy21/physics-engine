@@ -82,6 +82,8 @@ public:
 
 	void markForRemoval();
 	bool removeFlagSet() const { return remove; }
+	void setAsRemovable() { removable = true; }
+	void setAsUnremovable() { removable = false; }
 
 	void addConstraint(Constraint* c) { constraints.insert(c); }
 	void removeConstraint(Constraint* c) { constraints.erase(c); }
@@ -104,6 +106,7 @@ private:
 	vec2 posPrev;
 	real thetaPrev = 0;
 
+	bool removable = true;
 	bool remove = false;
 
 	// Keep track of which constraints are currently acting on this rigid body

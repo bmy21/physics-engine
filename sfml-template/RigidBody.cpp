@@ -116,9 +116,11 @@ void RigidBody::applyDamping(real dt)
 
 void RigidBody::markForRemoval()
 {
-	markConstraintsForRemoval();
-
-	remove = true;
+	if (removable)
+	{
+		markConstraintsForRemoval();
+		remove = true;
+	}
 }
 
 void RigidBody::markConstraintsForRemoval()
