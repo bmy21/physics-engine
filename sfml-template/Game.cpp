@@ -32,15 +32,16 @@ Game::Game():
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 
-	// TODO: fix boundaries & add deletion-possible flag
+
+	// TODO: fix boundaries (walls)
 
 	real w = pixWidth / ps.pixPerUnit;
 	real h = pixHeight / ps.pixPerUnit;
 
-	addConvexPolygon(4, w, { w / 2, h + w / 2 });
-	addConvexPolygon(4, w, { w / 2, -w / 2 });
-	addConvexPolygon(4, h, { w + h / 2, h / 2});
-	addConvexPolygon(4, h, { - h / 2, h / 2 });
+	addConvexPolygon(4, w, { w / 2, h + w / 2 })->setAsUnremovable();
+	addConvexPolygon(4, w, { w / 2, -w / 2 })->setAsUnremovable();
+	addConvexPolygon(4, h, { w + h / 2, h / 2})->setAsUnremovable();
+	addConvexPolygon(4, h, { - h / 2, h / 2 })->setAsUnremovable();
 
 
 
@@ -418,20 +419,26 @@ void Game::removeMouseConstraint()
 	}
 }
 
-void Game::addConvexPolygon(int nsides, real len, vec2 coords, real mInv)
+ConvexPolygon* Game::addConvexPolygon(int nsides, real len, vec2 coords, real mInv)
 {
 	auto rb = std::make_unique<ConvexPolygon>(ps, nsides, len, mInv);
 	rb->moveTo(coords);
 
+	ConvexPolygon* rawPointer = rb.get();
 	rigidBodies.push_back(std::move(rb));
+
+	return rawPointer;
 }
 
-void Game::addCircle(real rad, vec2 coords, real mInv)
+Circle* Game::addCircle(real rad, vec2 coords, real mInv)
 {
 	auto rb = std::make_unique<Circle>(ps, rad, mInv);
 	rb->moveTo(coords);
 
+	Circle* rawPointer = rb.get();
 	rigidBodies.push_back(std::move(rb));
+
+	return rawPointer;
 }
 
 vec2 Game::pixToCoords(real xPix, real yPix) const
