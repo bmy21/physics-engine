@@ -41,8 +41,8 @@ Game::Game():
 	addConvexPolygon(4, h, { w + h / 2, h / 2});
 	addConvexPolygon(4, h, { - h / 2, h / 2 });
 
-	int n = 12;
-	int m = 12;
+	int n = 20;
+	int m = 20;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -50,8 +50,8 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 
-			if (1)//rand() % 2 == 0)
-				addConvexPolygon(4, 0.6, { x, y }, 10);
+			if (rand() % 2 == 0)
+				addConvexPolygon(5, 0.2, { x, y }, 10);
 			else
 				addCircle(0.18, { x, y }, 10);
 		}
@@ -171,6 +171,11 @@ void Game::run()
 			{
 				cp.second->draw(window, fraction, false, &text);
 			}
+		}
+
+		if (ps.showAABBTree)
+		{
+			tree.draw(window, ps.pixPerUnit);
 		}
 
 		window.display();

@@ -8,12 +8,16 @@
 class AABBTree
 {
 public:
+	AABBTree();
+
 	void insert(RigidBody* rb);
 	void remove(RigidBody* rb);
 	void update(RigidBody* rb);
 
 	std::vector<RigidBody*> getPossibleColliders(RigidBody* rb) const;
 	std::vector<RigidBody*> getPossibleContainers(const vec2& p) const;
+
+	void draw(sf::RenderWindow& window, real pixPerUnit);
 
 	int count();
 
@@ -27,6 +31,8 @@ private:
 
 	std::unique_ptr<Node> root;
 	std::map<idType, Node*> rbNodeMap;
+
+	sf::RectangleShape rect;
 };
 
 struct AABBTree::Node

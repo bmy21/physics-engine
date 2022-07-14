@@ -7,6 +7,7 @@ struct PhysicsSettings
 	real dt = 1.0 / 120;
 
 	bool showContactConstraints = false;
+	bool showAABBTree = false;
 
 	real slop = 0.005;
 	real beta = 0.15;
@@ -25,7 +26,7 @@ struct PhysicsSettings
 	int velIter = 12;
 	int posIter = 3;
 
-	real grav = 10;
+	real grav = 12;
 
 	real muDefault = 0.4;
 	real eDefault = 0.2;

@@ -2,6 +2,13 @@
 #include <stack>
 #include <queue>
 
+AABBTree::AABBTree()
+{
+	rect.setOutlineColor(sf::Color::Black);
+	rect.setOutlineThickness(1);
+	rect.setFillColor(sf::Color::Transparent);
+}
+
 void AABBTree::insert(RigidBody* rb)
 {
 	std::unique_ptr<Node> newNode = std::make_unique<Node>();
@@ -240,6 +247,35 @@ std::vector<RigidBody*> AABBTree::getPossibleContainers(const vec2& p) const
 	}
 
 	return result;
+}
+
+void AABBTree::draw(sf::RenderWindow& window, real pixPerUnit)
+{
+	std::stack<Node*> s;
+	if (root)
+	{
+		s.push(root.get());
+	}
+
+	while (!s.empty())
+	{
+		Node* n = s.top();
+		s.pop();
+
+		rect.setPosition(n->aabb.lower.x * pixPerUnit, n->aabb.lower.y * pixPerUnit);
+
+		vec2 size = n->aabb.upper - n->aabb.lower;
+
+		rect.setSize(sf::Vector2f(size.x * pixPerUnit, size.y * pixPerUnit));
+
+		window.draw(rect);
+
+		if (!n->isLeaf)
+		{
+			s.push(n->child1.get());
+			s.push(n->child2.get());
+		}
+	}
 }
 
 int AABBTree::count()
