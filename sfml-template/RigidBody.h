@@ -85,6 +85,7 @@ public:
 	void setAsRemovable() { removable = true; }
 	void setAsUnremovable() { removable = false; }
 
+	// NOTE: these should only be called by the Constraint class
 	void addConstraint(Constraint* c) { constraints.insert(c); }
 	void removeConstraint(Constraint* c) { constraints.erase(c); }
 	

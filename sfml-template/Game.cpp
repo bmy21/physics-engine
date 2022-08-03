@@ -43,6 +43,8 @@ Game::Game():
 	addConvexPolygon(4, h*scale, { - h*scale / 2, h / 2 })->setAsUnremovable();
 
 
+	// TODO: check memory usage by repeatedly removing and adding RBs?
+	// TODO: generic addRigidBody function to be called by specialised functions, including tree insertion
 
 	int n = 35;
 	int m = 35;

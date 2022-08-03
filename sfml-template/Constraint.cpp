@@ -13,6 +13,6 @@ Constraint::~Constraint()
 {
 	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [&](RigidBody* const rb)
 	{
-		rb->addConstraint(this);
+		rb->removeConstraint(this);
 	});
 }
