@@ -1,4 +1,5 @@
 #include "MouseConstraint.h"
+#include "RigidBody.h"
 
 MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler& mh, const PhysicsSettings& ps,
 	const vec2& localPoint, real tOsc, real dampingRatio, real fMax):

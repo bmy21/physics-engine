@@ -1,4 +1,5 @@
 #include "Constraint.h"
+#include "RigidBody.h"
 
 Constraint::Constraint(const PhysicsSettings& ps, std::initializer_list<RigidBody*> rigidBodies):
 	ps(ps), rigidBodies(rigidBodies)

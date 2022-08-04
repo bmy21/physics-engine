@@ -2,6 +2,7 @@
 
 #include "Utils.h"
 #include "ContactConstraint.h"
+#include "Constraint.h"
 #include "PhysicsSettings.h"
 #include "AABB.h"
 
@@ -9,7 +10,6 @@ class ConvexPolygon;
 class Circle;
 class ContactConstraint;
 class AABBTree;
-class Constraint;
 
 using idType = unsigned long;
 using idPair = std::pair<idType, idType>;

@@ -44,7 +44,6 @@ Game::Game():
 
 
 	// TODO: check memory usage by repeatedly removing and adding RBs?
-	// TODO: generic addRigidBody function to be called by specialised functions, including tree insertion
 
 	int n = 35;
 	int m = 35;
@@ -66,12 +65,6 @@ Game::Game():
 	//addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	//addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 	//addCircle(0.5, { 3,3 }, 2);
-
-	for (auto& rb : rigidBodies)
-	{
-		rb->updateFatAABB();
-		tree.insert(rb.get());
-	}
 }
 
 
@@ -426,6 +419,8 @@ ConvexPolygon* Game::addConvexPolygon(int nsides, real len, vec2 coords, real mI
 	rb->moveTo(coords);
 
 	ConvexPolygon* rawPointer = rb.get();
+
+	addToAABBTree(rawPointer);
 	rigidBodies.push_back(std::move(rb));
 
 	return rawPointer;
@@ -437,9 +432,17 @@ Circle* Game::addCircle(real rad, vec2 coords, real mInv)
 	rb->moveTo(coords);
 
 	Circle* rawPointer = rb.get();
+
+	addToAABBTree(rawPointer);
 	rigidBodies.push_back(std::move(rb));
 
 	return rawPointer;
+}
+
+void Game::addToAABBTree(RigidBody* rb)
+{
+	rb->updateFatAABB();
+	tree.insert(rb);
 }
 
 vec2 Game::pixToCoords(real xPix, real yPix) const

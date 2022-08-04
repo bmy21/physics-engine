@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Utils.h"
-#include "RigidBody.h"
 #include "PhysicsSettings.h"
 
+class RigidBody;
 
 class Constraint
 {

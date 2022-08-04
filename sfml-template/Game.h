@@ -52,6 +52,7 @@ private:
 
 	ConvexPolygon* addConvexPolygon(int nsides, real len, vec2 coords = {0, 0}, real mInv = 0);
 	Circle* addCircle(real rad, vec2 coords = { 0, 0 }, real mInv = 0);
+	void addToAABBTree(RigidBody* rb);
 
 	vec2 pixToCoords(real xPix, real yPix) const;
 	vec2 pixToCoords(const vec2& pix) const { return pixToCoords(pix.x, pix.y); }
