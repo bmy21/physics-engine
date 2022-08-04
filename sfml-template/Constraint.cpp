@@ -6,7 +6,7 @@ Constraint::Constraint(const PhysicsSettings& ps, std::initializer_list<RigidBod
 {
 	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [&](RigidBody* const rb)
 	{
-		rb->addConstraint(this);
+		rb->addConstraintToList(this);
 	});
 }
 
@@ -14,6 +14,6 @@ Constraint::~Constraint()
 {
 	std::for_each(std::execution::unseq, rigidBodies.begin(), rigidBodies.end(), [&](RigidBody* const rb)
 	{
-		rb->removeConstraint(this);
+		rb->removeConstraintFromList(this);
 	});
 }

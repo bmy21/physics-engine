@@ -389,11 +389,11 @@ void ConvexPolygon::createRegularPolygon(real sideLength)
 
 void ConvexPolygon::setupRegularPolyMOI(real sideLength)
 {
-	real preFactor = mInv * 24 / (sideLength * sideLength);
+	real preFactor = mInv() * 24 / (sideLength * sideLength);
 	real cot = 1 / std::tan(pi / npoints);
 	real trigFactor = 1 + 3 * cot * cot;
 
-	IInv = preFactor / trigFactor;
+	setIInv(preFactor / trigFactor);
 }
 
 void ConvexPolygon::initEdges()

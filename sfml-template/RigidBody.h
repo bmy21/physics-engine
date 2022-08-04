@@ -70,7 +70,7 @@ public:
 	real right() const { return aabb.upper.x; }
 	real top() const { return aabb.lower.y; }
 	
-	real KE() const { return 0.5 * dot(vel, vel) / mInv; }
+	real KE() const { return 0.5 * dot(vel, vel) / m_mInv; }
 
 	void applyDeltaVel(const vec2& dv, real dw);
 	void applyDeltaPos(const vec2& dr, real dth, bool update = true);
@@ -85,14 +85,17 @@ public:
 	void setAsRemovable() { removable = true; }
 	void setAsUnremovable() { removable = false; }
 
+	real mInv() const { return m_mInv; }
+	real IInv() const { return m_IInv; }
+
+	void setmInv(real mInv) { m_mInv = mInv; } // TODO: recompute IInv as well?
+	void setIInv(real IInv) { m_IInv = IInv; }
+
 	// NOTE: these should only be called by the Constraint class
-	void addConstraint(Constraint* c) { constraints.insert(c); }
-	void removeConstraint(Constraint* c) { constraints.erase(c); }
+	void addConstraintToList(Constraint* c) { constraints.insert(c); }
+	void removeConstraintFromList(Constraint* c) { constraints.erase(c); }
 	
 	const idType id;
-
-	// TODO: make these private
-	real mInv = 0, IInv = 0;
 
 protected:
 	const PhysicsSettings& ps;
@@ -100,6 +103,8 @@ protected:
 
 private:
 	void markConstraintsForRemoval();
+
+	real m_mInv = 0, m_IInv = 0;
 
 	vec2 pos, vel, acc;
 	real theta = 0, omega = 0, alpha = 0;

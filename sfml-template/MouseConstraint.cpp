@@ -7,10 +7,10 @@ MouseConstraint::MouseConstraint(RigidBody* rb, const MouseHandler& mh, const Ph
 	Constraint(ps, { rb })
 {
 	// Set k and b based on specified oscillation timescale and damping ratio
-	if (rb->mInv != 0)
+	if (rb->mInv() != 0)
 	{
-		k = 4 * pi * pi / (tOsc * tOsc * rb->mInv);
-		b = dampingRatio * 2 * std::sqrt(k / rb->mInv);
+		k = 4 * pi * pi / (tOsc * tOsc * rb->mInv());
+		b = dampingRatio * 2 * std::sqrt(k / rb->mInv());
 	}
 
 	calculateParams();
@@ -49,8 +49,8 @@ void MouseConstraint::correctVel()
 		lam1 = accLam1 - prevAccLam1;
 		lam2 = accLam2 - prevAccLam2;
 
-		rb->applyDeltaVel(dir1 * rb->mInv * lam1, crossFactor1 * rb->IInv * lam1);
-		rb->applyDeltaVel(dir2 * rb->mInv * lam2, crossFactor2 * rb->IInv * lam2);
+		rb->applyDeltaVel(dir1 * rb->mInv() * lam1, crossFactor1 * rb->IInv() * lam1);
+		rb->applyDeltaVel(dir2 * rb->mInv() * lam2, crossFactor2 * rb->IInv() * lam2);
 
 		//real E = 0.5 * k * C1 * C1 + (0.5 / rb->mInv) * rb->KE(); //- 0.5*k*h*rb->velocity().x*C1;
 		//std::cout << E << "\n";
@@ -66,8 +66,8 @@ void MouseConstraint::warmStart()
 {
 	if (ps.warmStart)
 	{
-		rb->applyDeltaVel(dir1 * rb->mInv * accLam1, crossFactor1 * rb->IInv * accLam1);
-		rb->applyDeltaVel(dir2 * rb->mInv * accLam2, crossFactor2 * rb->IInv * accLam2);
+		rb->applyDeltaVel(dir1 * rb->mInv() * accLam1, crossFactor1 * rb->IInv() * accLam1);
+		rb->applyDeltaVel(dir2 * rb->mInv() * accLam2, crossFactor2 * rb->IInv() * accLam2);
 	}
 	else
 	{
@@ -93,15 +93,15 @@ void MouseConstraint::prepareVelSolver()
 	crossFactor1 = zcross(globalPoint - rb->position(), dir1);
 	crossFactor2 = zcross(globalPoint - rb->position(), dir2);
 
-	muInv1 = rb->mInv + rb->IInv * crossFactor1 * crossFactor1;
-	muInv2 = rb->mInv + rb->IInv * crossFactor2 * crossFactor2;
+	muInv1 = rb->mInv() + rb->IInv() * crossFactor1 * crossFactor1;
+	muInv2 = rb->mInv() + rb->IInv() * crossFactor2 * crossFactor2;
 
 	C1 = dot(globalPoint - mh.coords(), dir1);
 	C2 = dot(globalPoint - mh.coords(), dir2);
 
 	A11 = muInv1 + gamma;
 	A22 = muInv2 + gamma;
-	A12 = rb->IInv * crossFactor1 * crossFactor2;
+	A12 = rb->IInv() * crossFactor1 * crossFactor2;
 	det = A11 * A22 - A12 * A12;
 }
 

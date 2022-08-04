@@ -390,7 +390,7 @@ void Game::setupMouseConstraint()
 			if (rb->pointInside(mh.coords()))
 			{
 				vec2 local = { 0,0 };
-				real fMax = 300.f / rb->mInv;
+				real fMax = 300.f / rb->mInv();
 
 				// TODO: Consider force/acceleration limit & contact breaking
 				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .1f, 4.f, fMax);

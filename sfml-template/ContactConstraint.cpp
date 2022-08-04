@@ -157,7 +157,7 @@ void ContactConstraint::solvePointRollFriction(ContactPoint& cp)
 	real vDotGradCfRoll = rb2->angVel() - rb1->angVel();
 
 	real dfRollLambda = 0;
-	real denom = rb1->IInv + rb2->IInv;
+	real denom = rb1->IInv() + rb2->IInv();
 
 	if (denom != 0)
 	{
@@ -167,8 +167,8 @@ void ContactConstraint::solvePointRollFriction(ContactPoint& cp)
 
 	cp.fRollLambda += dfRollLambda;
 
-	rb1->applyDeltaVel({}, -rb1->IInv * dfRollLambda);
-	rb2->applyDeltaVel({}, rb2->IInv * dfRollLambda);
+	rb1->applyDeltaVel({}, -rb1->IInv() * dfRollLambda);
+	rb2->applyDeltaVel({}, rb2->IInv() * dfRollLambda);
 }
 
 void ContactConstraint::solvePointFriction(ContactPoint& cp)
@@ -184,8 +184,8 @@ void ContactConstraint::solvePointFriction(ContactPoint& cp)
 
 	cp.fLambda += dfLambda;
 
-	rb1->applyDeltaVel(-t * rb1->mInv * dfLambda, -cp.tCrossFactor1 * rb1->IInv * dfLambda);
-	rb2->applyDeltaVel(t * rb2->mInv * dfLambda, cp.tCrossFactor2 * rb2->IInv * dfLambda);
+	rb1->applyDeltaVel(-t * rb1->mInv() * dfLambda, -cp.tCrossFactor1 * rb1->IInv() * dfLambda);
+	rb2->applyDeltaVel(t * rb2->mInv() * dfLambda, cp.tCrossFactor2 * rb2->IInv() * dfLambda);
 }
 
 void ContactConstraint::solvePointVel(ContactPoint& cp)
@@ -201,8 +201,8 @@ void ContactConstraint::solvePointVel(ContactPoint& cp)
 
 	cp.lambda += dLambda;
 	
-	rb1->applyDeltaVel(-n * rb1->mInv * dLambda, -cp.nCrossFactor1 * rb1->IInv * dLambda);
-	rb2->applyDeltaVel(n * rb2->mInv * dLambda, cp.nCrossFactor2 * rb2->IInv * dLambda);
+	rb1->applyDeltaVel(-n * rb1->mInv() * dLambda, -cp.nCrossFactor1 * rb1->IInv() * dLambda);
+	rb2->applyDeltaVel(n * rb2->mInv() * dLambda, cp.nCrossFactor2 * rb2->IInv() * dLambda);
 }
 
 void ContactConstraint::solvePointPos(ContactPoint& cp)
@@ -216,8 +216,8 @@ void ContactConstraint::solvePointPos(ContactPoint& cp)
 	}
 
 	// Don't need to call the RigidBody update functions until after the iterations are complete
-	rb1->applyDeltaPos(-n * rb1->mInv * dLambda, -cp.nCrossFactor1 * rb1->IInv * dLambda, false);
-	rb2->applyDeltaPos(n * rb2->mInv * dLambda, cp.nCrossFactor2 * rb2->IInv * dLambda, false);
+	rb1->applyDeltaPos(-n * rb1->mInv() * dLambda, -cp.nCrossFactor1 * rb1->IInv() * dLambda, false);
+	rb2->applyDeltaPos(n * rb2->mInv() * dLambda, cp.nCrossFactor2 * rb2->IInv() * dLambda, false);
 }
 
 void ContactConstraint::warmStartPoint(ContactPoint& cp)
@@ -227,11 +227,11 @@ void ContactConstraint::warmStartPoint(ContactPoint& cp)
 		// Don't warm start rolling friction - this occasionally causes infinite spinning and should be investigated!
 		cp.fRollLambda = 0;
 
-		rb1->applyDeltaVel(-n * rb1->mInv * cp.lambda - t * rb1->mInv * cp.fLambda,
-			-cp.nCrossFactor1 * rb1->IInv * cp.lambda - cp.tCrossFactor1 * rb1->IInv * cp.fLambda - rb1->IInv * cp.fRollLambda);
+		rb1->applyDeltaVel(-n * rb1->mInv() * cp.lambda - t * rb1->mInv() * cp.fLambda,
+			-cp.nCrossFactor1 * rb1->IInv() * cp.lambda - cp.tCrossFactor1 * rb1->IInv() * cp.fLambda - rb1->IInv() * cp.fRollLambda);
 
-		rb2->applyDeltaVel(n * rb2->mInv * cp.lambda + t * rb2->mInv * cp.fLambda,
-			cp.nCrossFactor2 * rb2->IInv * cp.lambda + cp.tCrossFactor2 * rb2->IInv * cp.fLambda + rb2->IInv * cp.fRollLambda);
+		rb2->applyDeltaVel(n * rb2->mInv() * cp.lambda + t * rb2->mInv() * cp.fLambda,
+			cp.nCrossFactor2 * rb2->IInv() * cp.lambda + cp.tCrossFactor2 * rb2->IInv() * cp.fLambda + rb2->IInv() * cp.fRollLambda);
 	}
 	else
 	{
@@ -265,7 +265,7 @@ void ContactConstraint::prepareSimulSolver()
 	ContactPoint& cp1 = contactPoints[0];
 	ContactPoint& cp2 = contactPoints[1];
 
-	A12 = rb2->mInv + rb1->mInv + rb2->IInv * cp1.nCrossFactor2 * cp2.nCrossFactor2 + rb1->IInv * cp1.nCrossFactor1 * cp2.nCrossFactor1;
+	A12 = rb2->mInv() + rb1->mInv() + rb2->IInv() * cp1.nCrossFactor2 * cp2.nCrossFactor2 + rb1->IInv() * cp1.nCrossFactor1 * cp2.nCrossFactor1;
 	det = cp1.nMassFactor * cp2.nMassFactor - A12 * A12;
 	norm = std::max(cp1.nMassFactor, cp2.nMassFactor) + std::abs(A12);
 	real normSquared = norm * norm;
@@ -290,8 +290,8 @@ bool ContactConstraint::simulSolveVel()
 
 	if (cp1.lambda + lam1 >= 0 && cp2.lambda + lam2 >= 0)
 	{
-		rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
-		rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+		rb1->applyDeltaVel(-n * rb1->mInv() * (lam1 + lam2), rb1->IInv() * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+		rb2->applyDeltaVel(n * rb2->mInv() * (lam1 + lam2), rb2->IInv() * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
 
 		cp1.lambda += lam1;
 		cp2.lambda += lam2;
@@ -306,8 +306,8 @@ bool ContactConstraint::simulSolveVel()
 
 	if (lam1 * cp1.nMassFactor + lam2 * A12 >= alpha1 && lam1 * A12 + lam2 * cp2.nMassFactor >= alpha2)
 	{
-		rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
-		rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+		rb1->applyDeltaVel(-n * rb1->mInv() * (lam1 + lam2), rb1->IInv() * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+		rb2->applyDeltaVel(n * rb2->mInv() * (lam1 + lam2), rb2->IInv() * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
 
 		cp1.lambda += lam1;
 		cp2.lambda += lam2;
@@ -321,8 +321,8 @@ bool ContactConstraint::simulSolveVel()
 
 	if (cp2.lambda + lam2 >= 0 && lam1 * cp1.nMassFactor + lam2 * A12 >= alpha1)
 	{
-		rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
-		rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+		rb1->applyDeltaVel(-n * rb1->mInv() * (lam1 + lam2), rb1->IInv() * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+		rb2->applyDeltaVel(n * rb2->mInv() * (lam1 + lam2), rb2->IInv() * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
 
 		cp1.lambda += lam1;
 		cp2.lambda += lam2;
@@ -336,8 +336,8 @@ bool ContactConstraint::simulSolveVel()
 
 	if (cp1.lambda + lam1 >= 0 && lam2 * cp2.nMassFactor + lam1 * A12 >= alpha2)
 	{
-		rb1->applyDeltaVel(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
-		rb2->applyDeltaVel(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
+		rb1->applyDeltaVel(-n * rb1->mInv() * (lam1 + lam2), rb1->IInv() * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2));
+		rb2->applyDeltaVel(n * rb2->mInv() * (lam1 + lam2), rb2->IInv() * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2));
 
 		cp1.lambda += lam1;
 		cp2.lambda += lam2;
@@ -364,8 +364,8 @@ void ContactConstraint::simulSolvePos()
 	real lam2 = (cp1.nMassFactor * alpha2 - A12 * alpha1) / det;
 
 	// Don't need to call the RigidBody update functions until after the iterations are complete
-	rb1->applyDeltaPos(-n * rb1->mInv * (lam1 + lam2), rb1->IInv * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2), false);
-	rb2->applyDeltaPos(n * rb2->mInv * (lam1 + lam2), rb2->IInv * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2), false);
+	rb1->applyDeltaPos(-n * rb1->mInv() * (lam1 + lam2), rb1->IInv() * (-cp1.nCrossFactor1 * lam1 - cp2.nCrossFactor1 * lam2), false);
+	rb2->applyDeltaPos(n * rb2->mInv() * (lam1 + lam2), rb2->IInv() * (cp1.nCrossFactor2 * lam1 + cp2.nCrossFactor2 * lam2), false);
 }
 
 void ContactConstraint::updateNormalFactors(ContactPoint& cp)
@@ -375,7 +375,7 @@ void ContactConstraint::updateNormalFactors(ContactPoint& cp)
 
 	cp.nCrossFactor1 = zcross(relPos1, n);
 	cp.nCrossFactor2 = zcross(relPos2, n);
-	cp.nMassFactor = rb1->mInv + rb2->mInv + rb1->IInv * std::pow(cp.nCrossFactor1, 2) + rb2->IInv * std::pow(cp.nCrossFactor2, 2);
+	cp.nMassFactor = rb1->mInv() + rb2->mInv() + rb1->IInv() * std::pow(cp.nCrossFactor1, 2) + rb2->IInv() * std::pow(cp.nCrossFactor2, 2);
 }
 
 void ContactConstraint::updateTangentFactors(ContactPoint& cp)
@@ -385,5 +385,5 @@ void ContactConstraint::updateTangentFactors(ContactPoint& cp)
 
 	cp.tCrossFactor1 = zcross(relPos1, t);
 	cp.tCrossFactor2 = zcross(relPos2, t);
-	cp.tMassFactor = rb1->mInv + rb2->mInv + rb1->IInv * std::pow(cp.tCrossFactor1, 2) + rb2->IInv * std::pow(cp.tCrossFactor2, 2);
+	cp.tMassFactor = rb1->mInv() + rb2->mInv() + rb1->IInv() * std::pow(cp.tCrossFactor1, 2) + rb2->IInv() * std::pow(cp.tCrossFactor2, 2);
 }

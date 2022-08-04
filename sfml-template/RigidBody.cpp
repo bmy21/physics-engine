@@ -3,7 +3,7 @@
 #include "Constraint.h"
 
 RigidBody::RigidBody(const PhysicsSettings& ps, real mInv, real IInv):
-	ps(ps), mInv(mInv), IInv(IInv),
+	ps(ps), m_mInv(mInv), m_IInv(IInv),
 	id(counter++)
 {
 
@@ -43,7 +43,7 @@ void RigidBody::rotateTo(real t)
 
 void RigidBody::integrateVel(real dt)
 {
-	if (mInv != 0)
+	if (mInv() != 0)
 	{
 		acc.y += ps.grav;
 	}

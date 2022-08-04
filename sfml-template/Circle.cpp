@@ -5,8 +5,7 @@ Circle::Circle(const PhysicsSettings& ps, real rad, real mInv):
 	rad(rad),
 	RigidBody(ps, mInv)
 {
-	IInv = 2 * mInv / (rad * rad);
-
+	setIInv(2 * mInv / (rad * rad));
 	initShape();
 }
 
