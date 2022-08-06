@@ -21,6 +21,8 @@ public:
 	void linke1(const Edge* e) { me1 = e; }
 	void linke2(const Edge* e) { me2 = e; }
 
+	void changeLocal(const vec2& v, const RigidBody& rb);
+
 	// Recalculate the global coords
 	void recompute(const vec2& pos, real theta);
 	void recompute(const vec2& pos, real c, real s);

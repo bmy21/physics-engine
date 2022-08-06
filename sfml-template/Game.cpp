@@ -44,6 +44,7 @@ Game::Game():
 
 
 	// TODO: check memory usage by repeatedly removing and adding RBs?
+	// TODO: Moment of inertia calculations
 
 	int n = 35;
 	int m = 35;

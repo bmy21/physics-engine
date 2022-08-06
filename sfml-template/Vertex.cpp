@@ -11,6 +11,12 @@ Vertex::Vertex(int i, const vec2& v, const RigidBody& rb):
 {
 }
 
+void Vertex::changeLocal(const vec2& v, const RigidBody& rb)
+{
+	localCoords = v;
+	recompute(rb.position(), rb.angle());
+}
+
 void Vertex::recompute(const vec2& pos, real theta)
 {
 	globalCoords = transform(localCoords, pos, theta);

@@ -6,6 +6,11 @@ ConvexPolygon::ConvexPolygon(const PhysicsSettings& ps, int npoints, real sideLe
 	RigidBody(ps, mInv)
 {
 	createRegularPolygon(sideLength);
+
+	centreOnCOM();
+
+	// TODO: test centering by adding constant to each vertex first
+	// TODO: automate MoI calculation
 	setupRegularPolyMOI(sideLength);
 
 	initEdges();
@@ -207,6 +212,38 @@ bool ConvexPolygon::pointInside(const vec2& p) const
 	}
 
 	return true;
+}
+
+void ConvexPolygon::centreOnCOM()
+{
+	vec2 ref = vertices.front()->local();
+	
+	real area = 0;
+	vec2 numerator;
+
+	for (int i = 1; i < npoints - 1; ++i)
+	{
+		vec2 u = vertices[i]->local() - ref;
+		vec2 v = vertices[i+1]->local() - ref;
+
+		real dA = 0.5*std::abs(zcross(u, v));
+		vec2 dCM = (u + v) * static_cast<real>(1./3.);
+
+		area += dA;
+		numerator += dCM * dA;
+	}
+
+	// Centroid relative to ref point
+	vec2 cm = numerator / area;
+
+	// Transform centroid back to local origin
+	cm += ref;
+
+
+	for (auto& v : vertices)
+	{
+		v->changeLocal(v->local() - cm, *this);
+	}
 }
 
 void ConvexPolygon::onMove()

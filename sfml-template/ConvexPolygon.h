@@ -24,6 +24,9 @@ public:
 	void updateFatAABB() override;
 	bool pointInside(const vec2& p) const override;
 
+	// Adjust local vertices so the centre of mass is at the origin
+	void centreOnCOM();
+
 	void onMove() override;
 
 	vec2 edge(int i) const { return edges[i]->global(); }
