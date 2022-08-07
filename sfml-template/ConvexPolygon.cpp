@@ -259,7 +259,7 @@ vec2 ConvexPolygon::calculateCOM() const
 	return cm;
 }
 
-real ConvexPolygon::calculateMOI() const
+real ConvexPolygon::calculateInvMOI() const
 {
 	real area = 0;
 	real I = 0;
@@ -475,7 +475,7 @@ void ConvexPolygon::initialise()
 {
 	// Common setup after Vertex coordinates have been established
 	centreOnCOM();
-	setIInv(calculateMOI());
+	setIInv(calculateInvMOI());
 	initEdges();
 	initShape();
 }

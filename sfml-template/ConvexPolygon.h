@@ -46,7 +46,7 @@ private:
 	void centreOnCOM();
 
 	vec2 calculateCOM() const;
-	real calculateMOI() const;
+	real calculateInvMOI() const;
 
 	void initEdges();
 	void initShape();
