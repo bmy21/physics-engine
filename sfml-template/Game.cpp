@@ -36,7 +36,6 @@ Game::Game():
 	real h = pixHeight / ps.pixPerUnit;
 
 	real scale = 2;
-
 	addConvexPolygon(4, w*scale, { w / 2, h + w*scale / 2 })->setAsUnremovable();
 	addConvexPolygon(4, w*scale, { w / 2, -w*scale / 2 })->setAsUnremovable();
 	addConvexPolygon(4, h*scale, { w + h*scale / 2, h / 2})->setAsUnremovable();

@@ -6,7 +6,7 @@ RigidBody::RigidBody(const PhysicsSettings& ps, real mInv, real IInv):
 	ps(ps), m_mInv(mInv), m_IInv(IInv),
 	id(counter++)
 {
-
+	
 }
 
 vec2 RigidBody::pointToLocal(const vec2& p) const

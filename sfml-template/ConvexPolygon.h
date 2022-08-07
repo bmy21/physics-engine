@@ -13,6 +13,7 @@ class ConvexPolygon : public RigidBody
 {
 public:
 	ConvexPolygon(const PhysicsSettings& ps, int npoints, real sideLength, real mInv = 0);
+	ConvexPolygon(const PhysicsSettings& ps, const std::vector<vec2>& points, real mInv = 0);
 
 	void draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text* text) override;
 
@@ -23,9 +24,6 @@ public:
 	void updateAABB() override;
 	void updateFatAABB() override;
 	bool pointInside(const vec2& p) const override;
-
-	// Adjust local vertices so the centre of mass is at the origin
-	void centreOnCOM();
 
 	void onMove() override;
 
@@ -42,6 +40,13 @@ public:
 private:
 	void createRegularPolygon(real sideLength);
 	void setupRegularPolyMOI(real sideLength);
+
+	void initialise();
+
+	void centreOnCOM();
+
+	vec2 calculateCOM() const;
+	real calculateMOI() const;
 
 	void initEdges();
 	void initShape();

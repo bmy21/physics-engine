@@ -7,14 +7,19 @@ ConvexPolygon::ConvexPolygon(const PhysicsSettings& ps, int npoints, real sideLe
 {
 	createRegularPolygon(sideLength);
 
-	centreOnCOM();
+	initialise();
+}
 
-	// TODO: test centering by adding constant to each vertex first
-	// TODO: automate MoI calculation
-	setupRegularPolyMOI(sideLength);
+ConvexPolygon::ConvexPolygon(const PhysicsSettings& ps, const std::vector<vec2>& points, real mInv):
+	npoints(points.size()),
+	RigidBody(ps, mInv)
+{
+	for (int i = 0; i < npoints; ++i)
+	{
+		vertices.emplace_back(std::make_unique<Vertex>(i, points[i], *this));
+	}
 
-	initEdges();
-	initShape();
+	initialise();
 }
 
 void ConvexPolygon::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text* text)
@@ -216,18 +221,30 @@ bool ConvexPolygon::pointInside(const vec2& p) const
 
 void ConvexPolygon::centreOnCOM()
 {
+	// Adjust local vertices so the centre of mass is at the origin
+
+	vec2 cm = calculateCOM();
+
+	for (auto& v : vertices)
+	{
+		v->changeLocal(v->local() - cm, *this);
+	}
+}
+
+vec2 ConvexPolygon::calculateCOM() const
+{
 	vec2 ref = vertices.front()->local();
-	
+
 	real area = 0;
 	vec2 numerator;
 
 	for (int i = 1; i < npoints - 1; ++i)
 	{
 		vec2 u = vertices[i]->local() - ref;
-		vec2 v = vertices[i+1]->local() - ref;
+		vec2 v = vertices[i + 1]->local() - ref;
 
-		real dA = 0.5*std::abs(zcross(u, v));
-		vec2 dCM = (u + v) * static_cast<real>(1./3.);
+		real dA = 0.5 * std::abs(zcross(u, v));
+		vec2 dCM = (u + v) * static_cast<real>(1. / 3.);
 
 		area += dA;
 		numerator += dCM * dA;
@@ -239,11 +256,32 @@ void ConvexPolygon::centreOnCOM()
 	// Transform centroid back to local origin
 	cm += ref;
 
+	return cm;
+}
 
-	for (auto& v : vertices)
+real ConvexPolygon::calculateMOI() const
+{
+	real area = 0;
+	real I = 0;
+
+	for (int i = 0; i < npoints ; ++i)
 	{
-		v->changeLocal(v->local() - cm, *this);
+		vec2 u = vertices[i]->local();
+		vec2 v = vertices[nextIndex(i)]->local();
+
+		real crossFactor = std::abs(zcross(u, v));
+		real dotFactor = dot(u, u) + dot(u, v) + dot(v, v);
+
+		real dA = 0.5 * crossFactor;
+		real dI = (crossFactor * dotFactor) / static_cast<real>(12);
+
+		area += dA;
+		I += dI;
 	}
+
+	real invDensity = area * mInv();
+
+	return invDensity / I;
 }
 
 void ConvexPolygon::onMove()
@@ -418,7 +456,7 @@ void ConvexPolygon::createRegularPolygon(real sideLength)
 		// Bottom-right corner makes angle (90 - theta/2) deg with horizontal
 		pointAngle += pi / 2 - centralAngle / 2;
 
-		vec2 point = { r * std::cos(pointAngle), r * std::sin(pointAngle) };
+		vec2 point = { r * std::cos(pointAngle), r * std::sin(pointAngle)};
 
 		vertices.emplace_back(std::make_unique<Vertex>(i, point, *this));
 	}
@@ -431,6 +469,15 @@ void ConvexPolygon::setupRegularPolyMOI(real sideLength)
 	real trigFactor = 1 + 3 * cot * cot;
 
 	setIInv(preFactor / trigFactor);
+}
+
+void ConvexPolygon::initialise()
+{
+	// Common setup after Vertex coordinates have been established
+	centreOnCOM();
+	setIInv(calculateMOI());
+	initEdges();
+	initShape();
 }
 
 void ConvexPolygon::initEdges()
