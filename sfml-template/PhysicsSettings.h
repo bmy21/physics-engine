@@ -10,12 +10,12 @@ struct PhysicsSettings
 	bool showAABBTree = false;
 
 	real slop = 0.005;
-	real beta = 0.15;
+	real beta = 0.2;
 
 	real vRelThreshold = 0.1;
 
 	bool simulSolveVel = true;
-	bool simulSolvePos = true;
+	bool simulSolvePos = false;
 	bool warmStart = true;
 
 	real maxCondVel = 5000; 
@@ -28,7 +28,7 @@ struct PhysicsSettings
 
 	real grav = 12;
 
-	real muDefault = 0.4;
+	real muDefault = 0.5;
 	real eDefault = 0.2;
 
 	real aabbFattening = 0.1;

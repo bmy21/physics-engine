@@ -24,9 +24,8 @@ Game::Game():
 	text.setFont(font);
 	text.setFillColor(sf::Color::Blue);
 
-	real len = 0.5;
-	int nsides = 12;
-
+	//real len = 0.5;
+	//int nsides = 12;
 	//addConvexPolygon(nsides, len, pixToCoords(pixWidth * 0.5, 200), 1.f);
 	//addConvexPolygon(6, 2.5, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
 	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
@@ -41,10 +40,6 @@ Game::Game():
 	addConvexPolygon(4, h*scale, { w + h*scale / 2, h / 2})->setAsUnremovable();
 	addConvexPolygon(4, h*scale, { - h*scale / 2, h / 2 })->setAsUnremovable();
 
-
-	// TODO: check memory usage by repeatedly removing and adding RBs?
-	// TODO: Moment of inertia calculations
-
 	int n = 35;
 	int m = 35;
 	for (int i = 0; i < n; ++i)
@@ -55,9 +50,15 @@ Game::Game():
 			real y = h * (j + 1) / (m + 1);
 
 			if (rand() % 2 == 0)
-				addConvexPolygon(5, 0.15, { x, y }, 10);
+			{
+				std::vector<vec2> pts = { {0, 0}, {0.5, 0}, {0.5, 0.05}, {0, 0.05} };
+				addConvexPolygon(pts, { x, y }, 10);
+				//addConvexPolygon(5, 0.15, { x, y }, 10);
+			}
 			else
+			{
 				addCircle(0.15, { x, y }, 10);
+			}
 		}
 	}
 
@@ -416,6 +417,19 @@ void Game::removeMouseConstraint()
 ConvexPolygon* Game::addConvexPolygon(int nsides, real len, vec2 coords, real mInv)
 {
 	auto rb = std::make_unique<ConvexPolygon>(ps, nsides, len, mInv);
+	rb->moveTo(coords);
+
+	ConvexPolygon* rawPointer = rb.get();
+
+	addToAABBTree(rawPointer);
+	rigidBodies.push_back(std::move(rb));
+
+	return rawPointer;
+}
+
+ConvexPolygon* Game::addConvexPolygon(const std::vector<vec2>& points, vec2 coords, real mInv)
+{
+	auto rb = std::make_unique<ConvexPolygon>(ps, points, mInv);
 	rb->moveTo(coords);
 
 	ConvexPolygon* rawPointer = rb.get();
