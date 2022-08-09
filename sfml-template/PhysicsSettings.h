@@ -4,7 +4,7 @@
 
 struct PhysicsSettings
 {
-	real dt = 1.0 / 120;
+	real dt = 1.0 / 180;
 
 	bool showContactConstraints = false;
 	bool showAABBTree = false;
@@ -24,7 +24,7 @@ struct PhysicsSettings
 	int maxIterGJK = 30;
 
 	int velIter = 12;
-	int posIter = 3;
+	int posIter = 4;
 
 	real grav = 12;
 

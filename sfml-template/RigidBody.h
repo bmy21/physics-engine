@@ -88,9 +88,8 @@ public:
 	real mInv() const { return m_mInv; }
 	real IInv() const { return m_IInv; }
 
-	void setmInv(real mInv) { m_mInv = mInv; } // TODO: recompute IInv as well?
+	void setmInv(real mInv) { m_mInv = mInv; } 
 	void setIInv(real IInv) { m_IInv = IInv; }
-
 
 	// NOTE: these should only be called by the Constraint class
 	void addConstraintToList(Constraint* c) { constraints.insert(c); }

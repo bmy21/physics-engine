@@ -15,12 +15,11 @@ public:
 
 	void calculateParams();
 
-	RigidBody* rb = nullptr;
-	vec2 localPoint;
-
-
 private:
 	const MouseHandler& mh;
+
+	RigidBody* rb = nullptr;
+	vec2 localPoint;
 
 	real k = 0, b = 0, fMax = 0;
 	real beta = 0, gamma = 0;

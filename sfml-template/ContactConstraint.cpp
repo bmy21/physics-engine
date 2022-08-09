@@ -207,7 +207,11 @@ void ContactConstraint::solvePointVel(ContactPoint& cp)
 
 void ContactConstraint::solvePointPos(ContactPoint& cp)
 {
+	//real maxCorr = 0.1;
 	real C = std::min(cp.penetration + ps.slop, static_cast<real>(0));
+
+	//float C = b2Clamp(b2_baumgarte * (separation + b2_linearSlop), -b2_maxLinearCorrection, 0.0f);
+
 
 	real dLambda = 0;
 	if (cp.nMassFactor != 0)

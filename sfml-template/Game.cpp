@@ -51,16 +51,18 @@ Game::Game():
 
 			if (rand() % 2 == 0)
 			{
-				std::vector<vec2> pts = { {0, 0}, {0.5, 0}, {0.5, 0.05}, {0, 0.05} };
+				std::vector<vec2> pts = { {0, 0}, {0.7, 0}, {0.7, 0.07}, {0, 0.07} };
 				addConvexPolygon(pts, { x, y }, 10);
 				//addConvexPolygon(5, 0.15, { x, y }, 10);
 			}
 			else
 			{
-				addCircle(0.15, { x, y }, 10);
+				//addCircle(0.15, { x, y }, 10);
 			}
 		}
 	}
+
+	addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();
 
 	//addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
 	//addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));

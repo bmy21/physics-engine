@@ -510,6 +510,9 @@ void ConvexPolygon::initEdges()
 void ConvexPolygon::initShape()
 {
 	sf::Color col(196, 250, 248);
+
+	col = sf::Color::Transparent;
+
 	shape.setFillColor(col);
 	shape.setOutlineColor(sf::Color::Black);
 	shape.setOutlineThickness(-1);
