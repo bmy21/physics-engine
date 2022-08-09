@@ -13,9 +13,9 @@ public:
 	void warmStart() override;
 	void prepareVelSolver() override;
 
+private:
 	void calculateParams();
 
-private:
 	const MouseHandler& mh;
 
 	RigidBody* rb = nullptr;
