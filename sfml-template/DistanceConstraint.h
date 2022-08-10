@@ -8,30 +8,28 @@
 class DistanceConstraint : public Constraint
 {
 public:
-	DistanceConstraint(RigidBody* rb1, RigidBody* rb2, const PhysicsSettings& ps, std::initializer_list<RigidBody*> rigidBodies);
+	DistanceConstraint(RigidBody* rb1, RigidBody* rb2, const vec2& localPoint1, const vec2& localPoint2, real dist,
+		const PhysicsSettings& ps);
 
 	void correctVel() override;
 	void correctPos() override;
 	void warmStart() override;
 	void prepareVelSolver() override;
-};
 
-//class DistanceConstraint : public Constraint
-//{
-//public:
-//	DistanceConstraint();
-//
-//	void correctVel() override;
-//	void correctPos() override;
-//	void warmStart() override;
-//
-//	vec2 point;
-//	RigidBody* rb;
-//	
-//
-//private:
-//	
-//	real storedLambda = 0;
-//
-//};
-//
+private:
+	void updateCachedData();
+
+	RigidBody* rb1;
+	RigidBody* rb2;
+
+	vec2 localPoint1, localPoint2;
+	vec2 globalPoint1, globalPoint2;
+	vec2 n;
+
+	real crossFactor1 = 0, crossFactor2 = 0;
+	real massFactor = 0;
+
+	real dist = 0;
+
+	real accLam = 0;
+};

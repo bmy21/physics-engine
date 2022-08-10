@@ -6,6 +6,7 @@
 #include "Circle.h"
 #include "ContactConstraint.h"
 #include "MouseConstraint.h"
+#include "DistanceConstraint.h"
 #include "MouseHandler.h"
 #include "PhysicsSettings.h"
 #include "AABBTree.h"

@@ -40,8 +40,8 @@ Game::Game():
 	addConvexPolygon(4, h*scale, { w + h*scale / 2, h / 2})->setAsUnremovable();
 	addConvexPolygon(4, h*scale, { - h*scale / 2, h / 2 })->setAsUnremovable();
 
-	int n = 35;
-	int m = 35;
+	int n = 5;
+	int m = 5;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -49,7 +49,7 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 
-			if (rand() % 2 == 0)
+			if (0)//rand() % 2 == 0)
 			{
 				std::vector<vec2> pts = { {0, 0}, {0.7, 0}, {0.7, 0.07}, {0, 0.07} };
 				addConvexPolygon(pts, { x, y }, 10);
@@ -57,10 +57,15 @@ Game::Game():
 			}
 			else
 			{
-				//addCircle(0.15, { x, y }, 10);
+				addCircle(0.15, { x, y }, 10);
 			}
 		}
 	}
+
+	int s = rigidBodies.size();
+
+	std::unique_ptr<Constraint> c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 0.5, ps);
+	constraints.push_back(std::move(c));
 
 	addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();
 
