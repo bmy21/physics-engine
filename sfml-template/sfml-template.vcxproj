@@ -162,6 +162,7 @@
     <ClCompile Include="DistanceConstraint.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="LineConstraint.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MouseConstraint.cpp" />
     <ClCompile Include="MouseHandler.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="DistanceConstraint.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="LineConstraint.h" />
     <ClInclude Include="MouseConstraint.h" />
     <ClInclude Include="MouseHandler.h" />
     <ClInclude Include="PhysicsSettings.h" />

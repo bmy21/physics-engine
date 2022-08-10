@@ -12,8 +12,8 @@ Game::Game():
 		sf::Style::Close,
 		settings);
 
-	//window.setVerticalSyncEnabled(vsync);
-	//window.setFramerateLimit(fpsLimit);
+	window.setVerticalSyncEnabled(vsync);
+	window.setFramerateLimit(fpsLimit);
 	window.setMouseCursorVisible(true);
 
 	if (!font.loadFromFile("Fonts/saxmono/saxmono.ttf"))
@@ -23,13 +23,6 @@ Game::Game():
 
 	text.setFont(font);
 	text.setFillColor(sf::Color::Blue);
-
-	//real len = 0.5;
-	//int nsides = 12;
-	//addConvexPolygon(nsides, len, pixToCoords(pixWidth * 0.5, 200), 1.f);
-	//addConvexPolygon(6, 2.5, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
-	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
-	//addConvexPolygon(7, 1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 
 	real w = pixWidth / ps.pixPerUnit;
 	real h = pixHeight / ps.pixPerUnit;
@@ -64,15 +57,18 @@ Game::Game():
 
 	int s = rigidBodies.size();
 
-	std::unique_ptr<Constraint> c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 0.5, ps);
+	//std::unique_ptr<Constraint> c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 0.5, ps);
+	//constraints.push_back(std::move(c));
+
+	std::unique_ptr<Constraint> c = std::make_unique<LineConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), vec2(1,0), ps);
 	constraints.push_back(std::move(c));
 
 	addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();
 
-	//addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
-	//addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
-	//addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
-	//addCircle(0.5, { 3,3 }, 2);
+	addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
+	addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
+	addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
+	addCircle(0.5, { 3,3 }, 2);
 }
 
 
@@ -87,7 +83,7 @@ void Game::run()
 	{
 		dt = frameTimer.restart().asSeconds() / 1;
 
-		//std::cout << 1 / dt << "\n";
+		std::cout << 1 / dt << "\n";
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -307,6 +303,8 @@ void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 {
 	// Assumes that the ordering of rb1 and rb2 is always consistent, e.g. rb1->id < rb2->id
 
+	// TODO: disallow certain pairs from colliding? Or perhaps before this function is called.
+
 	std::unique_ptr<ContactConstraint> result = rb1->checkCollision(rb2);
 
 	if (result)
@@ -398,7 +396,7 @@ void Game::setupMouseConstraint()
 			if (rb->pointInside(mh.coords()))
 			{
 				vec2 local = { 0,0 };
-				real fMax = 300.f / rb->mInv();
+				real fMax = 300.f;// / rb->mInv();
 
 				// TODO: Consider force/acceleration limit & contact breaking
 				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .1f, 4.f, fMax);
