@@ -59,6 +59,7 @@ Game::Game():
 
 	// TODO: store original origin (pre-centering) for all rigid bodies?
 	// TODO: auto-initialization of direction & angle difference?
+	// TODO: angle wrapping
 	auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 1, ps);
 	c1->makeSpringy(.4f, .3f);
 	constraints.push_back(std::move(c1));

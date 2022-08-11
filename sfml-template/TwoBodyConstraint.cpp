@@ -17,6 +17,7 @@ TwoBodyConstraint::TwoBodyConstraint(RigidBody* rb1, RigidBody* rb2, real tOsc, 
 void TwoBodyConstraint::makeSpringy(real tOsc, real dampingRatio)
 {
 	// NOTE: effective mass may change during motion due to rotation 
+	// TODO: allow caller to supply an alternative effective mass?
 
 	updateCachedData();
 

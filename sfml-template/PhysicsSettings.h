@@ -4,7 +4,7 @@
 
 struct PhysicsSettings
 {
-	real dt = 1.0 / 250;
+	real dt = 1.0 / 150;
 
 	bool showContactConstraints = false;
 	bool showAABBTree = false;
@@ -28,7 +28,7 @@ struct PhysicsSettings
 
 	real grav = 12;
 
-	real muDefault = 0.5;
+	real muDefault = 0.4;
 	real eDefault = 0.2;
 
 	real aabbFattening = 0.1;
