@@ -8,6 +8,7 @@
 #include "MouseConstraint.h"
 #include "DistanceConstraint.h"
 #include "LineConstraint.h"
+#include "AngleConstraint.h"
 #include "MouseHandler.h"
 #include "PhysicsSettings.h"
 #include "AABBTree.h"

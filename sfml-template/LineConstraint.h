@@ -3,7 +3,7 @@
 class LineConstraint : public Constraint
 {
 public:
-	LineConstraint(RigidBody* rb1, RigidBody* rb2, const vec2& localPoint1, const vec2& localPoint2, vec2 localDir1,
+	LineConstraint(RigidBody* rb1, RigidBody* rb2, const vec2& localPoint1, const vec2& localPoint2, const vec2& localDir1,
 		const PhysicsSettings& ps);
 
 	void correctVel() override;

@@ -118,5 +118,7 @@ void MouseConstraint::calculateParams()
 	{
 		beta = k / denom;
 		gamma = 1 / (ps.dt * denom);
+
+		std::cout << beta << " --- " << gamma << "\n";
 	}
 }

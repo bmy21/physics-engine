@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AABBTree.cpp" />
+    <ClCompile Include="AngleConstraint.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="CircleCircleContact.cpp" />
     <ClCompile Include="Constraint.cpp" />
@@ -171,12 +172,14 @@
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="Simplex.cpp" />
     <ClCompile Include="SoftDistanceConstraint.cpp" />
+    <ClCompile Include="TwoBodyConstraint.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
     <ClInclude Include="AABBTree.h" />
+    <ClInclude Include="AngleConstraint.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="CircleCircleContact.h" />
     <ClInclude Include="Constraint.h" />
@@ -195,6 +198,7 @@
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="Simplex.h" />
     <ClInclude Include="SoftDistanceConstraint.h" />
+    <ClInclude Include="TwoBodyConstraint.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

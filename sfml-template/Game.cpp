@@ -5,7 +5,7 @@ Game::Game():
 	mh(window, ps)
 {
 	sf::ContextSettings settings;
-	settings.antialiasingLevel = 8;
+	settings.antialiasingLevel = 4;
 
 	window.create(sf::VideoMode(pixWidth, pixHeight),
 		"Physics", //sf::Style::Fullscreen,
@@ -34,7 +34,7 @@ Game::Game():
 	addConvexPolygon(4, h*scale, { - h*scale / 2, h / 2 })->setAsUnremovable();
 
 	int n = 5;
-	int m = 5;
+	int m = 2;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -57,11 +57,17 @@ Game::Game():
 
 	int s = rigidBodies.size();
 
-	//std::unique_ptr<Constraint> c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 0.5, ps);
-	//constraints.push_back(std::move(c));
+	// TODO: store original origin (pre-centering) for all rigid bodies?
+	// TODO: auto-initialization of direction & angle difference?
+	auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 1, ps);
+	c1->makeSpringy(.4f, .3f);
+	constraints.push_back(std::move(c1));
 
-	std::unique_ptr<Constraint> c = std::make_unique<LineConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), vec2(1,0), ps);
-	constraints.push_back(std::move(c));
+	auto c2 = std::make_unique<LineConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), vec2(0, 1), ps);
+	constraints.push_back(std::move(c2));
+
+	auto c3 = std::make_unique<AngleConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), static_cast<real>(0), ps);
+	constraints.push_back(std::move(c3));
 
 	addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();
 
@@ -83,7 +89,7 @@ void Game::run()
 	{
 		dt = frameTimer.restart().asSeconds() / 1;
 
-		std::cout << 1 / dt << "\n";
+		//std::cout << 1 / dt << "\n";
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -366,7 +372,7 @@ void Game::handleConstraintRemoval()
 		}
 	}
 
-	std::cout << constraints.size() << "\n";
+	//std::cout << constraints.size() << "\n";
 }
 
 void Game::handleRigidBodyRemoval()
@@ -396,7 +402,7 @@ void Game::setupMouseConstraint()
 			if (rb->pointInside(mh.coords()))
 			{
 				vec2 local = { 0,0 };
-				real fMax = 300.f;// / rb->mInv();
+				real fMax = 300.f / rb->mInv();
 
 				// TODO: Consider force/acceleration limit & contact breaking
 				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .1f, 4.f, fMax);

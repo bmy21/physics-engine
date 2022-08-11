@@ -2,7 +2,7 @@
 #include "RigidBody.h"
 
 LineConstraint::LineConstraint(RigidBody* rb1, RigidBody* rb2, const vec2& localPoint1, const vec2& localPoint2, 
-	vec2 localDir1, const PhysicsSettings& ps):
+	const vec2& localDir1, const PhysicsSettings& ps):
 	rb1(rb1), rb2(rb2), localPoint1(localPoint1), localPoint2(localPoint2), localDir1(localDir1),
 	Constraint(ps, { rb1, rb2 })
 {
@@ -39,7 +39,7 @@ void LineConstraint::correctPos()
 
 	// Don't need to call the RigidBody update functions until after the iterations are complete
 	rb1->applyDeltaPos(globalPerp1 * rb1->mInv() * dLambda, crossFactor1 * rb1->IInv() * dLambda, false);
-	rb2->applyDeltaPos(-globalPerp1 * rb2->mInv() * dLambda, crossFactor2 * rb2->IInv() * dLambda, false);
+	rb2->applyDeltaPos(-globalPerp1 * rb2->mInv() * dLambda, -crossFactor2 * rb2->IInv() * dLambda, false);
 }
 
 void LineConstraint::warmStart()

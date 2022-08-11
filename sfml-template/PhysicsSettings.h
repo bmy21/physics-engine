@@ -4,13 +4,13 @@
 
 struct PhysicsSettings
 {
-	real dt = 1.0 / 180;
+	real dt = 1.0 / 250;
 
 	bool showContactConstraints = false;
 	bool showAABBTree = false;
 
 	real slop = 0.005;
-	real beta = 0.2;
+	real beta = 0.15;
 
 	real vRelThreshold = 0.1;
 
