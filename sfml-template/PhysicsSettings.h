@@ -10,7 +10,7 @@ struct PhysicsSettings
 	bool showAABBTree = false;
 
 	real slop = 0.005;
-	real beta = 0.15;
+	real beta = 0.1;
 
 	real vRelThreshold = 0.1;
 
@@ -23,7 +23,7 @@ struct PhysicsSettings
 
 	int maxIterGJK = 30;
 
-	int velIter = 12;
+	int velIter = 15;
 	int posIter = 4;
 
 	real grav = 12;

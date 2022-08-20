@@ -10,6 +10,10 @@ public:
 	void makeSpringy(real tOsc, real dampingRatio);
 	void makeRigid();
 
+	void setTarget(real t);
+	void setRange(real small, real large);
+	void removeLimits();
+
 	void correctVel() override;
 	void correctPos() override;
 	void warmStart() override;
@@ -20,15 +24,22 @@ protected:
 	RigidBody* rb2;
 
 	real C = 0;
+	real C0 = 0, Cmin = 0, Cmax = 0;
 	std::array<real, 6> gradC{};
 	real massFactor = 0;
 
 private:
 	virtual void updateCachedData() = 0;
 
-	bool shouldCorrectPos = true;
+	void applyImpulse(real impulse);
+	real getvDotGradC() const;
+
+	bool isRigid = true;
+	bool isLimited = false;
 
 	real beta = 0, gamma = 0;
 	real accLam = 0;
+
+	real accLower = 0, accUpper = 0;
 };
 

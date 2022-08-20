@@ -60,14 +60,17 @@ Game::Game():
 	// TODO: store original origin (pre-centering) for all rigid bodies?
 	// TODO: auto-initialization of direction & angle difference?
 	// TODO: angle wrapping
-	auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 1, ps);
-	c1->makeSpringy(.4f, .3f);
+
+	auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 0.6, ps);
+	//c1->makeSpringy(.4f, .3f);
+	//c1->setRange(0.2, 0.8);
 	constraints.push_back(std::move(c1));
 
 	auto c2 = std::make_unique<LineConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), vec2(0, 1), ps);
 	constraints.push_back(std::move(c2));
 
 	auto c3 = std::make_unique<AngleConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), static_cast<real>(0), ps);
+	//c3->makeSpringy(.2f, .1f);
 	constraints.push_back(std::move(c3));
 
 	addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();

@@ -6,7 +6,7 @@ DistanceConstraint::DistanceConstraint(RigidBody* rb1, RigidBody* rb2, const vec
 	TwoBodyConstraint(rb1, rb2, ps),
 	localPoint1(localPoint1), localPoint2(localPoint2), dist(dist)
 {
-	
+	setTarget(dist);
 }
 
 void DistanceConstraint::updateCachedData()
@@ -16,7 +16,7 @@ void DistanceConstraint::updateCachedData()
 
 	vec2 n = globalPoint1 - globalPoint2;
 
-	C = magnitude(n) - dist;
+	C = magnitude(n);
 
 	if (!isZero(n))
 	{

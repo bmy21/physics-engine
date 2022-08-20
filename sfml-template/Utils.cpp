@@ -6,6 +6,15 @@ vec2 rotate(const vec2& v, real theta)
 	return rotate(v, std::cos(theta), std::sin(theta));
 }
 
+real wrap(real theta)
+{
+	// Wrap theta between -pi and pi
+	theta = std::fmod(theta, 2 * pi);
+	if (theta < 0) theta += 2 * pi;
+	if (theta > pi) theta -= 2 * pi;
+	return theta;
+}
+
 void centre(sf::Text& text)
 {
 	auto globalBounds = text.getGlobalBounds();

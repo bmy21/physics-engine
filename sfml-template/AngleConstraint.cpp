@@ -12,5 +12,6 @@ AngleConstraint::AngleConstraint(RigidBody* rb1, RigidBody* rb2, real angleDiff,
 void AngleConstraint::updateCachedData()
 {
 	// gradC and massFactor are constant
-	C = rb1->angle() - rb2->angle();
+	C = rb1->angle() - rb2->angle() - angleDiff;
+	C = wrap(C);
 }

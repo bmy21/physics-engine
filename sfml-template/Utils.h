@@ -27,6 +27,8 @@ using vec2 = sf::Vector2<real>;
 constexpr real pi = 3.14159265359;
 enum class Voronoi { Vertex, Edge, Inside };
 
+real wrap(real angle);
+
 void centre(sf::Text& text);
 
 real dot(const vec2& v1, const vec2& v2);
