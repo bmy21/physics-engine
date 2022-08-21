@@ -11,7 +11,7 @@ class Circle;
 class ContactConstraint;
 class AABBTree;
 
-using idType = unsigned long;
+using idType = uint64_t;
 using idPair = std::pair<idType, idType>;
 
 struct idPairHasher
@@ -69,8 +69,6 @@ public:
 	real bottom() const { return aabb.upper.y; }
 	real right() const { return aabb.upper.x; }
 	real top() const { return aabb.lower.y; }
-	
-	real KE() const { return 0.5 * dot(vel, vel) / m_mInv; }
 
 	void applyDeltaVel(const vec2& dv, real dw);
 	void applyDeltaPos(const vec2& dr, real dth, bool update = true);
@@ -90,6 +88,8 @@ public:
 
 	void setmInv(real mInv) { m_mInv = mInv; } 
 	void setIInv(real IInv) { m_IInv = IInv; }
+
+	// real KE() const { return 0.5 * dot(vel, vel) / m_mInv; }
 
 	// NOTE: these should only be called by the Constraint class
 	void addConstraintToList(Constraint* c) { constraints.insert(c); }
