@@ -57,7 +57,6 @@ Game::Game():
 
 	int s = rigidBodies.size();
 
-	// TODO: store original origin (pre-centering) for all rigid bodies?
 	// TODO: auto-initialization of direction & angle difference?
 
 	auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 0.6, ps);

@@ -5,7 +5,7 @@ class DistanceConstraint : public TwoBodyConstraint
 {
 public:
 	DistanceConstraint(RigidBody* rb1, RigidBody* rb2, const vec2& localPoint1, const vec2& localPoint2, real dist,
-		const PhysicsSettings& ps);
+		const PhysicsSettings& ps, bool relativeToRefPoints = false);
 
 private:
 	void updateCachedData() override;

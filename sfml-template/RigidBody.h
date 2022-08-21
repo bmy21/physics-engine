@@ -89,6 +89,9 @@ public:
 	void setmInv(real mInv) { m_mInv = mInv; } 
 	void setIInv(real IInv) { m_IInv = IInv; }
 
+	void setRefPoint(const vec2& ref) { refPoint = ref; }
+	vec2 getRefPoint() const { return refPoint; }
+
 	// real KE() const { return 0.5 * dot(vel, vel) / m_mInv; }
 
 	// NOTE: these should only be called by the Constraint class
@@ -114,6 +117,8 @@ private:
 
 	bool removable = true;
 	bool remove = false;
+
+	vec2 refPoint = {0, 0};
 
 	// Keep track of which constraints are currently acting on this rigid body
 	std::unordered_set<Constraint*> constraints;

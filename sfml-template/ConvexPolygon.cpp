@@ -229,6 +229,9 @@ void ConvexPolygon::centreOnCOM()
 	{
 		v->changeLocal(v->local() - cm, *this);
 	}
+
+	// Coordinates of the original origin in the new coordinate system
+	setRefPoint(-cm);
 }
 
 vec2 ConvexPolygon::calculateCOM() const

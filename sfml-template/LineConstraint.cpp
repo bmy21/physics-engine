@@ -2,11 +2,17 @@
 #include "RigidBody.h"
 
 LineConstraint::LineConstraint(RigidBody* rb1, RigidBody* rb2, const vec2& localPoint1, const vec2& localPoint2, 
-	const vec2& localDir1, const PhysicsSettings& ps):
+	const vec2& localDir1, const PhysicsSettings& ps, bool relativeToRefPoints):
 	TwoBodyConstraint(rb1, rb2, ps),
 	localPoint1(localPoint1), localPoint2(localPoint2), localDir1(localDir1)
 {
 	localPerp1 = perp(localDir1);
+
+	if (relativeToRefPoints)
+	{
+		this->localPoint1 += rb1->getRefPoint();
+		this->localPoint2 += rb2->getRefPoint();
+	}
 }
 
 

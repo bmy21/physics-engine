@@ -5,7 +5,7 @@ class LineConstraint : public TwoBodyConstraint
 {
 public:
 	LineConstraint(RigidBody* rb1, RigidBody* rb2, const vec2& localPoint1, const vec2& localPoint2, const vec2& localDir1,
-		const PhysicsSettings& ps);
+		const PhysicsSettings& ps, bool relativeToRefPoints = false);
 
 private:
 	void updateCachedData();
