@@ -10,7 +10,7 @@ struct PhysicsSettings
 	bool showAABBTree = false;
 
 	real slop = 0.005;
-	real beta = 0.1;
+	real beta = 0.2;
 
 	real vRelThreshold = 0.1;
 

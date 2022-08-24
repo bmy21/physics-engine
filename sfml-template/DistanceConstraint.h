@@ -7,6 +7,8 @@ public:
 	DistanceConstraint(RigidBody* rb1, RigidBody* rb2, const vec2& localPoint1, const vec2& localPoint2, real dist,
 		const PhysicsSettings& ps, bool relativeToRefPoints = false);
 
+	void draw(sf::RenderWindow& window, real fraction) override;
+
 private:
 	void updateCachedData() override;
 

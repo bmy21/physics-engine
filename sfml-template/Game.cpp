@@ -42,7 +42,7 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 
-			if (0)//rand() % 2 == 0)
+			if (1)//rand() % 2 == 0)
 			{
 				std::vector<vec2> pts = { {0, 0}, {0.7, 0}, {0.7, 0.07}, {0, 0.07} };
 				addConvexPolygon(pts, { x, y }, 10);
@@ -57,22 +57,56 @@ Game::Game():
 
 	int s = rigidBodies.size();
 
-	// TODO: auto-initialization of direction & angle difference?
-
-	auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), 0.6, ps);
-	//c1->makeSpringy(.4f, .3f);
-	//c1->setRange(0.2, 0.8);
+	auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
+	//c1->makeSpringy(.1f, .3f);
 	constraints.push_back(std::move(c1));
 
-	auto c2 = std::make_unique<LineConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), vec2(0, 1), ps);
+	
+
+	auto c2 = std::make_unique<DistanceConstraint>(rigidBodies[s - 2].get(), rigidBodies[s - 3].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
+	//c1->makeSpringy(.1f, .3f);
 	constraints.push_back(std::move(c2));
 
-	auto c3 = std::make_unique<AngleConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), static_cast<real>(0), ps);
-	//c3->makeSpringy(.5f, .1f);
-	//c3->setRange(-pi / 4, pi / 4);
-	constraints.push_back(std::move(c3));
+	rigidBodies[s - 1]->setCollType(0b0000000000000010);
+	rigidBodies[s - 2]->setCollType(0b0000000000000010);
+	rigidBodies[s - 3]->setCollType(0b0000000000000010);
+	rigidBodies[s - 1]->setCollidables(0b0000000000000001);
+	rigidBodies[s - 2]->setCollidables(0b0000000000000001);
+	rigidBodies[s - 3]->setCollidables(0b0000000000000001);
 
-	addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();
+
+	// TODO: auto-initialization of direction & angle difference?
+
+	////auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-0.35, 0), vec2(-0.35, 0), 0.7, ps);
+	////c1->makeSpringy(.1f, .3f);
+	////c1->setRange(0.2, 0.8);
+	////constraints.push_back(std::move(c1));
+
+	////auto c1b = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.7, 0.035), vec2(0.7, 0.035), 0.7, ps, true);
+	////c1b->makeSpringy(.1f, .3f);
+	////c1b->setRange(0.2, 0.8);
+	////constraints.push_back(std::move(c1b));
+
+	////auto c1c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.35, 0), vec2(-0.35, 0), 0.7, ps);
+	////c1c->makeSpringy(.1f, .3f);
+	//////c1c->setRange(0.2, 0.8);
+	////constraints.push_back(std::move(c1c));
+
+	////auto c1d = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-0.35, 0), vec2(0.35, 0), 0.7, ps);
+	////c1d->makeSpringy(.1f, .3f);
+	//////c1d->setRange(0.2, 0.8);
+	////constraints.push_back(std::move(c1d));
+
+
+	//auto c2 = std::make_unique<LineConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), vec2(0, -1), ps);
+	////constraints.push_back(std::move(c2));
+
+	//auto c3 = std::make_unique<AngleConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), static_cast<real>(0), ps);
+	////c3->makeSpringy(.5f, .1f);
+	////c3->setRange(-pi / 4, pi / 4);
+	////constraints.push_back(std::move(c3));
+
+	//addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();
 
 	addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
 	addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
@@ -174,6 +208,11 @@ void Game::run()
 		for (auto& rb : rigidBodies)
 		{
 			rb->draw(window, fraction, false, &text);
+		}
+
+		for (auto& c : constraints)
+		{
+			c->draw(window, fraction);
 		}
 
 		if (ps.showContactConstraints)
@@ -300,7 +339,10 @@ void Game::updateCollidingPairs()
 		
 		for (auto& c : colliders)
 		{
-			checkCollision(c, rb.get());
+			if (c->canCollideWith(rb.get()))
+			{
+				checkCollision(c, rb.get());
+			}
 		}
 	});
 

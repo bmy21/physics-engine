@@ -13,6 +13,7 @@ class AABBTree;
 
 using idType = uint64_t;
 using idPair = std::pair<idType, idType>;
+using collType = uint16_t; 
 
 struct idPairHasher
 {
@@ -92,6 +93,10 @@ public:
 	void setRefPoint(const vec2& ref) { refPoint = ref; }
 	vec2 getRefPoint() const { return refPoint; }
 
+	bool canCollideWith(const RigidBody* other) const;
+	void setCollType(collType t) { ownTypes = t; }
+	void setCollidables(collType t) { collidableTypes = t; }
+
 	// real KE() const { return 0.5 * dot(vel, vel) / m_mInv; }
 
 	// NOTE: these should only be called by the Constraint class
@@ -119,6 +124,9 @@ private:
 	bool remove = false;
 
 	vec2 refPoint = {0, 0};
+
+	collType ownTypes = 1;
+	collType collidableTypes = 0xFFFF; // TODO: use max for collType?
 
 	// Keep track of which constraints are currently acting on this rigid body
 	std::unordered_set<Constraint*> constraints;

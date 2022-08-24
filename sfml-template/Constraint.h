@@ -11,6 +11,8 @@ public:
 	Constraint(const PhysicsSettings& ps, std::initializer_list<RigidBody*> rigidBodies);
 	virtual ~Constraint();
 
+	virtual void draw(sf::RenderWindow& window, real fraction) {  }
+
 	virtual void correctVel() = 0;
 	virtual void correctPos() = 0;
 	virtual void warmStart() = 0;

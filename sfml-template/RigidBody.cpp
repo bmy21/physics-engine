@@ -128,6 +128,16 @@ void RigidBody::markForRemoval()
 	}
 }
 
+bool RigidBody::canCollideWith(const RigidBody* other) const
+{
+	// TODO: store a separate list of individual RBs that are forbidden?
+
+	bool wantsToCollide = other->ownTypes & this->collidableTypes;
+	bool otherWantsToCollide = this->ownTypes & other->collidableTypes;
+
+	return wantsToCollide && otherWantsToCollide;
+}
+
 void RigidBody::markConstraintsForRemoval()
 {
 	std::for_each(std::execution::unseq, constraints.begin(), constraints.end(), [](Constraint* const c)
