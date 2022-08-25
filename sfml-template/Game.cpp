@@ -55,24 +55,48 @@ Game::Game():
 		}
 	}
 
-	int s = rigidBodies.size();
+	//int s = rigidBodies.size();
 
-	auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
+	//auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
 	//c1->makeSpringy(.1f, .3f);
-	constraints.push_back(std::move(c1));
+	//constraints.push_back(std::move(c1));
 
 	
 
-	auto c2 = std::make_unique<DistanceConstraint>(rigidBodies[s - 2].get(), rigidBodies[s - 3].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
+	//auto c2 = std::make_unique<DistanceConstraint>(rigidBodies[s - 2].get(), rigidBodies[s - 3].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
 	//c1->makeSpringy(.1f, .3f);
-	constraints.push_back(std::move(c2));
+	//constraints.push_back(std::move(c2));
 
-	rigidBodies[s - 1]->setCollType(0b0000000000000010);
-	rigidBodies[s - 2]->setCollType(0b0000000000000010);
-	rigidBodies[s - 3]->setCollType(0b0000000000000010);
-	rigidBodies[s - 1]->setCollidables(0b0000000000000001);
-	rigidBodies[s - 2]->setCollidables(0b0000000000000001);
-	rigidBodies[s - 3]->setCollidables(0b0000000000000001);
+	//rigidBodies[s - 1]->setCollType(0b0000000000000010);
+	//rigidBodies[s - 2]->setCollType(0b0000000000000010);
+	//rigidBodies[s - 3]->setCollType(0b0000000000000010);
+	//rigidBodies[s - 1]->setCollidables(0b0000000000000001);
+	//rigidBodies[s - 2]->setCollidables(0b0000000000000001);
+	//rigidBodies[s - 3]->setCollidables(0b0000000000000001);
+
+	int nLinks = 120;
+	real linkWidth = 0.06;
+	real linkLength = 0.15/2;
+	real x0 = 1, y0 = 1;
+
+	for (int i = 0; i < nLinks; ++i)
+	{
+		real x = x0 + i * linkLength;
+		real y = y0;
+
+		std::vector<vec2> pts = { {0, 0}, {linkLength, 0}, {linkLength, linkWidth}, {0, linkWidth} };
+		RigidBody* rb = addConvexPolygon(pts, { x, y }, 20);
+
+		int s = rigidBodies.size();
+
+		rigidBodies[s - 1]->setCollType(0b0000000000000010);
+		rigidBodies[s - 1]->setCollidables(0b0000000000000001);
+
+		if (i == 0) continue;
+
+		auto c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-linkLength/2, 0), vec2(linkLength/2, 0), 0., ps);
+		constraints.push_back(std::move(c));
+	}
 
 
 	// TODO: auto-initialization of direction & angle difference?
@@ -126,7 +150,7 @@ void Game::run()
 	{
 		dt = frameTimer.restart().asSeconds() / 1;
 
-		//std::cout << 1 / dt << "\n";
+		std::cout << 1 / dt << "\n";
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -354,8 +378,6 @@ void Game::checkCollision(RigidBody* rb1, RigidBody* rb2)
 {
 	// Assumes that the ordering of rb1 and rb2 is always consistent, e.g. rb1->id < rb2->id
 
-	// TODO: disallow certain pairs from colliding? Or perhaps before this function is called.
-
 	std::unique_ptr<ContactConstraint> result = rb1->checkCollision(rb2);
 
 	if (result)
@@ -447,10 +469,10 @@ void Game::setupMouseConstraint()
 			if (rb->pointInside(mh.coords()))
 			{
 				vec2 local = { 0,0 };
-				real fMax = 300.f / rb->mInv();
+				real fMax = 100.f; // / rb->mInv();
 
 				// TODO: Consider force/acceleration limit & contact breaking
-				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .1f, 4.f, fMax);
+				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .05f, 4.f, fMax);
 				mc = newMC.get();
 
 				constraints.push_back(std::move(newMC));

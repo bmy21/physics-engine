@@ -125,8 +125,9 @@ private:
 
 	vec2 refPoint = {0, 0};
 
+	// By default, a RigidBody belongs to type 1 and can collide with any type
 	collType ownTypes = 1;
-	collType collidableTypes = 0xFFFF; // TODO: use max for collType?
+	collType collidableTypes = std::numeric_limits<collType>::max();
 
 	// Keep track of which constraints are currently acting on this rigid body
 	std::unordered_set<Constraint*> constraints;
