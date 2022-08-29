@@ -30,7 +30,7 @@ private:
 	sf::Text text;
 
 	bool vsync = true;
-	int fpsLimit = 144;
+	int fpsLimit = 165;
 	real dtMax = 1.0 / 10;
 
 	void integrateVelocities();
@@ -69,8 +69,7 @@ private:
 	AABBTree tree;
 
 	std::vector<std::unique_ptr<RigidBody>> rigidBodies;
-	std::vector<std::unique_ptr<Constraint>> constraints; 
-	//std::unordered_map<idPair, std::unique_ptr<ContactConstraint>, idPairHasher> collidingPairs;
+	std::vector<std::unique_ptr<Constraint>> constraints;
 
 	std::map<idPair, std::unique_ptr<ContactConstraint>> collidingPairs;
 };

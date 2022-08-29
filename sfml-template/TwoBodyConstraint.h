@@ -9,6 +9,10 @@ public:
 
 	void makeSpringy(real tOsc, real dampingRatio);
 	void makeRigid();
+	
+	void setAsDamper(real tDamp);
+	void enableMotor(real vTarget, real fMax);
+	void disableMotor();
 
 	void setTarget(real t);
 	void setRange(real small, real large);
@@ -36,10 +40,13 @@ private:
 
 	bool isRigid = true;
 	bool isLimited = false;
+	bool motorEnabled = false;
 
 	real beta = 0, gamma = 0;
 	real accLam = 0;
 
-	real accLower = 0, accUpper = 0;
+	real accLower = 0, accUpper = 0, accMotor = 0;
+	real motorTarget = 0;
+	real motorMaxForce = 0;
 };
 

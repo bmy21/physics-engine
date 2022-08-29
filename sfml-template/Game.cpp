@@ -74,9 +74,19 @@ Game::Game():
 	//rigidBodies[s - 2]->setCollidables(0b0000000000000001);
 	//rigidBodies[s - 3]->setCollidables(0b0000000000000001);
 
-	int nLinks = 120;
+	// TODO: purely damping constraint (esp. angular)
+	// TODO: function to set up a chain
+	// TODO: function to set up a soft body using soft constraints
+	// TODO: continuous collision
+	// TODO: chain shape equivalent
+	// TODO: setup mass based on density
+	// TODO: test springy zero-distance constraint
+	// TODO: add motors
+	// TODO: 2x2 peg constraint
+
+	int nLinks = 50;
 	real linkWidth = 0.06;
-	real linkLength = 0.15/2;
+	real linkLength = 0.07*2;
 	real x0 = 1, y0 = 1;
 
 	for (int i = 0; i < nLinks; ++i)
@@ -85,7 +95,7 @@ Game::Game():
 		real y = y0;
 
 		std::vector<vec2> pts = { {0, 0}, {linkLength, 0}, {linkLength, linkWidth}, {0, linkWidth} };
-		RigidBody* rb = addConvexPolygon(pts, { x, y }, 20);
+		RigidBody* rb = addConvexPolygon(pts, { x, y }, 10);
 
 		int s = rigidBodies.size();
 
@@ -96,8 +106,31 @@ Game::Game():
 
 		auto c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-linkLength/2, 0), vec2(linkLength/2, 0), 0., ps);
 		constraints.push_back(std::move(c));
+
+		//auto c2 = std::make_unique<AngleConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), 0., ps);
+		//c2->setAsDamper(.1);
+		//c2->makeSpringy(.05, 2.);
+		//constraints.push_back(std::move(c2));
+
+		/*auto c3 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-linkLength / 2, linkWidth / 2), vec2(linkLength / 2, linkWidth / 2), 0., ps);
+		constraints.push_back(std::move(c3));
+
+		auto c4 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-linkLength / 2, -linkWidth / 2), vec2(linkLength / 2, -linkWidth / 2), 0., ps);
+		constraints.push_back(std::move(c4));*/
 	}
 
+	/*real rad = 0.3;
+	addCircle(rad, { x0 + (nLinks - 1) * linkLength, y0 }, 1);
+	int s = rigidBodies.size();
+
+	auto c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-rad, 0), vec2(linkLength / 2, 0), 0., ps);
+	constraints.push_back(std::move(c));
+
+	auto c2 = std::make_unique<LineConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), vec2(-1, 0), ps);
+	constraints.push_back(std::move(c2));
+
+	auto c3 = std::make_unique<AngleConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), static_cast<real>(0), ps);
+	constraints.push_back(std::move(c3));*/
 
 	// TODO: auto-initialization of direction & angle difference?
 
@@ -133,8 +166,15 @@ Game::Game():
 	//addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();
 
 	addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
-	addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
-	addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
+	auto circ1 = addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
+	auto circ2 = addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
+
+
+	circ1->setIInv(1);
+	auto c = std::make_unique<AngleConstraint>(circ1, circ2, 0., ps);
+	c->enableMotor(6*pi, 1000);
+	constraints.push_back(std::move(c));
+
 	addCircle(0.5, { 3,3 }, 2);
 }
 
@@ -314,6 +354,7 @@ void Game::correctVelocities()
 			cp.second->correctVel();
 		}
 	}
+
 }
 
 void Game::correctPositions()
@@ -469,7 +510,7 @@ void Game::setupMouseConstraint()
 			if (rb->pointInside(mh.coords()))
 			{
 				vec2 local = { 0,0 };
-				real fMax = 100.f; // / rb->mInv();
+				real fMax = 200.f; // / rb->mInv();
 
 				// TODO: Consider force/acceleration limit & contact breaking
 				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .05f, 4.f, fMax);

@@ -43,6 +43,26 @@ void TwoBodyConstraint::makeRigid()
 	beta = gamma = 0;
 }
 
+void TwoBodyConstraint::setAsDamper(real tDamp)
+{
+	isRigid = false;
+	beta = 0;
+	real b = decayConstant(tDamp);
+	gamma = 1 / (ps.dt * b);
+}
+
+void TwoBodyConstraint::enableMotor(real vTarget, real fMax)
+{
+	motorEnabled = true;
+	motorTarget = vTarget;
+	motorMaxForce = fMax;
+}
+
+void TwoBodyConstraint::disableMotor()
+{
+	motorEnabled = false;
+}
+
 void TwoBodyConstraint::setTarget(real t)
 {
 	C0 = t;
@@ -62,7 +82,16 @@ void TwoBodyConstraint::removeLimits()
 
 void TwoBodyConstraint::correctVel()
 {
-	if (!(isRigid && isLimited) && (massFactor + gamma != 0))
+	if (motorEnabled && massFactor != 0)
+	{
+		real maxImpulse = motorMaxForce * ps.dt;
+		real dLambda = (motorTarget - getvDotGradC()) / massFactor;
+		dLambda = std::clamp(accMotor + dLambda, -maxImpulse, maxImpulse) - accMotor;
+		accMotor += dLambda;
+		applyImpulse(dLambda);
+	}
+
+	if (!(isRigid && isLimited) && !(isRigid && motorEnabled) && (massFactor + gamma != 0))
 	{
 		// Apply corrective impulse unless the constraint is a rigid slider
 		real dLambda = -(getvDotGradC() + beta * (C - C0) + gamma * accLam) / (massFactor + gamma);
@@ -132,7 +161,7 @@ void TwoBodyConstraint::correctPos()
 			numerator = C - Cmin;
 		}
 	}
-	else if (isRigid)
+	else if (isRigid && !motorEnabled)
 	{
 		// Aim for C0
 		numerator = C - C0;
@@ -153,13 +182,14 @@ void TwoBodyConstraint::warmStart()
 {
 	if (ps.warmStart)
 	{
-		applyImpulse(accLam + accLower + accUpper);
+		applyImpulse(accLam + accLower + accUpper + accMotor);
 	}
 	else
 	{
 		accLam = 0;
 		accLower = 0;
 		accUpper = 0;
+		accMotor = 0;
 	}
 }
 

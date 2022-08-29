@@ -84,7 +84,7 @@ std::unique_ptr<ContactConstraint> ConvexPolygon::checkCollision(ConvexPolygon* 
 	const Edge* incEdge = nullptr;
 	const Vertex* incVertex = nullptr;
 	
-	// NOTE: could include both relative & absolute tolerance here?
+	// TODO: could include both relative & absolute tolerance here?
 	if (penetrationBtoA > penetrationAtoB + ps.refEdgeAbsTol)
 	{
 		// Penetrations are signed, so here A penetrates into B more than B penetrates into A
@@ -515,6 +515,7 @@ void ConvexPolygon::initShape()
 	sf::Color col(196, 250, 248);
 
 	//col = sf::Color::Transparent;
+	//col = sf::Color::Black;
 
 	shape.setFillColor(col);
 	shape.setOutlineColor(sf::Color::Black);
