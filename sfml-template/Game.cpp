@@ -33,8 +33,8 @@ Game::Game():
 	addConvexPolygon(4, h*scale, { w + h*scale / 2, h / 2})->setAsUnremovable();
 	addConvexPolygon(4, h*scale, { - h*scale / 2, h / 2 })->setAsUnremovable();
 
-	int n = 5;
-	int m = 2;
+	int n = 0;
+	int m = 0;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -42,11 +42,11 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 
-			if (1)//rand() % 2 == 0)
+			if (0)//rand() % 2 == 0)
 			{
-				std::vector<vec2> pts = { {0, 0}, {0.7, 0}, {0.7, 0.07}, {0, 0.07} };
-				addConvexPolygon(pts, { x, y }, 10);
-				//addConvexPolygon(5, 0.15, { x, y }, 10);
+				//std::vector<vec2> pts = { {0, 0}, {0.7, 0}, {0.7, 0.07}, {0, 0.07} };
+				//addConvexPolygon(pts, { x, y }, 10);
+				addConvexPolygon(5, 0.15, { x, y }, 10);
 			}
 			else
 			{
@@ -74,17 +74,16 @@ Game::Game():
 	//rigidBodies[s - 2]->setCollidables(0b0000000000000001);
 	//rigidBodies[s - 3]->setCollidables(0b0000000000000001);
 
-	// TODO: purely damping constraint (esp. angular)
 	// TODO: function to set up a chain
 	// TODO: function to set up a soft body using soft constraints
 	// TODO: continuous collision
 	// TODO: chain shape equivalent
 	// TODO: setup mass based on density
 	// TODO: test springy zero-distance constraint
-	// TODO: add motors
 	// TODO: 2x2 peg constraint
+	// TODO: on-screen display
 
-	int nLinks = 50;
+	int nLinks = 20;
 	real linkWidth = 0.06;
 	real linkLength = 0.07*2;
 	real x0 = 1, y0 = 1;
@@ -291,6 +290,8 @@ void Game::run()
 		{
 			tree.draw(window, ps.pixPerUnit);
 		}
+
+		showStats(dt);
 
 		window.display();
 	}
@@ -531,6 +532,25 @@ void Game::removeMouseConstraint()
 		mc->markForRemoval();
 		mc = nullptr;
 	}
+}
+
+void Game::showStats(real frameTime)
+{
+	text.setCharacterSize(30);
+	text.setFillColor(sf::Color::Blue);
+
+	std::stringstream ss;
+	ss << "FPS: " << std::fixed << std::setprecision(0) << 1. / frameTime << '\n'
+		<< "Rigid bodies: " << rigidBodies.size() << '\n'
+		<< "Constraints: " << constraints.size() << '\n'
+		<< "Collisions: " << collidingPairs.size() << '\n'
+		<< "Physics frequency: " << 1. / ps.dt << " Hz" << '\n'
+		<< "Velocity iterations: " << ps.velIter << '\n'
+		<< "Position iterations: " << ps.posIter << '\n';
+
+	text.setString(ss.str());
+	text.setPosition(0, 0);
+	window.draw(text);
 }
 
 ConvexPolygon* Game::addConvexPolygon(int nsides, real len, vec2 coords, real mInv)

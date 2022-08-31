@@ -53,6 +53,8 @@ private:
 	void setupMouseConstraint();
 	void removeMouseConstraint();
 
+	void showStats(real frameTime);
+
 	ConvexPolygon* addConvexPolygon(int nsides, real len, vec2 coords = {0, 0}, real mInv = 0);
 	ConvexPolygon* addConvexPolygon(const std::vector<vec2>& points, vec2 coords = { 0, 0 }, real mInv = 0);
 	Circle* addCircle(real rad, vec2 coords = { 0, 0 }, real mInv = 0);
