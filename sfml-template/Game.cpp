@@ -55,7 +55,11 @@ Game::Game():
 		}
 	}
 
-	addChain(20, 0.07, 0.15, { 1, 1 }, 10, pi/4);
+	//addChain(20, 0.07, 0.15, { 1, 1 }, 10, pi/4);
+
+	addSoftBody({ 1, 1 }, 12, 12, 0.1, 0.1, 0.045, 100, 0.06, 1);
+	addSoftBody({ 6, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
+
 
 	//int s = rigidBodies.size();
 	//auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
@@ -72,7 +76,6 @@ Game::Game():
 	//rigidBodies[s - 2]->setCollidables(0b0000000000000001);
 	//rigidBodies[s - 3]->setCollidables(0b0000000000000001);
 
-	// TODO: function to set up a soft body using soft constraints
 	// TODO: continuous collision
 	// TODO: chain shape equivalent
 	// TODO: setup mass based on density
@@ -125,10 +128,12 @@ Game::Game():
 	////c3->makeSpringy(.5f, .1f);
 	////c3->setRange(-pi / 4, pi / 4);
 	////constraints.push_back(std::move(c3));
-
 	//addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();
 
-	addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
+
+
+
+	/*addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
 	auto circ1 = addCircle(1, pixToCoords(pixWidth * 0.25, pixHeight * 0.75));
 	auto circ2 = addCircle(1, pixToCoords(pixWidth * 0.75, pixHeight * 0.75));
 
@@ -136,7 +141,7 @@ Game::Game():
 	circ1->setIInv(1);
 	auto c = std::make_unique<AngleConstraint>(circ1, circ2, 0., ps);
 	c->enableMotor(6*pi, 1000);
-	constraints.push_back(std::move(c));
+	constraints.push_back(std::move(c));*/
 
 	//addCircle(0.5, { 3,3 }, 2);
 }
@@ -476,7 +481,7 @@ void Game::setupMouseConstraint()
 			if (rb->pointInside(mh.coords()))
 			{
 				vec2 local = { 0,0 };
-				real fMax = 200.f; // / rb->mInv();
+				real fMax = 100.f; // / rb->mInv();
 
 				// TODO: Consider force/acceleration limit & contact breaking
 				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .05f, 4.f, fMax);
@@ -580,6 +585,172 @@ void Game::addChain(int nLinks, real linkWidth, real linkLength, vec2 start, rea
 		auto c = std::make_unique<DistanceConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), 0., ps);
 		constraints.push_back(std::move(c));
 	}
+}
+
+void Game::addSoftBody(vec2 minVertex, int nx, int ny, real xSpace, real ySpace, real particleRad, real particlemInv, real tOsc, real dampingRatio)
+{
+	std::vector<std::vector<Circle*>> particles;
+
+	real frac = 0.1;
+
+	for (int j = 0; j < ny; ++j)
+	{
+		particles.push_back({});
+
+		for (int i = 0; i < nx; ++i)
+		{
+			vec2 coords(minVertex.x + xSpace * i, minVertex.y + ySpace * j);
+			Circle* c = addCircle(particleRad, coords, particlemInv);
+			c->setIInv(0);
+
+			//c->setCollType(0b0000000000000010);
+			//c->setCollidables(0b0000000000000001);
+
+			particles[j].push_back(c);
+
+			// TODO: helper functions for adding constraints
+			if (i > 0)
+			{
+				Circle* left = particles[j][i - 1];
+				
+				auto constraint = std::make_unique<DistanceConstraint>(c, left, vec2{}, vec2{}, xSpace, ps);
+				constraint->makeSpringy(tOsc, dampingRatio);
+				constraint->allowFractionalChange(frac);
+				constraints.push_back(std::move(constraint));
+			}
+
+			if (j > 0)
+			{
+				Circle* above = particles[j-1][i];
+
+				auto constraint = std::make_unique<DistanceConstraint>(c, above, vec2{}, vec2{}, ySpace, ps);
+				constraint->makeSpringy(tOsc, dampingRatio);
+
+				constraint->allowFractionalChange(frac);
+
+				constraints.push_back(std::move(constraint));
+			}
+
+
+			//auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
+			
+		}
+	}
+
+
+
+	real diagonalDist = std::sqrt(xSpace * xSpace + ySpace * ySpace);
+
+	for (int j = 0; j < ny; ++j)
+	{
+		for (int i = 0; i < nx; ++i)
+		{
+			Circle* c = particles[j][i];
+
+			if (i > 0 && j > 0)
+			{
+				Circle* aboveLeft = particles[j - 1][i - 1];
+
+				auto constraint = std::make_unique<DistanceConstraint>(c, aboveLeft, vec2{}, vec2{}, diagonalDist, ps);
+				constraint->makeSpringy(tOsc, dampingRatio);
+
+
+				constraint->allowFractionalChange(frac);
+
+				constraints.push_back(std::move(constraint));
+			}
+			
+			if (i < nx - 1 && j > 0)
+			{
+				Circle* aboveRight = particles[j - 1][i + 1];
+
+				auto constraint = std::make_unique<DistanceConstraint>(c, aboveRight, vec2{}, vec2{}, diagonalDist, ps);
+				constraint->makeSpringy(tOsc, dampingRatio);
+
+				constraint->allowFractionalChange(frac);
+
+				constraints.push_back(std::move(constraint));
+			}
+
+			if (i > 0 && j < ny - 1)
+			{
+				Circle* belowLeft = particles[j + 1][i - 1];
+
+				auto constraint = std::make_unique<DistanceConstraint>(c, belowLeft, vec2{}, vec2{}, diagonalDist, ps);
+				constraint->makeSpringy(tOsc, dampingRatio);
+
+
+				constraint->allowFractionalChange(frac);
+
+				constraints.push_back(std::move(constraint));
+			}
+
+			if (i < nx - 1 && j < ny - 1)
+			{
+				Circle* belowRight = particles[j + 1][i + 1];
+
+				auto constraint = std::make_unique<DistanceConstraint>(c, belowRight, vec2{}, vec2{}, diagonalDist, ps);
+				constraint->makeSpringy(tOsc, dampingRatio);
+
+				constraint->allowFractionalChange(frac);
+
+				constraints.push_back(std::move(constraint));
+			}
+		}
+	}
+
+	/*real diagonalDist = std::sqrt(xSpace * xSpace + ySpace * ySpace);
+
+	for (int tot = 0; tot < ny; ++tot)
+	{
+		int j = tot, i = 0;
+		Circle* first = particles[j][i];
+		Circle* second = nullptr;
+
+		while (--j >= 0)
+		{
+			++i;
+
+			second = particles[j][i];
+
+			auto constraint = std::make_unique<DistanceConstraint>(first, second, vec2{}, vec2{}, diagonalDist, ps);
+			constraints.push_back(std::move(constraint));
+
+			first = second;
+		}
+	}*/
+
+
+	/*for (int j = 1; j < ny-1; ++j)
+	{
+		for (int i = 1; i < nx-1; ++i)
+		{
+			Circle* c = particles[j][i];
+
+			Circle* aboveLeft = particles[j - 1][i - 1];
+			Circle* aboveRight = particles[j - 1][i + 1];
+			Circle* belowLeft = particles[j + 1][i - 1];
+			Circle* belowRight = particles[j + 1][i + 1];
+
+			real diagonalDist = std::sqrt(xSpace * xSpace + ySpace * ySpace);
+
+			auto constraint = std::make_unique<DistanceConstraint>(c, aboveLeft, vec2{}, vec2{}, diagonalDist, ps);
+			constraint->makeSpringy(tOsc, dampingRatio);
+			constraints.push_back(std::move(constraint));
+
+			constraint = std::make_unique<DistanceConstraint>(c, aboveRight, vec2{}, vec2{}, diagonalDist, ps);
+			constraint->makeSpringy(tOsc, dampingRatio);
+			constraints.push_back(std::move(constraint));
+
+			constraint = std::make_unique<DistanceConstraint>(c, belowLeft, vec2{}, vec2{}, diagonalDist, ps);
+			constraint->makeSpringy(tOsc, dampingRatio);
+			constraints.push_back(std::move(constraint));
+
+			constraint = std::make_unique<DistanceConstraint>(c, belowRight, vec2{}, vec2{}, diagonalDist, ps);
+			constraint->makeSpringy(tOsc, dampingRatio);
+			constraints.push_back(std::move(constraint));
+		}
+	}*/
 }
 
 void Game::addToAABBTree(RigidBody* rb)

@@ -75,6 +75,11 @@ void TwoBodyConstraint::setRange(real small, real large)
 	Cmax = large;
 }
 
+void TwoBodyConstraint::allowFractionalChange(real frac)
+{
+	setRange(C0 * (1 - frac), C0 * (1 + frac));
+}
+
 void TwoBodyConstraint::removeLimits()
 {
 	isLimited = false;

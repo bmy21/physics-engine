@@ -58,7 +58,10 @@ private:
 	ConvexPolygon* addConvexPolygon(int nsides, real len, vec2 coords = {0, 0}, real mInv = 0);
 	ConvexPolygon* addConvexPolygon(const std::vector<vec2>& points, vec2 coords = { 0, 0 }, real mInv = 0);
 	Circle* addCircle(real rad, vec2 coords = { 0, 0 }, real mInv = 0);
+	
 	void addChain(int nLinks, real linkWidth, real linkLength, vec2 start = { 0, 0 }, real linkmInv = 0, real angle = 0);
+	void addSoftBody(vec2 minVertex, int nx, int ny, real xSpace, real ySpace, real particleRad, real particlemInv, real tOsc, real dampingRatio);
+
 	void addToAABBTree(RigidBody* rb);
 
 	vec2 pixToCoords(real xPix, real yPix) const;

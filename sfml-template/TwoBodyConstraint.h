@@ -16,6 +16,7 @@ public:
 
 	void setTarget(real t);
 	void setRange(real small, real large);
+	void allowFractionalChange(real frac);
 	void removeLimits();
 
 	void correctVel() override;
