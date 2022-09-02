@@ -18,12 +18,12 @@ DistanceConstraint::DistanceConstraint(RigidBody* rb1, RigidBody* rb2, const vec
 void DistanceConstraint::draw(sf::RenderWindow& window, real fraction)
 {
 	real halfLengthPix = 6;
-	real thickness = 2;
+	real thickness = 1;
 
 	vec2 p1 = rb1->pointToGlobal(localPoint1) * ps.pixPerUnit;
 	vec2 p2 = rb2->pointToGlobal(localPoint2) * ps.pixPerUnit;
 
-	drawThickLine(window, p1, p2, thickness, sf::Color::Red);
+	drawThickLine(window, p1, p2, thickness, sf::Color::Black);
 }
 
 void DistanceConstraint::updateCachedData()

@@ -12,6 +12,7 @@
 #include "MouseHandler.h"
 #include "PhysicsSettings.h"
 #include "AABBTree.h"
+#include "PinConstraint.h"
 
 class Game
 {

@@ -92,6 +92,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\external\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,6 +112,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\external\sfml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,11 +169,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MouseConstraint.cpp" />
     <ClCompile Include="MouseHandler.cpp" />
+    <ClCompile Include="PinConstraint.cpp" />
     <ClCompile Include="PolyCircleContact.cpp" />
     <ClCompile Include="PolyPolyContact.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="Simplex.cpp" />
-    <ClCompile Include="SoftDistanceConstraint.cpp" />
     <ClCompile Include="TwoBodyConstraint.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vertex.cpp" />
@@ -193,11 +195,11 @@
     <ClInclude Include="MouseConstraint.h" />
     <ClInclude Include="MouseHandler.h" />
     <ClInclude Include="PhysicsSettings.h" />
+    <ClInclude Include="PinConstraint.h" />
     <ClInclude Include="PolyCircleContact.h" />
     <ClInclude Include="PolyPolyContact.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="Simplex.h" />
-    <ClInclude Include="SoftDistanceConstraint.h" />
     <ClInclude Include="TwoBodyConstraint.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vertex.h" />

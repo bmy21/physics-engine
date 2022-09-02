@@ -55,10 +55,14 @@ Game::Game():
 		}
 	}
 
-	//addChain(20, 0.07, 0.15, { 1, 1 }, 10, pi/4);
+	addChain(100, 0.07, 0.15, { 1, 1 }, 50, pi/4);
 
-	addSoftBody({ 1, 1 }, 12, 12, 0.1, 0.1, 0.045, 100, 0.06, 1);
+	//addChain(2, 0.07 * 5, 0.15 * 5, { 1, 1 }, 10, 0);
+
+	//addSoftBody({ 1, 1 }, 12, 12, 0.1, 0.1, 0.0475, 100, 0.06, 1);
 	addSoftBody({ 6, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
+
+	// TODO: zero friction / restitution for soft body particles?
 
 
 	//int s = rigidBodies.size();
@@ -78,9 +82,8 @@ Game::Game():
 
 	// TODO: continuous collision
 	// TODO: chain shape equivalent
-	// TODO: setup mass based on density
+	// TODO: setup mass based on density?
 	// TODO: test springy zero-distance constraint
-	// TODO: 2x2 peg constraint
 	// TODO: compound RigidBody made of multiple shapes
 
 	
@@ -158,7 +161,7 @@ void Game::run()
 	{
 		dt = frameTimer.restart().asSeconds() / 1;
 
-		std::cout << 1 / dt << "\n";
+		//std::cout << 1 / dt << "\n";
 
 		// Don't try to simulate too much time 
 		if (dt > dtMax)
@@ -242,9 +245,12 @@ void Game::run()
 			rb->draw(window, fraction, false, &text);
 		}
 
-		for (auto& c : constraints)
+		if (ps.showConstraints)
 		{
-			c->draw(window, fraction);
+			for (auto& c : constraints)
+			{
+				c->draw(window, fraction);
+			}
 		}
 
 		if (ps.showContactConstraints)
@@ -507,13 +513,13 @@ void Game::removeMouseConstraint()
 void Game::showStats(real frameTime)
 {
 	text.setCharacterSize(30);
-	text.setFillColor(sf::Color::Blue);
+	text.setFillColor(sf::Color::Black);
 
 	std::stringstream ss;
 	ss << "FPS: " << std::fixed << std::setprecision(0) << 1. / frameTime << '\n'
 		<< "Rigid bodies: " << rigidBodies.size() << '\n'
 		<< "Constraints: " << constraints.size() << '\n'
-		<< "Collisions: " << collidingPairs.size() << '\n'
+		<< "Contact constraints: " << collidingPairs.size() << '\n'
 		<< "Physics frequency: " << 1. / ps.dt << " Hz" << '\n'
 		<< "Velocity iterations: " << ps.velIter << '\n'
 		<< "Position iterations: " << ps.posIter << '\n';
@@ -582,7 +588,10 @@ void Game::addChain(int nLinks, real linkWidth, real linkLength, vec2 start, rea
 		if (i == 0) continue;
 
 		int s = rigidBodies.size();
-		auto c = std::make_unique<DistanceConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), 0., ps);
+		
+
+		auto c = std::make_unique<PinConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), ps);
+		//auto c = std::make_unique<DistanceConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), 0., ps);
 		constraints.push_back(std::move(c));
 	}
 }
