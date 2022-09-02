@@ -177,6 +177,7 @@
     <ClCompile Include="TwoBodyConstraint.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vertex.cpp" />
+    <ClCompile Include="WeldConstraint.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
@@ -203,6 +204,7 @@
     <ClInclude Include="TwoBodyConstraint.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="WeldConstraint.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

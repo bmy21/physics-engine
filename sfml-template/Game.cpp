@@ -55,14 +55,21 @@ Game::Game():
 		}
 	}
 
-	addChain(100, 0.07, 0.15, { 1, 1 }, 50, pi/4);
+	//addChain(100, 0.07, 0.15, { 1, 1 }, 50, 0);
 
-	//addChain(2, 0.07 * 5, 0.15 * 5, { 1, 1 }, 10, 0);
+	addChain(10, 0.07, 0.3, { 1, 1 }, 10, 0);
 
 	//addSoftBody({ 1, 1 }, 12, 12, 0.1, 0.1, 0.0475, 100, 0.06, 1);
-	addSoftBody({ 6, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
+	// 
+	//addSoftBody({ 6, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
+	//addSoftBody({ 10, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
 
 	// TODO: zero friction / restitution for soft body particles?
+	// TODO: continuous collision
+	// TODO: chain shape equivalent
+	// TODO: setup mass based on density?
+	// TODO: test springy zero-distance constraint
+	// TODO: compound RigidBody made of multiple shapes
 
 
 	//int s = rigidBodies.size();
@@ -80,13 +87,6 @@ Game::Game():
 	//rigidBodies[s - 2]->setCollidables(0b0000000000000001);
 	//rigidBodies[s - 3]->setCollidables(0b0000000000000001);
 
-	// TODO: continuous collision
-	// TODO: chain shape equivalent
-	// TODO: setup mass based on density?
-	// TODO: test springy zero-distance constraint
-	// TODO: compound RigidBody made of multiple shapes
-
-	
 
 	/*real rad = 0.3;
 	addCircle(rad, { x0 + (nLinks - 1) * linkLength, y0 }, 1);
@@ -592,6 +592,7 @@ void Game::addChain(int nLinks, real linkWidth, real linkLength, vec2 start, rea
 
 		auto c = std::make_unique<PinConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), ps);
 		//auto c = std::make_unique<DistanceConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), 0., ps);
+		//auto c = std::make_unique<WeldConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), pi/5, ps);
 		constraints.push_back(std::move(c));
 	}
 }
@@ -611,6 +612,7 @@ void Game::addSoftBody(vec2 minVertex, int nx, int ny, real xSpace, real ySpace,
 			vec2 coords(minVertex.x + xSpace * i, minVertex.y + ySpace * j);
 			Circle* c = addCircle(particleRad, coords, particlemInv);
 			c->setIInv(0);
+			c->hideOrientationLine();
 
 			//c->setCollType(0b0000000000000010);
 			//c->setCollidables(0b0000000000000001);

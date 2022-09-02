@@ -26,6 +26,9 @@ public:
 	real radius() const { return rad; }
 	vec2 furthestPoint(const vec2& d) const;
 
+	void showOrientationLine() { shouldDrawLine = true; }
+	void hideOrientationLine() { shouldDrawLine = false; }
+
 private:
 	void initShape();
 
@@ -33,6 +36,7 @@ private:
 
 	sf::CircleShape shape;
 
+	bool shouldDrawLine = true;
 	real lineThicknessPix = 1;
 	sf::RectangleShape line;
 };

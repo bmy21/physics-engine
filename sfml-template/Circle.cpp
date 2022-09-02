@@ -23,9 +23,12 @@ void Circle::draw(sf::RenderWindow& window, real fraction, bool debug, sf::Text*
 	 
 	window.draw(shape);
 
-	line.setPosition(ipos.x, ipos.y);
-	line.setRotation(itheta * 180 / pi);
-	window.draw(line);
+	if (shouldDrawLine)
+	{
+		line.setPosition(ipos.x, ipos.y);
+		line.setRotation(itheta * 180 / pi);
+		window.draw(line);
+	}
 }
 
 std::unique_ptr<ContactConstraint> Circle::checkCollision(ConvexPolygon* other)

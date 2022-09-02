@@ -13,6 +13,7 @@
 #include "PhysicsSettings.h"
 #include "AABBTree.h"
 #include "PinConstraint.h"
+#include "WeldConstraint.h"
 
 class Game
 {
