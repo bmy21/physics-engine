@@ -173,6 +173,7 @@
     <ClCompile Include="PolyCircleContact.cpp" />
     <ClCompile Include="PolyPolyContact.cpp" />
     <ClCompile Include="RigidBody.cpp" />
+    <ClCompile Include="SimpleContactConstraint.cpp" />
     <ClCompile Include="Simplex.cpp" />
     <ClCompile Include="TwoBodyConstraint.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="PolyCircleContact.h" />
     <ClInclude Include="PolyPolyContact.h" />
     <ClInclude Include="RigidBody.h" />
+    <ClInclude Include="SimpleContactConstraint.h" />
     <ClInclude Include="Simplex.h" />
     <ClInclude Include="TwoBodyConstraint.h" />
     <ClInclude Include="Utils.h" />

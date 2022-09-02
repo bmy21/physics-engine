@@ -1,9 +1,9 @@
 #pragma once
-#include "ContactConstraint.h"
+#include "SimpleContactConstraint.h"
 #include "ContactPoint.h"
 #include "Circle.h"
 
-class CircleCircleContact : public ContactConstraint
+class CircleCircleContact : public SimpleContactConstraint
 {
 public:
 	CircleCircleContact(Circle* c1, Circle* c2, const PhysicsSettings& ps);
