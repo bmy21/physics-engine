@@ -4,7 +4,7 @@
 
 struct PhysicsSettings
 {
-	real dt = 1.0 / 2000;
+	real dt = 1.0 / 400;
 	
 	bool showConstraints = false;
 	bool showContactConstraints = false;
