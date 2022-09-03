@@ -57,7 +57,54 @@ Game::Game():
 
 	//addChain(100, 0.07, 0.15, { 1, 1 }, 50, 0);
 
-	addChain(60, 0.07, 0.15, { 1, 1 }, 50, 0);
+	addChain(40, 0.07, 0.15, { 5, 1 }, 50, 0);
+
+	vec2 p0 = { 1, 1 };
+	real carWidth = 2, carHeight = 1;
+	ConvexPolygon* body = addConvexPolygon({ {0, 0}, {carWidth, 0}, {carWidth, carHeight}, {0, carHeight} }, p0, 0.5);
+	body->setCollidables(~0b0000000000000100);
+
+	real wRad = 0.3;
+	Circle* wheel1 = addCircle(wRad, p0 + vec2(- carWidth * 0.3, carHeight*0.6) , 4);
+	wheel1->setCollType(0b0000000000000100);
+
+	auto wheelC1 = std::make_unique<LineConstraint>(body, wheel1, body->pointToLocal(wheel1->position()), vec2{ 0, 0 }, vec2{ 0, 1 }, ps);
+	constraints.push_back(std::move(wheelC1));
+
+	vec2 carRefPoint = p0 + vec2(-carWidth * 0.3, 0);
+	auto wheelC2 = std::make_unique<DistanceConstraint>(body, wheel1, body->pointToLocal(carRefPoint), vec2{ 0, 0 }, carHeight * 0.6, ps);
+	wheelC2->makeSpringy(.2, .4);
+	wheelC2->allowFractionalChange(.2);
+		
+	//setRange(carHeight*0.05, 100);
+	constraints.push_back(std::move(wheelC2));
+
+	Circle* wheel2 = addCircle(wRad, p0 + vec2(carWidth * 0.3, carHeight * 0.6), 4);
+	wheel2->setCollType(0b0000000000000100);
+
+	auto wheelC3 = std::make_unique<LineConstraint>(body, wheel2, body->pointToLocal(wheel2->position()), vec2{ 0, 0 }, vec2{ 0, 1 }, ps);
+	constraints.push_back(std::move(wheelC3));
+
+	carRefPoint = p0 + vec2(carWidth * 0.3, 0);
+	auto wheelC4 = std::make_unique<DistanceConstraint>(body, wheel2, body->pointToLocal(carRefPoint), vec2{ 0, 0 }, carHeight * 0.6, ps);
+	wheelC4->makeSpringy(.2, .4);
+	wheelC4->allowFractionalChange(.2);
+	//wheelC4->setRange(carHeight * 0.4, 100);
+	constraints.push_back(std::move(wheelC4));
+
+	auto driveConstraint = std::make_unique<AngleConstraint>(body, wheel2, 0, ps);
+	driveConstraint->enableMotor(-5*pi, 1);
+	constraints.push_back(std::move(driveConstraint));
+
+	auto driveConstraint2 = std::make_unique<AngleConstraint>(body, wheel1, 0, ps);
+	driveConstraint2->enableMotor(-5 * pi, 1);
+	constraints.push_back(std::move(driveConstraint2));
+
+
+	//body->setCollType(0b0000000000000010)
+
+	//rb->setCollType(0b0000000000000010);
+	//rb->setCollidables(0b0000000000000001);
 
 	//addSoftBody({ 1, 1 }, 12, 12, 0.1, 0.1, 0.0475, 100, 0.06, 1);
 	// 
@@ -456,8 +503,6 @@ void Game::handleConstraintRemoval()
 			++it;
 		}
 	}
-
-	//std::cout << constraints.size() << "\n";
 }
 
 void Game::handleRigidBodyRemoval()
@@ -487,7 +532,7 @@ void Game::setupMouseConstraint()
 			if (rb->pointInside(mh.coords()))
 			{
 				vec2 local = { 0,0 };
-				real fMax = 100.f; // / rb->mInv();
+				real fMax = 250.f; // / rb->mInv();
 
 				// TODO: Consider force/acceleration limit & contact breaking
 				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .05f, 4.f, fMax);
@@ -583,7 +628,7 @@ void Game::addChain(int nLinks, real linkWidth, real linkLength, vec2 start, rea
 
 		// TODO: pass in collision types as a parameter?
 		rb->setCollType(0b0000000000000010);
-		rb->setCollidables(0b0000000000000001);
+		rb->setCollidables(~0b0000000000000010);
 
 		if (i == 0) continue;
 
@@ -599,6 +644,8 @@ void Game::addChain(int nLinks, real linkWidth, real linkLength, vec2 start, rea
 
 void Game::addSoftBody(vec2 minVertex, int nx, int ny, real xSpace, real ySpace, real particleRad, real particlemInv, real tOsc, real dampingRatio)
 {
+	// TODO: reduce code duplication in this function!
+
 	std::vector<std::vector<Circle*>> particles;
 
 	real frac = 0.1;
@@ -641,10 +688,6 @@ void Game::addSoftBody(vec2 minVertex, int nx, int ny, real xSpace, real ySpace,
 
 				constraints.push_back(std::move(constraint));
 			}
-
-
-			//auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
-			
 		}
 	}
 

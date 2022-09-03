@@ -29,7 +29,7 @@ struct PhysicsSettings
 
 	real grav = 12;
 
-	real muDefault = 0.2;
+	real muDefault = 0.4;
 	real eDefault = 0.2;
 
 	real aabbFattening = 0.1;

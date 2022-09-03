@@ -123,6 +123,7 @@ void TwoBodyConstraint::correctVel()
 
 		// Only allow the impulse if it would push away (i.e. is positive)
 		dLambda = std::max(accLower + dLambda, static_cast<real>(0)) - accLower;
+		accLower += dLambda;
 		applyImpulse(dLambda);
 	
 
@@ -137,7 +138,8 @@ void TwoBodyConstraint::correctVel()
 		dLambda = (targetVel - getvDotGradC()) / massFactor;
 
 		// Upper impulse must push in the opposite direction (i.e. is negative)
-		dLambda = std::min(accLower + dLambda, static_cast<real>(0)) - accLower;
+		dLambda = std::min(accUpper + dLambda, static_cast<real>(0)) - accUpper;
+		accUpper += dLambda;
 		applyImpulse(dLambda);
 	}
 }
