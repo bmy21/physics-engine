@@ -55,8 +55,6 @@ Game::Game():
 		}
 	}
 
-	//addChain(100, 0.07, 0.15, { 1, 1 }, 50, 0);
-
 	addChain(40, 0.07, 0.15, { 5, 1 }, 50, 0);
 
 
@@ -71,7 +69,7 @@ Game::Game():
 	cd.suspFracChange = 0.25;
 
 	cd.targetAngVel = -5 * pi;
-	cd.maxTorque = 10;
+	cd.maxTorque = 100;
 
 	cd.wheelRad = { 0.5, 0.5 };
 	cd.wheelmInv = { 4, 4 };
@@ -84,14 +82,11 @@ Game::Game():
 
 	addCar(cd, { 1, 1 });
 
-	//body->setCollType(0b0000000000000010)
-
-	//rb->setCollType(0b0000000000000010);
-	//rb->setCollidables(0b0000000000000001);
-
 	//addSoftBody({ 10, 1 }, 12, 12, 0.1, 0.1, 0.0475, 100, 0.06, 1); 
+
 	
-	addSoftBody({ 10, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
+	//addSoftBody({ 10, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
+
 
 	//addSoftBody({ 10, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
 
@@ -101,67 +96,6 @@ Game::Game():
 	// TODO: setup mass based on density?
 	// TODO: compound RigidBody made of multiple shapes
 
-
-	//int s = rigidBodies.size();
-	//auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
-	//c1->makeSpringy(.1f, .3f);
-	//constraints.push_back(std::move(c1));
-	//auto c2 = std::make_unique<DistanceConstraint>(rigidBodies[s - 2].get(), rigidBodies[s - 3].get(), vec2(0.35, 0), vec2(-0.35, 0), 0., ps);
-	//c1->makeSpringy(.1f, .3f);
-	//constraints.push_back(std::move(c2));
-
-	//rigidBodies[s - 1]->setCollType(0b0000000000000010);
-	//rigidBodies[s - 2]->setCollType(0b0000000000000010);
-	//rigidBodies[s - 3]->setCollType(0b0000000000000010);
-	//rigidBodies[s - 1]->setCollidables(0b0000000000000001);
-	//rigidBodies[s - 2]->setCollidables(0b0000000000000001);
-	//rigidBodies[s - 3]->setCollidables(0b0000000000000001);
-
-
-	/*real rad = 0.3;
-	addCircle(rad, { x0 + (nLinks - 1) * linkLength, y0 }, 1);
-	int s = rigidBodies.size();
-
-	auto c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-rad, 0), vec2(linkLength / 2, 0), 0., ps);
-	constraints.push_back(std::move(c));
-
-	auto c2 = std::make_unique<LineConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), vec2(-1, 0), ps);
-	constraints.push_back(std::move(c2));
-
-	auto c3 = std::make_unique<AngleConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), static_cast<real>(0), ps);
-	constraints.push_back(std::move(c3));*/
-
-	// TODO: auto-initialization of direction & angle difference?
-
-	////auto c1 = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-0.35, 0), vec2(-0.35, 0), 0.7, ps);
-	////c1->makeSpringy(.1f, .3f);
-	////c1->setRange(0.2, 0.8);
-	////constraints.push_back(std::move(c1));
-
-	////auto c1b = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.7, 0.035), vec2(0.7, 0.035), 0.7, ps, true);
-	////c1b->makeSpringy(.1f, .3f);
-	////c1b->setRange(0.2, 0.8);
-	////constraints.push_back(std::move(c1b));
-
-	////auto c1c = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0.35, 0), vec2(-0.35, 0), 0.7, ps);
-	////c1c->makeSpringy(.1f, .3f);
-	//////c1c->setRange(0.2, 0.8);
-	////constraints.push_back(std::move(c1c));
-
-	////auto c1d = std::make_unique<DistanceConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(-0.35, 0), vec2(0.35, 0), 0.7, ps);
-	////c1d->makeSpringy(.1f, .3f);
-	//////c1d->setRange(0.2, 0.8);
-	////constraints.push_back(std::move(c1d));
-
-
-	//auto c2 = std::make_unique<LineConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), vec2(0, 0), vec2(0, 0), vec2(0, -1), ps);
-	////constraints.push_back(std::move(c2));
-
-	//auto c3 = std::make_unique<AngleConstraint>(rigidBodies[s - 1].get(), rigidBodies[s - 2].get(), static_cast<real>(0), ps);
-	////c3->makeSpringy(.5f, .1f);
-	////c3->setRange(-pi / 4, pi / 4);
-	////constraints.push_back(std::move(c3));
-	//addConvexPolygon(4, 2, { w / 2, h / 2 })->setAsUnremovable();
 
 
 
@@ -619,8 +553,6 @@ void Game::addChain(int nLinks, real linkWidth, real linkLength, vec2 start, rea
 		
 
 		auto c = std::make_unique<PinConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), ps);
-		//auto c = std::make_unique<DistanceConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), 0., ps);
-		//auto c = std::make_unique<WeldConstraint>(rb, rigidBodies[s - 2].get(), vec2(-linkLength / 2, 0), vec2(linkLength / 2, 0), pi/5, ps);
 		constraints.push_back(std::move(c));
 	}
 }
