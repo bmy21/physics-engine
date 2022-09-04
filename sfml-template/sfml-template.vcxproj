@@ -183,6 +183,7 @@
     <ClInclude Include="AABB.h" />
     <ClInclude Include="AABBTree.h" />
     <ClInclude Include="AngleConstraint.h" />
+    <ClInclude Include="CarDefinition.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="CircleCircleContact.h" />
     <ClInclude Include="Constraint.h" />

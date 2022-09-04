@@ -33,8 +33,8 @@ Game::Game():
 	addConvexPolygon(4, h*scale, { w + h*scale / 2, h / 2})->setAsUnremovable();
 	addConvexPolygon(4, h*scale, { - h*scale / 2, h / 2 })->setAsUnremovable();
 
-	int n = 0;
-	int m = 0;
+	int n = 0;// 50;
+	int m = 6;
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < m; ++j)
@@ -42,15 +42,15 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 
-			if (0)//rand() % 2 == 0)
+			if (1)//rand() % 2 == 0)
 			{
 				//std::vector<vec2> pts = { {0, 0}, {0.7, 0}, {0.7, 0.07}, {0, 0.07} };
 				//addConvexPolygon(pts, { x, y }, 10);
-				addConvexPolygon(5, 0.15, { x, y }, 10);
+				addConvexPolygon(5, 0.14, { x, y }, 50);
 			}
 			else
 			{
-				addCircle(0.15, { x, y }, 10);
+				addCircle(0.1, { x, y }, 10);
 			}
 		}
 	}
@@ -59,63 +59,46 @@ Game::Game():
 
 	addChain(40, 0.07, 0.15, { 5, 1 }, 50, 0);
 
-	vec2 p0 = { 1, 1 };
-	real carWidth = 2, carHeight = 1;
-	ConvexPolygon* body = addConvexPolygon({ {0, 0}, {carWidth, 0}, {carWidth, carHeight}, {0, carHeight} }, p0, 0.5);
-	body->setCollidables(~0b0000000000000100);
 
-	real wRad = 0.3;
-	Circle* wheel1 = addCircle(wRad, p0 + vec2(- carWidth * 0.3, carHeight*0.6) , 4);
-	wheel1->setCollType(0b0000000000000100);
+	CarDefinition cd;
+	cd.bodyWidth = 3;
+	cd.bodyHeight = 1;
 
-	auto wheelC1 = std::make_unique<LineConstraint>(body, wheel1, body->pointToLocal(wheel1->position()), vec2{ 0, 0 }, vec2{ 0, 1 }, ps);
-	constraints.push_back(std::move(wheelC1));
+	cd.bodymInv = 0.2;
 
-	vec2 carRefPoint = p0 + vec2(-carWidth * 0.3, 0);
-	auto wheelC2 = std::make_unique<DistanceConstraint>(body, wheel1, body->pointToLocal(carRefPoint), vec2{ 0, 0 }, carHeight * 0.6, ps);
-	wheelC2->makeSpringy(.2, .4);
-	wheelC2->allowFractionalChange(.2);
-		
-	//setRange(carHeight*0.05, 100);
-	constraints.push_back(std::move(wheelC2));
+	cd.susptOsc = 0.1;
+	cd.suspDamp = 0.5;
+	cd.suspFracChange = 0.25;
 
-	Circle* wheel2 = addCircle(wRad, p0 + vec2(carWidth * 0.3, carHeight * 0.6), 4);
-	wheel2->setCollType(0b0000000000000100);
+	cd.targetAngVel = -5 * pi;
+	cd.maxTorque = 10;
 
-	auto wheelC3 = std::make_unique<LineConstraint>(body, wheel2, body->pointToLocal(wheel2->position()), vec2{ 0, 0 }, vec2{ 0, 1 }, ps);
-	constraints.push_back(std::move(wheelC3));
+	cd.wheelRad = { 0.5, 0.5 };
+	cd.wheelmInv = { 4, 4 };
 
-	carRefPoint = p0 + vec2(carWidth * 0.3, 0);
-	auto wheelC4 = std::make_unique<DistanceConstraint>(body, wheel2, body->pointToLocal(carRefPoint), vec2{ 0, 0 }, carHeight * 0.6, ps);
-	wheelC4->makeSpringy(.2, .4);
-	wheelC4->allowFractionalChange(.2);
-	//wheelC4->setRange(carHeight * 0.4, 100);
-	constraints.push_back(std::move(wheelC4));
+	cd.wheelPos.emplace_back( -cd.bodyWidth * 0.3, cd.bodyHeight * 0.6);
+	cd.suspTop.emplace_back(-cd.bodyWidth * 0.3, 0);
 
-	auto driveConstraint = std::make_unique<AngleConstraint>(body, wheel2, 0, ps);
-	driveConstraint->enableMotor(-5*pi, 1);
-	constraints.push_back(std::move(driveConstraint));
+	cd.wheelPos.emplace_back( +cd.bodyWidth * 0.3, cd.bodyHeight * 0.6);
+	cd.suspTop.emplace_back( +cd.bodyWidth * 0.3, 0);
 
-	auto driveConstraint2 = std::make_unique<AngleConstraint>(body, wheel1, 0, ps);
-	driveConstraint2->enableMotor(-5 * pi, 1);
-	constraints.push_back(std::move(driveConstraint2));
-
+	addCar(cd, { 1, 1 });
 
 	//body->setCollType(0b0000000000000010)
 
 	//rb->setCollType(0b0000000000000010);
 	//rb->setCollidables(0b0000000000000001);
 
-	//addSoftBody({ 1, 1 }, 12, 12, 0.1, 0.1, 0.0475, 100, 0.06, 1);
-	// 
-	//addSoftBody({ 6, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
+	//addSoftBody({ 10, 1 }, 12, 12, 0.1, 0.1, 0.0475, 100, 0.06, 1); 
+	
+	addSoftBody({ 10, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
+
 	//addSoftBody({ 10, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
 
 	// TODO: zero friction / restitution for soft body particles?
 	// TODO: continuous collision
 	// TODO: chain shape equivalent
 	// TODO: setup mass based on density?
-	// TODO: test springy zero-distance constraint
 	// TODO: compound RigidBody made of multiple shapes
 
 
@@ -531,11 +514,11 @@ void Game::setupMouseConstraint()
 		{
 			if (rb->pointInside(mh.coords()))
 			{
-				vec2 local = { 0,0 };
-				real fMax = 250.f; // / rb->mInv();
+				vec2 local = rb->pointToLocal(mh.coords());// { 0, 0 };
+				real fMax = 150.f; // / rb->mInv();
 
 				// TODO: Consider force/acceleration limit & contact breaking
-				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .05f, 4.f, fMax);
+				auto newMC = std::make_unique<MouseConstraint>(rb, mh, ps, local, .05f, 5.f, fMax);
 				mc = newMC.get();
 
 				constraints.push_back(std::move(newMC));
@@ -644,12 +627,17 @@ void Game::addChain(int nLinks, real linkWidth, real linkLength, vec2 start, rea
 
 void Game::addSoftBody(vec2 minVertex, int nx, int ny, real xSpace, real ySpace, real particleRad, real particlemInv, real tOsc, real dampingRatio)
 {
-	// TODO: reduce code duplication in this function!
-
+	real frac = 0.1;
+	real diagonalDist = std::sqrt(xSpace * xSpace + ySpace * ySpace);
 	std::vector<std::vector<Circle*>> particles;
 
-	real frac = 0.1;
+	auto link = [&](RigidBody* c1, RigidBody* c2, real dist)
+	{
+		addLimitedSpring(c1, c2, vec2{}, vec2{}, dist, tOsc, dampingRatio, frac);
+	};
 
+
+	// Add particles and make horizontal and vertical links
 	for (int j = 0; j < ny; ++j)
 	{
 		particles.push_back({});
@@ -661,40 +649,23 @@ void Game::addSoftBody(vec2 minVertex, int nx, int ny, real xSpace, real ySpace,
 			c->setIInv(0);
 			c->hideOrientationLine();
 
-			//c->setCollType(0b0000000000000010);
-			//c->setCollidables(0b0000000000000001);
-
 			particles[j].push_back(c);
 
-			// TODO: helper functions for adding constraints
 			if (i > 0)
 			{
 				Circle* left = particles[j][i - 1];
-				
-				auto constraint = std::make_unique<DistanceConstraint>(c, left, vec2{}, vec2{}, xSpace, ps);
-				constraint->makeSpringy(tOsc, dampingRatio);
-				constraint->allowFractionalChange(frac);
-				constraints.push_back(std::move(constraint));
+				link(c, left, xSpace);
 			}
 
 			if (j > 0)
 			{
 				Circle* above = particles[j-1][i];
-
-				auto constraint = std::make_unique<DistanceConstraint>(c, above, vec2{}, vec2{}, ySpace, ps);
-				constraint->makeSpringy(tOsc, dampingRatio);
-
-				constraint->allowFractionalChange(frac);
-
-				constraints.push_back(std::move(constraint));
+				link(c, above, ySpace);
 			}
 		}
 	}
-
-
-
-	real diagonalDist = std::sqrt(xSpace * xSpace + ySpace * ySpace);
-
+	
+	// The diagonal links can now be made
 	for (int j = 0; j < ny; ++j)
 	{
 		for (int i = 0; i < nx; ++i)
@@ -704,113 +675,66 @@ void Game::addSoftBody(vec2 minVertex, int nx, int ny, real xSpace, real ySpace,
 			if (i > 0 && j > 0)
 			{
 				Circle* aboveLeft = particles[j - 1][i - 1];
-
-				auto constraint = std::make_unique<DistanceConstraint>(c, aboveLeft, vec2{}, vec2{}, diagonalDist, ps);
-				constraint->makeSpringy(tOsc, dampingRatio);
-
-
-				constraint->allowFractionalChange(frac);
-
-				constraints.push_back(std::move(constraint));
+				link(c, aboveLeft, diagonalDist);
 			}
 			
 			if (i < nx - 1 && j > 0)
 			{
 				Circle* aboveRight = particles[j - 1][i + 1];
-
-				auto constraint = std::make_unique<DistanceConstraint>(c, aboveRight, vec2{}, vec2{}, diagonalDist, ps);
-				constraint->makeSpringy(tOsc, dampingRatio);
-
-				constraint->allowFractionalChange(frac);
-
-				constraints.push_back(std::move(constraint));
+				link(c, aboveRight, diagonalDist);
 			}
 
 			if (i > 0 && j < ny - 1)
 			{
 				Circle* belowLeft = particles[j + 1][i - 1];
-
-				auto constraint = std::make_unique<DistanceConstraint>(c, belowLeft, vec2{}, vec2{}, diagonalDist, ps);
-				constraint->makeSpringy(tOsc, dampingRatio);
-
-
-				constraint->allowFractionalChange(frac);
-
-				constraints.push_back(std::move(constraint));
+				link(c, belowLeft, diagonalDist);
 			}
 
 			if (i < nx - 1 && j < ny - 1)
 			{
 				Circle* belowRight = particles[j + 1][i + 1];
-
-				auto constraint = std::make_unique<DistanceConstraint>(c, belowRight, vec2{}, vec2{}, diagonalDist, ps);
-				constraint->makeSpringy(tOsc, dampingRatio);
-
-				constraint->allowFractionalChange(frac);
-
-				constraints.push_back(std::move(constraint));
+				link(c, belowRight, diagonalDist);
 			}
 		}
 	}
+}
 
-	/*real diagonalDist = std::sqrt(xSpace * xSpace + ySpace * ySpace);
+void Game::addCar(CarDefinition cd, vec2 pos)
+{
+	ConvexPolygon* body = addConvexPolygon({ {0, 0}, {cd.bodyWidth, 0}, {cd.bodyWidth, cd.bodyHeight}, {0, cd.bodyHeight} }, pos, cd.bodymInv);
+	body->setCollidables(~0b0000000000000100);
 
-	for (int tot = 0; tot < ny; ++tot)
+	for (int i = 0; i < cd.wheelPos.size(); ++i)
 	{
-		int j = tot, i = 0;
-		Circle* first = particles[j][i];
-		Circle* second = nullptr;
+		Circle* wheel = addCircle(cd.wheelRad[i], pos + cd.wheelPos[i], cd.wheelmInv[i]);
+		wheel->setCollType(0b0000000000000100);
 
-		while (--j >= 0)
-		{
-			++i;
+		addLimitedSpring(body, wheel, cd.suspTop[i], vec2{ 0, 0 }, magnitude(cd.suspTop[i] - cd.wheelPos[i]), cd.susptOsc, cd.suspDamp, cd.suspFracChange);
 
-			second = particles[j][i];
+		auto lc = std::make_unique<LineConstraint>(body, wheel, body->pointToLocal(wheel->position()), vec2{ 0, 0 }, vec2{ 0, 1 }, ps);
+		constraints.push_back(std::move(lc));
 
-			auto constraint = std::make_unique<DistanceConstraint>(first, second, vec2{}, vec2{}, diagonalDist, ps);
-			constraints.push_back(std::move(constraint));
-
-			first = second;
-		}
-	}*/
-
-
-	/*for (int j = 1; j < ny-1; ++j)
-	{
-		for (int i = 1; i < nx-1; ++i)
-		{
-			Circle* c = particles[j][i];
-
-			Circle* aboveLeft = particles[j - 1][i - 1];
-			Circle* aboveRight = particles[j - 1][i + 1];
-			Circle* belowLeft = particles[j + 1][i - 1];
-			Circle* belowRight = particles[j + 1][i + 1];
-
-			real diagonalDist = std::sqrt(xSpace * xSpace + ySpace * ySpace);
-
-			auto constraint = std::make_unique<DistanceConstraint>(c, aboveLeft, vec2{}, vec2{}, diagonalDist, ps);
-			constraint->makeSpringy(tOsc, dampingRatio);
-			constraints.push_back(std::move(constraint));
-
-			constraint = std::make_unique<DistanceConstraint>(c, aboveRight, vec2{}, vec2{}, diagonalDist, ps);
-			constraint->makeSpringy(tOsc, dampingRatio);
-			constraints.push_back(std::move(constraint));
-
-			constraint = std::make_unique<DistanceConstraint>(c, belowLeft, vec2{}, vec2{}, diagonalDist, ps);
-			constraint->makeSpringy(tOsc, dampingRatio);
-			constraints.push_back(std::move(constraint));
-
-			constraint = std::make_unique<DistanceConstraint>(c, belowRight, vec2{}, vec2{}, diagonalDist, ps);
-			constraint->makeSpringy(tOsc, dampingRatio);
-			constraints.push_back(std::move(constraint));
-		}
-	}*/
+		auto driveConstraint = std::make_unique<AngleConstraint>(body, wheel, 0, ps);
+		driveConstraint->enableMotor(cd.targetAngVel, cd.maxTorque);
+		constraints.push_back(std::move(driveConstraint));
+	}
 }
 
 void Game::addToAABBTree(RigidBody* rb)
 {
 	rb->updateFatAABB();
 	tree.insert(rb);
+}
+
+DistanceConstraint* Game::addLimitedSpring(RigidBody* rb1, RigidBody* rb2, vec2 local1, vec2 local2, real dist, real tOsc, real damping, real frac, bool relativeToRefPoints)
+{
+	auto spring = std::make_unique<DistanceConstraint>(rb1, rb2, local1, local2, dist, ps, relativeToRefPoints);
+	spring->makeSpringy(tOsc, damping);
+	spring->allowFractionalChange(frac);
+
+	DistanceConstraint* rawPointer = spring.get();
+	constraints.push_back(std::move(spring));
+	return rawPointer;
 }
 
 vec2 Game::pixToCoords(real xPix, real yPix) const

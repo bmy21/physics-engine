@@ -14,6 +14,7 @@
 #include "AABBTree.h"
 #include "PinConstraint.h"
 #include "WeldConstraint.h"
+#include "CarDefinition.h"
 
 class Game
 {
@@ -21,7 +22,7 @@ public:
 	Game();
 	void run();
 
-	const int pixWidth = 1920;
+	const int pixWidth = 1920 *1.25;
 	const int pixHeight = 1080;
 
 private:
@@ -63,8 +64,12 @@ private:
 	
 	void addChain(int nLinks, real linkWidth, real linkLength, vec2 start = { 0, 0 }, real linkmInv = 0, real angle = 0);
 	void addSoftBody(vec2 minVertex, int nx, int ny, real xSpace, real ySpace, real particleRad, real particlemInv, real tOsc, real dampingRatio);
+	void addCar(CarDefinition cd, vec2 pos);
 
 	void addToAABBTree(RigidBody* rb);
+
+	DistanceConstraint* addLimitedSpring(RigidBody* rb1, RigidBody* rb2, vec2 local1, vec2 local2, real dist, 
+		real tOsc, real damping, real frac, bool relativeToRefPoints = false);
 
 	vec2 pixToCoords(real xPix, real yPix) const;
 	vec2 pixToCoords(const vec2& pix) const { return pixToCoords(pix.x, pix.y); }
