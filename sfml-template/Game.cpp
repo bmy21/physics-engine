@@ -33,7 +33,7 @@ Game::Game():
 	addConvexPolygon(4, h*scale, { w + h*scale / 2, h / 2})->setAsUnremovable();
 	addConvexPolygon(4, h*scale, { - h*scale / 2, h / 2 })->setAsUnremovable();
 
-	int n = 0;// 50;
+	int n = 50;
 	int m = 6;
 	for (int i = 0; i < n; ++i)
 	{
@@ -42,20 +42,20 @@ Game::Game():
 			real x = w * (i + 1) / (n + 1);
 			real y = h * (j + 1) / (m + 1);
 
-			if (1)//rand() % 2 == 0)
+			if (rand() % 2 == 0)
 			{
 				//std::vector<vec2> pts = { {0, 0}, {0.7, 0}, {0.7, 0.07}, {0, 0.07} };
 				//addConvexPolygon(pts, { x, y }, 10);
-				addConvexPolygon(5, 0.14, { x, y }, 50);
+				addConvexPolygon(5, 0.2, { x, y }, 50);
 			}
 			else
 			{
-				addCircle(0.1, { x, y }, 10);
+				addCircle(0.2, { x, y }, 50);
 			}
 		}
 	}
 
-	addChain(40, 0.07, 0.15, { 5, 1 }, 50, 0);
+	addChain(20, 0.07, 0.22, { 5, 1 }, 50, 0);
 
 
 	CarDefinition cd;
@@ -69,7 +69,7 @@ Game::Game():
 	cd.suspFracChange = 0.25;
 
 	cd.targetAngVel = -5 * pi;
-	cd.maxTorque = 100;
+	cd.maxTorque = 10;
 
 	cd.wheelRad = { 0.5, 0.5 };
 	cd.wheelmInv = { 4, 4 };
@@ -83,21 +83,18 @@ Game::Game():
 	addCar(cd, { 1, 1 });
 
 	//addSoftBody({ 10, 1 }, 12, 12, 0.1, 0.1, 0.0475, 100, 0.06, 1); 
-
 	
+	//addSoftBody({ 10, 1 }, 6, 8, 0.3, 0.3, 0.14, 80, 0.06, 1);
+
 	//addSoftBody({ 10, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
 
 
-	//addSoftBody({ 10, 1 }, 8, 10, 0.3, 0.3, 0.14, 80, 0.06, 1);
 
-	// TODO: zero friction / restitution for soft body particles?
+	// TODO: zero friction / restitution between soft body particles?
 	// TODO: continuous collision
 	// TODO: chain shape equivalent
-	// TODO: setup mass based on density?
+	// TODO: set up mass based on density?
 	// TODO: compound RigidBody made of multiple shapes
-
-
-
 
 
 	/*addCircle(2, pixToCoords(pixWidth * 0.5, pixHeight * 0.75));
